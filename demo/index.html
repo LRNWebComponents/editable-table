@@ -13,6 +13,10 @@
     <link rel="import" href="../editable-table.html">
 
     <style is="custom-style" include="demo-pages-shared-styles">
+      .vertical-section-container { width: 95%; max-width: unset; }
+      editable-table, paper-button[raised] {
+        width: 100%;
+      }
     </style>
   </head>
   <body>
@@ -20,7 +24,17 @@
       <h3>Basic editable-table demo</h3>
       <demo-snippet>
         <template>
-          <editable-table></editable-table>
+          <editable-table id="table1" data-src="taco.json"></editable-table>
+          <p><paper-button onclick="alert(document.getElementById('table1').getData())" raised>Get Data</paper-button></p>
+        </template>
+      </demo-snippet>
+    </div>
+    <div class="vertical-section-container centered">
+      <h3>Editable-table demo, bordered, striped, and condensed</h3>
+      <demo-snippet>
+        <template>
+          <editable-table bordered condensed striped data-src="taco.json" enable-styles></editable-table>
+          <p><paper-button onclick="alert(document.getElementById('table2').getData())" raised>Get Data</paper-button></p>
         </template>
       </demo-snippet>
     </div>

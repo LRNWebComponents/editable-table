@@ -1,4 +1,9 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../iron-autogrow-textarea/iron-autogrow-textarea.html">
+<link rel="import" href="editable-table-menu.html">
 
 <!--
 `editable-table`
@@ -19,8 +24,133 @@ A LRN element
       :host {
         display: block;
       }
+      :host table caption > p {
+        display: inline-flex;
+        width: 100%;
+        margin: 0 0 10px;
+        padding: 0;
+      }
+      :host table .toggle, 
+      :host table caption > p > * {
+        justify-content: space-between;
+        align-items: baseline;
+      }
+      :host table caption {
+        text-align: left;
+      }
+      :host table caption label {
+        font-weight: normal;
+      }
+      :host caption paper-toggle-button {
+        display: inline-block;
+      }
+      :host table .toggle, 
+      :host table caption iron-autogrow-textarea {
+        flex-grow: 1;
+        width: auto;
+      }
+      :host table .text {
+        padding-right: 0.5em;
+      }
+      :host table .toggle {
+        padding-right: 0.5em;
+      }
+      :host table .toggle label {
+        display: inline-block;
+        line-height: 30px;
+        flex-grow: 1;
+        width: auto;
+      }
+      :host table {
+        width: 100%;
+      }
+      :host table,
+      :host table th,
+      :host table td {
+        border-collapse: collapse;
+      }
+      :host table,
+      :host table th,
+      :host table td {
+        border: 1px solid #ddd;
+      }
+      :host table[bordered],
+      :host table[bordered] th, 
+      :host table[bordered] td {
+        border: 1px solid #888;
+      }
+      :host table th,
+      :host table td {
+        padding: 0;
+      }
+      :host table th {
+        background-color: #f0f0f0;
+      }
+      :host td > iron-autogrow-textarea {
+        border: none;
+        margin: 0.7em 0.57em;
+        min-width: calc(100% - 1.14em);
+        width: auto;
+      }
+      :host table[condensed] td > iron-autogrow-textarea {
+        margin: 0 0.57em;
+      }
+      :host table[striped] tbody tr:nth-child(2n) td {
+        background-color: #f8f8f8;
+      }
     </style>
-    <h2>[[title]]</h2>
+    <iron-ajax 
+      id="ajax"
+      auto
+      url="[[dataSrc]]"
+      handle-as="json"
+      last-response="{{data}}"></iron-ajax>
+    <table id="table" summary="editable table" bordered$="{{bordered}}" condensed$="{{condensed}}" striped$="{{striped}}">
+      <caption>
+        <p>
+          <label for="summary" class="text">Table Summary (for accessibility): </label>
+          <iron-autogrow-textarea id="summary" value$="{{summary}}"></iron-autogrow-textarea>
+        </p>
+        <p>
+          <label for="caption" class="text">Table Caption: </label>
+          <iron-autogrow-textarea id="caption" value$="{{caption}}"></iron-autogrow-textarea>
+        </p>
+        <template id="headers" is="dom-if" if="{{enableStyles}}">
+          <p>
+            <span class="toggle text">
+                <label for="bordered">Border: </label>
+                <paper-toggle-button id="bordered" checked$="{{bordered}}"></paper-toggle-button>
+            </span>
+            <span class="toggle text">
+                <label for="condensed">Condensed: </label>
+                <paper-toggle-button id="condensed" checked$="{{condensed}}"></paper-toggle-button>
+            </span>
+            <span class="toggletext">
+                <label for="striped">Striped: </label>
+                <paper-toggle-button id="striped" checked$="{{striped}}"></paper-toggle-button>
+            </span>
+          </p>
+        </template>
+      </caption>
+      <thead> 
+        <tr>
+          <th scope="col"></th>
+          <template id="headers" is="dom-repeat" items="{{__data.columns}}" as="header">
+            <th scope="col"><editable-table-menu condensed$="{{condensed}}" index="{{header.index}}" label="{{header.letter}}" type="Column"></editable-table-menu></th>
+          </template>
+        </tr> 
+      </thead>
+      <tbody> 
+        <template id="rows" is="dom-repeat" items="{{__data.rows}}" as="row">
+          <tr>
+            <th scope="row"><editable-table-menu condensed$="{{condensed}}" index="{{row.index}}" label="{{row.index}}" type="Row"></editable-table-menu></th>
+            <template id="columns" is="dom-repeat" items="{{row.celldata}}" as="cell">
+              <td><iron-autogrow-textarea value$="{{cell}}" placeholder="null"></iron-autogrow-textarea></td>
+            </template>
+          </tr> 
+        </template>
+      </tbody>
+    </table>
   </template>
 
   <script>
@@ -29,12 +159,193 @@ A LRN element
       is: 'editable-table',
 
       properties: {
-        title: {
+        /**
+         * bordered?
+         */
+        bordered: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * a table caption
+         */
+        caption: {
           type: String,
-          value: 'editable-table',
+          value: null
+        },
+        /**
+         * condensed height?
+         */
+        condensed: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * raw data
+         */
+        data: {
+          type: Array,
+          value: null,
+          notify: true
+        },
+        /**
+         * allow striped, condensed, and bordered
+         */
+        enableStyles: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        },
+        /**
+         * Source to pull the gallery items from
+         */
+        dataSrc: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true
+        },
+        /**
+         * striped (altenrating rows)?
+         */
+        striped: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * a table summary
+         */
+        summary: {
+          type: String,
+          value: null
         },
       },
-
+      ready: function(){
+        let root = this;
+        root.__data = {};
+        root.$.ajax.addEventListener('last-response-changed', (e) => {
+          this.updateData(root.data);
+        });
+        root.$.table.addEventListener('modify-table', (e) => {
+          let row = e.detail.item.getAttribute('type') === 'Row', index = parseInt(e.detail.item.getAttribute('index')), action = e.detail.item.getAttribute('action');
+          if(action === 'delete') {
+            if (row) {
+              root.deleteRow(index);
+            } else {
+              root.deleteColumn(index);
+            }
+          } else if (action === 'insert-before') {
+            if (row) {
+              root.insertRow(index-1);
+            } else {
+              root.insertColumn(index);
+            }
+          } else if (action === 'insert-after') {
+            if (row) {
+              root.insertRow(index);
+            } else {
+              root.insertColumn(index+1);
+            }
+          }
+        });
+      },
+      attached: function(){
+        let root = this;
+        if (root.$$('#condensed') !== undefined && root.$$('#condensed') !== null) {
+          root.$$('#condensed').addEventListener('checked-changed', (e) => {
+            root.condensed = e.detail.value;
+          });
+        }
+        if (root.$$('#striped') !== undefined && root.$$('#striped') !== null) {
+          root.$$('#striped').addEventListener('checked-changed', (e) => {
+            root.striped = e.detail.value;
+          });
+        }
+        if (root.$$('#bordered') !== undefined && root.$$('#bordered') !== null) {
+          root.$$('#bordered').addEventListener('checked-changed', (e) => {
+            root.bordered = e.detail.value;
+          });
+        }
+      },
+      insertRow: function(index){
+        let temp = new Array();
+        for(let i = 0; i < this.data[0].length; i++){
+          temp.push('');
+        }
+        this.splice('data',index,0,temp);
+        this.updateData(this.data);
+      },
+      deleteRow: function(index){
+        if (confirm('Delete entire row?')) {
+          this.splice('data',index-1,1);
+          this.updateData(this.data);
+        }
+      },
+      insertColumn: function(index){
+        let temp = new Array();
+        for(let i = 0; i < this.data.length; i++){
+          temp.push(this.data[i]);
+          temp[i].splice(index,0,'');
+        }
+        this.set('data',temp);
+        this.updateData(this.data);
+      },
+      deleteColumn: function(index){
+        let temp = [];
+        if (confirm('Delete entire column?')) {
+          for(let i=0; i<this.data.length; i++){
+            let temp2 = this.data[i], temp3 = temp2.splice(index,1);
+            temp.push(temp2);
+          }
+          this.set('data',temp);
+          this.updateData(this.data);
+        }
+      },
+      getData: function(){
+        return JSON.stringify({
+          "bordered": this.enableStyles ? this.bordered : null,
+          "caption": this.caption,
+          "condensed": this.enableStyles ? this.condensed: null,
+          "data": this.data,
+          "striped": this.enableStyles ? this.striped : null,
+          "summary": this.summary,
+        });
+      },
+      updateData: function(data){
+        let temp = {}, cols = new Array(), convertAlpha = function(num){
+          let alpha = '', 
+          numerals = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''), 
+          j= Math.log(num)/Math.log(10), 
+          k= Math.log(26)/Math.log(10), 
+          i = Math.floor(j/k);
+          while(i >= 0) {
+            let multiplier = Math.pow(26,i), letter = Math.floor(num/multiplier);
+            num = num - multiplier * letter;
+            alpha += numerals[letter-1];
+            i--;
+          }
+          return alpha;
+        };
+        temp.rows = new Array();
+        temp.columns = new Array();
+        temp.cells = new Array();
+        if (data !== null && data !== undefined) {
+          for (var i = 0; i < data.length; i++){
+            temp.rows[i]  = {'index': i+1, 'celldata': []};
+            temp.cells[i] = new Array();
+            for (var j = 0; j < data[i].length; j++){
+              temp.rows[i].celldata[j] = data[i][j];
+              temp.cells[i][j] = data[i][j];
+            }
+          }
+        }
+        if (data !== null && data !== undefined) {
+          for (var i = 0; i < data[0].length; i++){
+            temp.columns.push({'index': i,'letter': convertAlpha(i+1)});
+          }
+        }
+        this.set('__data',{});
+        this.set('__data',temp);
+      },
     });
   </script>
 </dom-module>
