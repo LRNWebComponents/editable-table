@@ -3,10 +3,11 @@
 <link rel="import" href="../paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../paper-button/paper-button.html">
 <link rel="import" href="../paper-listbox/paper-listbox.html">
+<link rel="import" href="../paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../paper-item/paper-item.html">
 
 <!--
-`editable-table-menu`
+`editable-table-rowcol-menu`
 A LRN element
 
 @demo demo/index.html
@@ -18,7 +19,7 @@ A LRN element
 
 -->
 
-<dom-module id="editable-table-menu">
+<dom-module id="editable-table-rowcol-menu">
   <template>
     <style>
       :host {
@@ -53,13 +54,14 @@ A LRN element
         <paper-item action="delete" index$="[[index]]" type$="[[type]]">Delete [[type]]</paper-item>
       </paper-listbox>
     </paper-menu-button>
+    <paper-tooltip for="menu">insert/delete options for [[type]] [[label]]</paper-tooltip>
     
   </template>
 
   <script>
     Polymer({
 
-      is: 'editable-table-menu',
+      is: 'editable-table-rowcol-menu',
 
       properties: {
         label: {

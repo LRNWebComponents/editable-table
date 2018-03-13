@@ -1,9 +1,9 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
 <link rel="import" href="../paper-input/paper-input.html">
-<link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
 <link rel="import" href="../iron-autogrow-textarea/iron-autogrow-textarea.html">
-<link rel="import" href="editable-table-menu.html">
+<link rel="import" href="editable-table-settings-menu.html">
+<link rel="import" href="editable-table-rowcol-menu.html">
 
 <!--
 `editable-table`
@@ -115,35 +115,27 @@ A LRN element
           <label for="caption" class="text">Table Caption: </label>
           <iron-autogrow-textarea id="caption" value$="{{caption}}"></iron-autogrow-textarea>
         </p>
-        <template id="headers" is="dom-if" if="{{enableStyles}}">
-          <p>
-            <span class="toggle text">
-                <label for="bordered">Border: </label>
-                <paper-toggle-button id="bordered" checked$="{{bordered}}"></paper-toggle-button>
-            </span>
-            <span class="toggle text">
-                <label for="condensed">Condensed: </label>
-                <paper-toggle-button id="condensed" checked$="{{condensed}}"></paper-toggle-button>
-            </span>
-            <span class="toggletext">
-                <label for="striped">Striped: </label>
-                <paper-toggle-button id="striped" checked$="{{striped}}"></paper-toggle-button>
-            </span>
-          </p>
-        </template>
       </caption>
       <thead> 
         <tr>
-          <th scope="col"></th>
+          <th scope="col">
+            <template is="dom-if" if="[[enableStyles]]">
+                <editable-table-settings-menu 
+                  bordered$="[[bordered]]"
+                  condensed$="[[condensed]]" 
+                  striped$="[[striped]]">
+                </editable-table-settings-menu>
+            </template>
+          </th>
           <template id="headers" is="dom-repeat" items="{{__data.columns}}" as="header">
-            <th scope="col"><editable-table-menu condensed$="{{condensed}}" index="{{header.index}}" label="{{header.letter}}" type="Column"></editable-table-menu></th>
+            <th scope="col"><editable-table-rowcol-menu condensed$="{{condensed}}" index="{{header.index}}" label="{{header.letter}}" type="Column"></editable-table-rowcol-menu></th>
           </template>
         </tr> 
       </thead>
       <tbody> 
         <template id="rows" is="dom-repeat" items="{{__data.rows}}" as="row">
           <tr>
-            <th scope="row"><editable-table-menu condensed$="{{condensed}}" index="{{row.index}}" label="{{row.index}}" type="Row"></editable-table-menu></th>
+            <th scope="row"><editable-table-rowcol-menu condensed$="{{condensed}}" index="{{row.index}}" label="{{row.index}}" type="Row"></editable-table-rowcol-menu></th>
             <template id="columns" is="dom-repeat" items="{{row.celldata}}" as="cell">
               <td><iron-autogrow-textarea value$="{{cell}}" placeholder="null"></iron-autogrow-textarea></td>
             </template>
@@ -157,6 +149,9 @@ A LRN element
     Polymer({
 
       is: 'editable-table',
+      listeners: {
+        'toggle-changed': '_onToggleChanged'
+      },
 
       properties: {
         /**
@@ -189,6 +184,14 @@ A LRN element
           notify: true
         },
         /**
+         * Source to pull the gallery items from
+         */
+        dataSrc: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true
+        },
+        /**
          * allow striped, condensed, and bordered
          */
         enableStyles: {
@@ -197,11 +200,11 @@ A LRN element
           reflectToAttribute: true
         },
         /**
-         * Source to pull the gallery items from
+         * allow responsive settings
          */
-        dataSrc: {
-          type: String,
-          notify: true,
+        enableResponsive: {
+          type: Boolean,
+          value: false,
           reflectToAttribute: true
         },
         /**
@@ -250,21 +253,6 @@ A LRN element
       },
       attached: function(){
         let root = this;
-        if (root.$$('#condensed') !== undefined && root.$$('#condensed') !== null) {
-          root.$$('#condensed').addEventListener('checked-changed', (e) => {
-            root.condensed = e.detail.value;
-          });
-        }
-        if (root.$$('#striped') !== undefined && root.$$('#striped') !== null) {
-          root.$$('#striped').addEventListener('checked-changed', (e) => {
-            root.striped = e.detail.value;
-          });
-        }
-        if (root.$$('#bordered') !== undefined && root.$$('#bordered') !== null) {
-          root.$$('#bordered').addEventListener('checked-changed', (e) => {
-            root.bordered = e.detail.value;
-          });
-        }
       },
       insertRow: function(index){
         let temp = new Array();
@@ -345,6 +333,15 @@ A LRN element
         }
         this.set('__data',{});
         this.set('__data',temp);
+      },
+      _onToggleChanged: function(e){
+        if (e.detail.id === 'bordered'){
+          this.bordered = e.detail.checked;
+        } else if (e.detail.id === 'condensed'){
+          this.condensed = e.detail.checked;
+        } if (e.detail.id === 'striped'){
+          this.striped = e.detail.checked;
+        }
       },
     });
   </script>

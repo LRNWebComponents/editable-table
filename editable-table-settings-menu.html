@@ -1,0 +1,132 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../web-animations-js/web-animations-next-lite.min.html">
+<link rel="import" href="../paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-listbox/paper-listbox.html">
+<link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../paper-tooltip/paper-tooltip.html">
+
+<!--
+`editable-table-settings-menu`
+A LRN element
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ -
+ -
+ -
+
+-->
+
+<dom-module id="editable-table-settings-menu">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      :host paper-menu-button {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+      }
+      :host paper-button {
+        margin: 0;
+        display: block;
+        background-color: transparent;
+      }
+      :host[condensed] paper-button {
+        padding-top: 0;
+        padding-bottom: 0;
+      }
+      :host paper-item {
+        font-size: 95%;
+      }
+      :host .setting {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+      }
+      :host .setting-text {
+        min-width: 100px;
+      }
+      :host .setting-control {
+        max-width: 100px;
+      }
+      :host .setting-slider {
+        width: 130px;
+        margin-left: -15px;
+        margin-right: -15px;
+      }
+    </style>
+    <paper-menu-button id="settings" vertical-align="top" ignore-select>
+      <paper-icon-button icon="settings" slot="dropdown-trigger" alt="Settings"></paper-icon-button>
+      <paper-listbox id="settingslist" slot="dropdown-content">
+        <paper-item>
+          <div class="setting">
+            <div class="setting-text">Bordered </div>
+            <div class="setting-control">
+              <paper-toggle-button id="bordered" checked$="[[bordered]]"></paper-toggle-button>
+            </div>
+          </div>
+        </paper-item>
+        <paper-item>
+          <div class="setting">
+            <div class="setting-text">Striped </div>
+            <div class="setting-control">
+              <paper-toggle-button id="striped" checked$="[[striped]]"></paper-toggle-button>
+            </div>
+          </div>
+        </paper-item>
+        <paper-item>
+          <div class="setting">
+            <div class="setting-text">Condensed </div>
+            <div class="setting-control">
+              <paper-toggle-button id="condensed" checked$="[[condensed]]"></paper-toggle-button>
+            </div>
+          </div>
+        </paper-item>
+      </paper-listbox>
+    </paper-menu-button>
+    <paper-tooltip for="settings">table settings</paper-tooltip>
+    
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'editable-table-settings-menu',
+
+      properties: {
+        /**
+         * bordered?
+         */
+        bordered: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * condensed height?
+         */
+        condensed: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * striped (altenrating rows)?
+         */
+        striped: {
+          type: Boolean,
+          value: false
+        },
+      },
+      ready: function(){
+        let root = this;
+        root.$.settings.addEventListener('change', (e) => {
+          this.fire('toggle-changed',e.target);
+        });
+      },
+    });
+  </script>
+</dom-module>
