@@ -4,6 +4,7 @@
 <link rel="import" href="../iron-autogrow-textarea/iron-autogrow-textarea.html">
 <link rel="import" href="editable-table-settings-menu.html">
 <link rel="import" href="editable-table-rowcol-menu.html">
+<link rel="import" href="editable-table-cell.html">
 
 <!--
 `editable-table`
@@ -24,42 +25,34 @@ A LRN element
       :host {
         display: block;
       }
-      :host table caption > p {
-        display: inline-flex;
-        width: 100%;
-        margin: 0 0 10px;
-        padding: 0;
-      }
-      :host table .toggle, 
-      :host table caption > p > * {
-        justify-content: space-between;
-        align-items: baseline;
-      }
       :host table caption {
         text-align: left;
       }
       :host table caption label {
         font-weight: normal;
       }
-      :host caption paper-toggle-button {
-        display: inline-block;
+      :host .flex {
+        display: flex;
+        width: 100%;
+        margin: 0 0 10px;
+        padding: 0;
       }
-      :host table .toggle, 
-      :host table caption iron-autogrow-textarea {
-        flex-grow: 1;
-        width: auto;
-      }
-      :host table .text {
-        padding-right: 0.5em;
-      }
-      :host table .toggle {
-        padding-right: 0.5em;
-      }
-      :host table .toggle label {
-        display: inline-block;
+      :host .flex label {
         line-height: 30px;
+      }
+      :host .flex > * {
+        justify-content: space-between;
+        align-items: baseline;
+      }
+      :host .flex > .flex-grow {
         flex-grow: 1;
         width: auto;
+      }
+      :host .flex > .flex-padding {
+        padding-right: 0.5em;
+      }
+      :host .flex paper-toggle-button {
+        display: inline-block;
       }
       :host table {
         width: 100%;
@@ -86,15 +79,6 @@ A LRN element
       :host table th {
         background-color: #f0f0f0;
       }
-      :host td > iron-autogrow-textarea {
-        border: none;
-        margin: 0.7em 0.57em;
-        min-width: calc(100% - 1.14em);
-        width: auto;
-      }
-      :host table[condensed] td > iron-autogrow-textarea {
-        margin: 0 0.57em;
-      }
       :host table[striped] tbody tr:nth-child(2n) td {
         background-color: #f8f8f8;
       }
@@ -107,14 +91,15 @@ A LRN element
       last-response="{{data}}"></iron-ajax>
     <table id="table" summary="editable table" bordered$="{{bordered}}" condensed$="{{condensed}}" striped$="{{striped}}">
       <caption>
-        <p>
-          <label for="summary" class="text">Table Summary (for accessibility): </label>
-          <iron-autogrow-textarea id="summary" value$="{{summary}}"></iron-autogrow-textarea>
+          <p class="flex">
+            <label for="caption" class="flex-padding">Table Caption: </label>
+            <iron-autogrow-textarea id="caption" class="flex-grow" value$="{{caption}}"></iron-autogrow-textarea>
+          </p>
+        <p class="flex">
+          <label for="summary" class="flex-padding">Table Summary (for accessibility): </label>
+          <iron-autogrow-textarea id="summary" class="flex-grow" value$="{{summary}}"></iron-autogrow-textarea>
         </p>
-        <p>
-          <label for="caption" class="text">Table Caption: </label>
-          <iron-autogrow-textarea id="caption" value$="{{caption}}"></iron-autogrow-textarea>
-        </p>
+        <template is="dom-if" if="[[enableResponsive]]"></template>
       </caption>
       <thead> 
         <tr>
@@ -132,12 +117,12 @@ A LRN element
           </template>
         </tr> 
       </thead>
-      <tbody> 
+      <tbody id="tbody"> 
         <template id="rows" is="dom-repeat" items="{{__data.rows}}" as="row">
           <tr>
             <th scope="row"><editable-table-rowcol-menu condensed$="{{condensed}}" index="{{row.index}}" label="{{row.index}}" type="Row"></editable-table-rowcol-menu></th>
             <template id="columns" is="dom-repeat" items="{{row.celldata}}" as="cell">
-              <td><iron-autogrow-textarea value$="{{cell}}" placeholder="null"></iron-autogrow-textarea></td>
+              <td><editable-table-cell value$="{{cell}}"></editable-table-cell></td>
             </template>
           </tr> 
         </template>
@@ -150,7 +135,8 @@ A LRN element
 
       is: 'editable-table',
       listeners: {
-        'toggle-changed': '_onToggleChanged'
+        'toggle-changed': '_onToggleChanged',
+        'cell-move': '_onCellMove'
       },
 
       properties: {
@@ -342,6 +328,35 @@ A LRN element
         } if (e.detail.id === 'striped'){
           this.striped = e.detail.checked;
         }
+      },
+      _onCellMove: function(e){
+        console.log('move');
+        let dir = e.detail.direction, cell = e.detail.cell;
+        let row = cell.parentNode, body = this.$.tbody;
+        let x = Array.prototype.indexOf.call(row.children, cell);
+        let y = Array.prototype.indexOf.call(body.children, row);
+        
+        if(dir ==='down'){
+          if(y+1 < body.children.length-1) {
+            body.children[y+1].children[x].children[0].focus();
+          }
+        } else if(dir ==='up'){
+          if(y > 0) {
+            body.children[y-1].children[x].children[0].focus();
+          }
+        } else if(dir ==='right'){
+          if(x+1 < row.children.length-1) {
+            row.children[x+1].children[0].focus();
+          } else if (y+1 < body.children.length-1) {
+            body.children[y+1].children[1].children[0].focus();
+          }
+        } else if(dir ==='left'){
+          if(x > 1) {
+            row.children[x-1].children[0].focus();
+          } else if (y > 0) {
+            body.children[y-2].children[body.children[y-2].children.length-2].children[0].focus();
+          }
+        }  
       },
     });
   </script>

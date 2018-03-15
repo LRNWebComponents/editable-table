@@ -1,0 +1,176 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../web-animations-js/web-animations-next-lite.min.html">
+<link rel="import" href="../iron-autogrow-textarea/iron-autogrow-textarea.html">
+<link rel="import" href="../iron-a11y-keys/iron-a11y-keys.html">
+
+<!--
+`editable-table-cell`
+A LRN element
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ -
+ -
+ -
+
+-->
+
+<dom-module id="editable-table-cell">
+  <template>
+    <style>
+      :host > iron-autogrow-textarea {
+        border: none;
+        margin: 0.7em 0.57em;
+        min-width: calc(100% - 1.14em);
+        width: auto;
+        margin: 0 0.57em;
+      }
+    </style>
+    <iron-autogrow-textarea 
+      autofocus 
+      id="cell" 
+      placeholder=""
+      value$="{{value}}">
+    </iron-autogrow-textarea>
+    <iron-a11y-keys 
+      id="down" 
+      keys="down" 
+      target$="[[button]]"
+      on-keys-pressed="_onCellBelow">
+    </iron-a11y-keys>
+    <iron-a11y-keys 
+      id="up" 
+      keys="up" 
+      target$="[[button]]"
+      on-keys-pressed="_onCellAbove">
+    </iron-a11y-keys>
+    <iron-a11y-keys 
+      id="left" 
+      keys="left" 
+      target$="[[button]]"
+      on-keys-pressed="_onCellLeft">
+    </iron-a11y-keys>
+    <iron-a11y-keys 
+      id="right" 
+      keys="right" 
+      target$="[[button]]"
+      on-keys-pressed="_onCellRight">
+    </iron-a11y-keys>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'editable-table-cell',
+
+      properties: {
+        /**
+         * cell contents
+         */
+        value: {
+          type: String,
+          value: false,
+          reflectToAttribute: true
+        },
+      },
+      
+      /**
+       * set iron-a11y-keys target to this
+       */ 
+       ready: function(){
+        this.button = this.$.cell;
+      },
+
+      /**
+       * if clicking in td but outside textarea, focus the text area
+       */ 
+       attached: function(){
+        let root = this;
+        this.parentNode.onclick = function(){ 
+          root.focus(); 
+        };
+      },
+      /*
+      ** FROM: https://stackoverflow.com/questions/2897155/get-cursor-position-in-characters-within-a-text-input-field
+      ** Returns the caret (cursor) position of the specified text field.
+      ** Return value range is 0-oField.value.length.
+      */
+      getCaretPosition: function(){
+        var caret = 0;
+        // IE Support
+        if (document.selection) {
+          // Set focus on the element
+          this.$.cell.focus();
+          // To get cursor position, get empty selection range
+          var sel = document.selection.createRange();
+          // Move selection start to 0 position
+          sel.moveStart('character', - this.$.cell.value.length);
+          // The caret position is selection length
+          caret = sel.text.length;
+        } else if (this.$.cell.$$('textarea').selectionStart || this.$.cell.$$('textarea').selectionStart == '0') {
+          caret = this.$.cell.$$('textarea').selectionStart;
+        }
+        return caret;
+      },
+
+      setCaretPosition: function(start,end){
+        let textarea = this.$.cell.$$('textarea');
+        textarea.focus();
+        if (textarea.createTextRange) {
+          let range = textarea.createTextRange();
+          range.collapse(true);
+          range.moveEnd('character', end);
+          range.moveStart('character', start);
+          range.select();  
+        } else if (textarea.setSelectionRange) {
+          textarea.setSelectionRange(start,end);
+          textarea.selectionStart = start;
+          textarea.selectionEnd = end;
+        }
+      },
+
+      /**
+       * set focus to textarea
+       */ 
+       focus: function(start,end){
+        this.$.cell.$$('textarea').focus();
+        if (start !== undefined && end !== undefined) {
+          this.setCaretPosition(start,end);
+        } else if (start !== undefined) {
+          this.setCaretPosition(start,start);
+        } else {
+          this.setCaretPosition(0,0);
+        }
+      },
+
+      /**
+       * handle left
+       */ 
+       _onCellLeft: function(e){
+        this.fire('cell-move',{"cell": this.parentNode, "direction": "left"});
+      },
+      
+      /**
+       * handle right
+       */ 
+       _onCellRight: function(e){
+        this.fire('cell-move',{"cell": this.parentNode, "direction": "right"});
+      },
+      
+      /**
+       * handle up
+       */ 
+       _onCellAbove: function(e){
+        this.fire('cell-move',{"cell": this.parentNode, "direction": "up"});
+      },
+      
+      /**
+       * handle down
+       */ 
+       _onCellBelow: function(e){
+        this.fire('cell-move',{"cell": this.parentNode, "direction": "down"});
+      },
+    });
+  </script>
+</dom-module>
