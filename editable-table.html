@@ -5,6 +5,7 @@
 <link rel="import" href="editable-table-settings-menu.html">
 <link rel="import" href="editable-table-rowcol-menu.html">
 <link rel="import" href="editable-table-cell.html">
+<link rel="import" href="tablesaw-js.html">
 <!--
 `editable-table`
 A LRN element
@@ -87,7 +88,8 @@ A LRN element
       url="[[dataSrc]]"
       handle-as="json"
       last-response="{{data}}"></iron-ajax>
-    <table id="table" summary="editable table" bordered$="{{bordered}}" condensed$="{{condensed}}" striped$="{{striped}}">
+
+    <table id="table" class="tablesaw tablesaw-stack" data-tablesaw-mode="stack" summary="editable table" bordered$="{{bordered}}" condensed$="{{condensed}}" striped$="{{striped}}">
       <caption>
           <p class="flex">
             <label for="caption" class="flex-padding">Table Caption: </label>
