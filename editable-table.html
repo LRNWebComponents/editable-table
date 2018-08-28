@@ -2,6 +2,7 @@
 <link rel="import" href="../iron-ajax/iron-ajax.html">
 <link rel="import" href="../paper-input/paper-input.html">
 <link rel="import" href="../iron-autogrow-textarea/iron-autogrow-textarea.html">
+<link rel="import" href="../dom-repeat-n/dom-repeat-n.html">
 <link rel="import" href="editable-table-settings-menu.html">
 <link rel="import" href="editable-table-rowcol-menu.html">
 <link rel="import" href="editable-table-cell.html">
@@ -83,12 +84,12 @@ A LRN element
         background-color: #f8f8f8;
       }
     </style>
-    <iron-ajax 
+    <!--iron-ajax 
       id="ajax"
       auto
       url="[[dataSrc]]"
       handle-as="json"
-      last-response="{{data}}"></iron-ajax>
+      last-response="{{data}}"></iron-ajax-->
     <table id="table" summary="editable table" bordered$="{{bordered}}" condensed$="{{condensed}}" striped$="{{striped}}">
       <caption>
           <p class="flex">
@@ -112,17 +113,17 @@ A LRN element
                 </editable-table-settings-menu>
             </template>
           </th>
-          <template id="headers" is="dom-repeat" items="{{__data.columns}}" as="header">
-            <th scope="col"><editable-table-rowcol-menu condensed$="{{condensed}}" index="{{header.index}}" label="{{header.letter}}" type="Column"></editable-table-rowcol-menu></th>
+          <template id="headers" is="dom-repeat-n" count="[[colCount]]" index-as="col">
+            <th scope="col"><editable-table-rowcol-menu condensed$="{{condensed}}" index$="[[col]]" type="Column"></editable-table-rowcol-menu></th>
           </template>
         </tr> 
       </thead>
       <tbody id="tbody"> 
-        <template id="rows" is="dom-repeat" items="{{__data.rows}}" as="row">
+        <template id="rows" is="dom-repeat-n" count="[[rowCount]]" index-as="row">
           <tr>
-            <th scope="row"><editable-table-rowcol-menu condensed$="{{condensed}}" index="{{row.index}}" label="{{row.index}}" type="Row"></editable-table-rowcol-menu></th>
-            <template id="columns" is="dom-repeat" items="{{row.celldata}}" as="cell">
-              <td><editable-table-cell value$="{{cell}}"></editable-table-cell></td>
+            <th scope="row"><editable-table-rowcol-menu condensed$="{{condensed}}" index$="[[row]]" type="Row"></editable-table-rowcol-menu></th>
+            <template id="columns" is="dom-repeat" items="{{_getCurrentRow(row,data)}}" as="cell">
+              <td><editable-table-cell value$="{{cell}}" index="[[index]]"></editable-table-cell></td>
             </template>
           </tr> 
         </template>
@@ -155,6 +156,13 @@ A LRN element
           value: null
         },
         /**
+         * number of table columns
+         */
+        colCount: {
+          type: Number,
+          computed: '_getColCount(data)'
+        },
+        /**
          * condensed height?
          */
         condensed: {
@@ -166,12 +174,11 @@ A LRN element
          */
         data: {
           type: Array,
-          value: null,
-          notify: true
+          value: []
         },
         /**
          * Source to pull the gallery items from
-         */
+         * /
         dataSrc: {
           type: String,
           notify: true,
@@ -194,6 +201,13 @@ A LRN element
           reflectToAttribute: true
         },
         /**
+         * number of table columns
+         */
+        rowCount: {
+          type: Number,
+          computed: '_getRowCount(data)'
+        },
+        /**
          * striped (altenrating rows)?
          */
         striped: {
@@ -210,10 +224,6 @@ A LRN element
       },
       ready: function(){
         let root = this;
-        root.__data = {};
-        root.$.ajax.addEventListener('last-response-changed', (e) => {
-          this.updateData(root.data);
-        });
         root.$.table.addEventListener('modify-table', (e) => {
           let row = e.detail.item.getAttribute('type') === 'Row', index = parseInt(e.detail.item.getAttribute('index')), action = e.detail.item.getAttribute('action');
           if(action === 'delete') {
@@ -240,18 +250,43 @@ A LRN element
       attached: function(){
         let root = this;
       },
+      _getColCount: function(data){
+        let cols = 0;
+        if (data !== undefined && data !== null && data.length > 0) {
+          cols =  data[0].length;
+        }
+        return cols;
+      },
+      _getRowCount: function(data){
+        let rows = 0;
+        if (data !== undefined && data !== null) {
+          rows = data.length;
+        } 
+        return rows;
+      },
+      _getCurrentRow: function(index,data){
+        let row = null;
+        if (data !== undefined && data !== null && data[index] !== undefined && data[index] !== null) {
+          row = data[index];
+        }
+        return row;
+      },
       insertRow: function(index){
         let temp = new Array();
         for(let i = 0; i < this.data[0].length; i++){
           temp.push('');
         }
-        this.splice('data',index,0,temp);
-        this.updateData(this.data);
+        this.splice('data',index+1,0,temp);
+        temp2 = this.data;
+        this.set('data',[]);
+        this.set('data',temp2);
       },
       deleteRow: function(index){
         if (confirm('Delete entire row?')) {
-          this.splice('data',index-1,1);
-          this.updateData(this.data);
+          this.splice('data',index,1);
+          temp = this.data;
+          this.set('data',[]);
+          this.set('data',temp);
         }
       },
       insertColumn: function(index){
@@ -260,8 +295,8 @@ A LRN element
           temp.push(this.data[i]);
           temp[i].splice(index,0,'');
         }
+        this.set('data',[]);
         this.set('data',temp);
-        this.updateData(this.data);
       },
       deleteColumn: function(index){
         let temp = [];
@@ -270,8 +305,8 @@ A LRN element
             let temp2 = this.data[i], temp3 = temp2.splice(index,1);
             temp.push(temp2);
           }
+          this.set('data',[]);
           this.set('data',temp);
-          this.updateData(this.data);
         }
       },
       getData: function(){
@@ -284,42 +319,6 @@ A LRN element
           "summary": this.summary,
         });
       },
-      updateData: function(data){
-        let temp = {}, cols = new Array(), convertAlpha = function(num){
-          let alpha = '', 
-          numerals = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''), 
-          j= Math.log(num)/Math.log(10), 
-          k= Math.log(26)/Math.log(10), 
-          i = Math.floor(j/k);
-          while(i >= 0) {
-            let multiplier = Math.pow(26,i), letter = Math.floor(num/multiplier);
-            num = num - multiplier * letter;
-            alpha += numerals[letter-1];
-            i--;
-          }
-          return alpha;
-        };
-        temp.rows = new Array();
-        temp.columns = new Array();
-        temp.cells = new Array();
-        if (data !== null && data !== undefined) {
-          for (var i = 0; i < data.length; i++){
-            temp.rows[i]  = {'index': i+1, 'celldata': []};
-            temp.cells[i] = new Array();
-            for (var j = 0; j < data[i].length; j++){
-              temp.rows[i].celldata[j] = data[i][j];
-              temp.cells[i][j] = data[i][j];
-            }
-          }
-        }
-        if (data !== null && data !== undefined) {
-          for (var i = 0; i < data[0].length; i++){
-            temp.columns.push({'index': i,'letter': convertAlpha(i+1)});
-          }
-        }
-        this.set('__data',{});
-        this.set('__data',temp);
-      },
       _onToggleChanged: function(e){
         if (e.detail.id === 'bordered'){
           this.bordered = e.detail.checked;
@@ -330,7 +329,6 @@ A LRN element
         }
       },
       _onCellMove: function(e){
-        console.log('move');
         let dir = e.detail.direction, cell = e.detail.cell;
         let row = cell.parentNode, body = this.$.tbody;
         let x = Array.prototype.indexOf.call(row.children, cell);
