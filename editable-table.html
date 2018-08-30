@@ -1,9 +1,9 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../iron-ajax/iron-ajax.html">
 <link rel="import" href="../paper-input/paper-input.html">
 <link rel="import" href="../iron-autogrow-textarea/iron-autogrow-textarea.html">
 <link rel="import" href="../dom-repeat-n/dom-repeat-n.html">
 <link rel="import" href="editable-table-settings-menu.html">
+<link rel="import" href="editable-table-setting-toggle.html">
 <link rel="import" href="editable-table-rowcol-menu.html">
 <link rel="import" href="editable-table-cell.html">
 <!--
@@ -20,7 +20,7 @@ A LRN element
 
 <dom-module id="editable-table">
   <template>
-    <style>
+    <style is="custom-style">
       :host {
         display: block;
       }
@@ -47,11 +47,8 @@ A LRN element
         flex-grow: 1;
         width: auto;
       }
-      :host .flex > .flex-padding {
+      :host .flex > *:not(:last-child) {
         padding-right: 0.5em;
-      }
-      :host .flex paper-toggle-button {
-        display: inline-block;
       }
       :host table {
         width: 100%;
@@ -81,13 +78,15 @@ A LRN element
       :host table[striped] tbody tr:nth-child(2n) td {
         background-color: #f8f8f8;
       }
+      :host[column-header] table tbody tr:first-of-type td,
+      :host[footer] table tbody tr:last-of-type td, 
+      :host[row-header] table td:first-of-type {
+        font-weight: bold;
+      }
+      :host[footer] table tbody tr:last-of-type td {
+        border-top: 2px solid;
+      }
     </style>
-    <!--iron-ajax 
-      id="ajax"
-      auto
-      url="[[dataSrc]]"
-      handle-as="json"
-      last-response="{{data}}"></iron-ajax-->
     <table id="table" summary="editable table" bordered$="{{bordered}}" condensed$="{{condensed}}" striped$="{{striped}}">
       <caption>
           <p class="flex">
@@ -98,19 +97,93 @@ A LRN element
           <label for="summary" class="flex-padding">Table Summary (for accessibility): </label>
           <iron-autogrow-textarea id="summary" class="flex-grow" value$="{{summary}}"></iron-autogrow-textarea>
         </p>
-        <template is="dom-if" if="[[enableResponsive]]"></template>
+        <div class="flex">
+          <p class="flex-grow">
+            <editable-table-settings-menu 
+              label="Headers and Footers" 
+              tooltip="Set headers and footers.">
+              <editable-table-setting-toggle 
+                label="First Column" 
+                prop="rowHeader" 
+                tooltip="Display the first column as a row header."
+                value$="{{rowHeader}}">
+              </editable-table-setting-toggle>
+              <editable-table-setting-toggle
+                label="First Row" 
+                prop="columnHeader" 
+                tooltip="Display the first row as a column header."
+                value$="{{columnHeader}}">
+              </editable-table-setting-toggle>
+              <editable-table-setting-toggle
+                hidden$="[[disableFooter]]"
+                label="Last Row" 
+                prop="footer" 
+                tooltip="Display the last row as a footer."
+                value$="{{footer}}">
+              </editable-table-setting-toggle>
+            </editable-table-settings-menu>
+          </p>
+          <p class="flex-grow">
+            <editable-table-settings-menu 
+              hidden$="[[hideTableStyles]]" 
+              label="Table Styles" 
+              tooltip="Set themes, borders, condensed styles.">
+              <editable-table-setting-toggle
+                hidden$="[[hideBordered]]"
+                label="Bordered" 
+                prop="bordered" 
+                tooltip="Add borders to table and table cells."
+                value$="{{bordered}}">
+              </editable-table-setting-toggle>
+              <editable-table-setting-toggle
+                hidden$="[[hideCondensed]]"
+                label="Condensed" 
+                prop="condensed" 
+                tooltip="Condense height of table cells."
+                value$="{{condensed}}">
+              </editable-table-setting-toggle>
+              <editable-table-setting-toggle
+                hidden$="[[hideStriped]]"
+                label="Striped" 
+                prop="striped" 
+                tooltip="Add alternating row striping."
+                value$="{{striped}}">
+              </editable-table-setting-toggle>
+              <editable-table-setting-toggle
+                hidden$="[[hideSplit]]"
+                label="Mobile-Friendly Splitting" 
+                prop="split" 
+                tooltip="When table is wider than screens, split data into several smaller tables."
+                value$="{{split}}">
+              </editable-table-setting-toggle>
+            </editable-table-settings-menu>
+          </p>
+          <p>
+            <editable-table-settings-menu 
+              hidden$="[[hideSortFilter]]" 
+              label="Sorting and Filtering" 
+              tooltip="Set sorting and filtering options.">
+              <editable-table-setting-toggle
+                hidden$="[[hideSort]]"
+                label="Enable Sorting" 
+                prop="sort" 
+                tooltip="Enable sorting by column header."
+                value$="{{sort}}">
+              </editable-table-setting-toggle>
+              <editable-table-setting-toggle
+                hidden$="[[hideFilter]]"
+                label="Enable Filters" 
+                prop="filter" 
+                tooltip="Enable filtering by cell value."
+                value$="{{filter}}">
+              </editable-table-setting-toggle>
+            </editable-table-settings-menu>
+          </p>
+        </div>
       </caption>
       <thead> 
         <tr>
-          <th scope="col">
-            <template is="dom-if" if="[[enableStyles]]">
-                <editable-table-settings-menu 
-                  bordered$="[[bordered]]"
-                  condensed$="[[condensed]]" 
-                  striped$="[[striped]]">
-                </editable-table-settings-menu>
-            </template>
-          </th>
+          <th scope="col"></th>
           <template id="headers" is="dom-repeat-n" count="[[colCount]]" index-as="col">
             <th scope="col"><editable-table-rowcol-menu condensed$="{{condensed}}" index$="[[col]]" type="Column"></editable-table-rowcol-menu></th>
           </template>
@@ -121,7 +194,7 @@ A LRN element
           <tr>
             <th scope="row"><editable-table-rowcol-menu condensed$="{{condensed}}" index$="[[row]]" type="Row"></editable-table-rowcol-menu></th>
             <template id="columns" is="dom-repeat" items="{{_getCurrentRow(row,data)}}" as="cell">
-              <td><editable-table-cell value$="{{cell}}" index="[[index]]"></editable-table-cell></td>
+              <td><editable-table-cell index="[[index]]" value$="{{cell}}"></editable-table-cell></td>
             </template>
           </tr> 
         </template>
@@ -134,13 +207,13 @@ A LRN element
 
       is: 'editable-table',
       listeners: {
-        'toggle-changed': '_onToggleChanged',
+        'editable-table-settings-changed': '_onToggleChanged',
         'cell-move': '_onCellMove'
       },
 
       properties: {
         /**
-         * bordered?
+         * Add borders to table and table cells.
          */
         bordered: {
           type: Boolean,
@@ -161,7 +234,15 @@ A LRN element
           computed: '_getColCount(data)'
         },
         /**
-         * condensed height?
+         * Display the first row as a column header.
+         */
+         columnHeader: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        },
+        /**
+         * Condense height of table cells.
          */
         condensed: {
           type: Boolean,
@@ -175,28 +256,75 @@ A LRN element
           value: []
         },
         /**
-         * Source to pull the gallery items from
-         * /
-        dataSrc: {
-          type: String,
-          notify: true,
-          reflectToAttribute: true
+         * Enable filtering by cell value.
+         */
+         filter: {
+          type: Boolean,
+          value: false
         },
         /**
-         * allow striped, condensed, and bordered
+         * Display the last row as a column footer.
          */
-        enableStyles: {
+         footer: {
           type: Boolean,
           value: false,
           reflectToAttribute: true
         },
         /**
-         * allow responsive settings
+         * Hide the borders table styles menu option
          */
-        enableResponsive: {
+         hideBordered: {
           type: Boolean,
-          value: false,
-          reflectToAttribute: true
+          value: false
+        },
+        /**
+         * Hide the condensed table styles menu option
+         */
+         hideCondensed: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Hide the sorting option on the sorting & filtering menu.
+         */
+         hideFilter: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Hide the sorting option on the sorting & filtering menu.
+         */
+         hideSort: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Hide the sorting & filtering menu.
+         */
+         hideSortFilter: {
+          type: Boolean,
+          computed: '_sortFilterHidden(hideSort,hideFilter)'
+        },
+        /**
+         * Hide the split table styles menu option
+         */
+         hideSplit: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Hide the striped table styles menu option
+         */
+         hideStriped: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Hide the table styles menu
+         */
+         hideTableStyles: {
+          type: Boolean,
+          computed: '_tableStylesHidden(hideBordered,hideCondensed,hideStriped,hideSplit)'
         },
         /**
          * number of table columns
@@ -206,7 +334,29 @@ A LRN element
           computed: '_getRowCount(data)'
         },
         /**
-         * striped (altenrating rows)?
+         * Display the first column as a row header.
+         */
+         rowHeader: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        },
+        /**
+         * Enable sorting by column header.
+         */
+        sort: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * When table is wider than screens, split data into several smaller tables. 
+         */
+        split: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Add alternating row striping.
          */
         striped: {
           type: Boolean,
@@ -309,22 +459,19 @@ A LRN element
       },
       getData: function(){
         return JSON.stringify({
-          "bordered": this.enableStyles ? this.bordered : null,
           "caption": this.caption,
-          "condensed": this.enableStyles ? this.condensed: null,
-          "data": this.data,
-          "striped": this.enableStyles ? this.striped : null,
           "summary": this.summary,
+          "columnHeader": this.columnHeader,
+          "rowHeader": this.rowHeader,
+          "footer": this.footer,
+          "bordered": !this.hideBordered ? this.bordered : null,
+          "split": !this.hideSplit ? this.split : null,
+          "striped": !this.hideStriped ? this.striped : null,
+          "condensed": !this.hideCondensed ? this.condensed: null,
+          "sort": !this.hideSort ? this.sort : null,
+          "filter": !this.hideFilter ? this.filter : null,
+          "data": this.data,
         });
-      },
-      _onToggleChanged: function(e){
-        if (e.detail.id === 'bordered'){
-          this.bordered = e.detail.checked;
-        } else if (e.detail.id === 'condensed'){
-          this.condensed = e.detail.checked;
-        } if (e.detail.id === 'striped'){
-          this.striped = e.detail.checked;
-        }
       },
       _onCellMove: function(e){
         let dir = e.detail.direction, cell = e.detail.cell;
@@ -353,6 +500,15 @@ A LRN element
             body.children[y-2].children[body.children[y-2].children.length-2].children[0].focus();
           }
         }  
+      },
+      _onToggleChanged: function(e){
+        this[e.detail.prop] = e.detail.value;
+      },
+      _sortFilterHidden: function(hideSort,hideFilter){
+        return hideSort && hideFilter;
+      },
+      _tableStylesHidden: function(hideBordered,hideCondensed,hideStriped,hideSplit){
+        return hideBordered && hideCondensed && hideStriped && hideSplit;
       },
     });
   </script>

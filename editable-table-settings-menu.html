@@ -2,7 +2,6 @@
 <link rel="import" href="../web-animations-js/web-animations-next-lite.min.html">
 <link rel="import" href="../paper-button/paper-button.html">
 <link rel="import" href="../iron-icons/iron-icons.html">
-<link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
 <link rel="import" href="../paper-button/paper-button.html">
 <link rel="import" href="../paper-listbox/paper-listbox.html">
 <link rel="import" href="../paper-item/paper-item.html">
@@ -31,15 +30,16 @@ A LRN element
         margin: 0;
         padding: 0;
         width: 100%;
-        text-transform: none;
       }
       :host #trigger-button {
+        text-transform: none;
         padding: 0;
       }
       :host paper-button {
         margin: 0;
         display: block;
         background-color: transparent;
+        width: 100%;
       }
       :host[condensed] paper-button {
         padding-top: 0;
@@ -67,36 +67,13 @@ A LRN element
     </style>
     <paper-menu-button id="settings" vertical-align="top" ignore-select>
       <paper-button id="trigger-button" slot="dropdown-trigger">
-        Styles <iron-icon icon="arrow-drop-down"></iron-icon>
+        [[label]] <iron-icon icon="arrow-drop-down"></iron-icon>
       </paper-button>
       <paper-listbox id="settingslist" slot="dropdown-content">
-        <paper-item>
-          <div class="setting">
-            <div class="setting-text">Bordered </div>
-            <div class="setting-control">
-              <paper-toggle-button id="bordered" checked$="[[bordered]]"></paper-toggle-button>
-            </div>
-          </div>
-        </paper-item>
-        <paper-item>
-          <div class="setting">
-            <div class="setting-text">Striped </div>
-            <div class="setting-control">
-              <paper-toggle-button id="striped" checked$="[[striped]]"></paper-toggle-button>
-            </div>
-          </div>
-        </paper-item>
-        <paper-item>
-          <div class="setting">
-            <div class="setting-text">Condensed </div>
-            <div class="setting-control">
-              <paper-toggle-button id="condensed" checked$="[[condensed]]"></paper-toggle-button>
-            </div>
-          </div>
-        </paper-item>
+        <slot></slot>
       </paper-listbox>
     </paper-menu-button>
-    <paper-tooltip for="settings">table settings</paper-tooltip>
+    <paper-tooltip for="settings">[[tooltop]]</paper-tooltip>
     
   </template>
 
@@ -107,31 +84,24 @@ A LRN element
 
       properties: {
         /**
-         * bordered?
+         * menu label
          */
-        bordered: {
-          type: Boolean,
-          value: false
+        label: {
+          type: String,
+          value: null
         },
         /**
-         * condensed height?
+         * menu tooltip
          */
-        condensed: {
-          type: Boolean,
-          value: false
-        },
-        /**
-         * striped (altenrating rows)?
-         */
-        striped: {
-          type: Boolean,
-          value: false
+        tooltip: {
+          type: String,
+          value: null
         },
       },
       ready: function(){
         let root = this;
-        root.$.settings.addEventListener('change', (e) => {
-          this.fire('toggle-changed',e.target);
+        root.$.settings.addEventListener('editable-table-setting-changed', (e) => {
+          this.fire('editable-table-settings-changed',e.detail);
         });
       },
     });

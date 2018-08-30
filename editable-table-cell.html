@@ -18,7 +18,12 @@ A LRN element
 
 <dom-module id="editable-table-cell">
   <template>
-    <style>
+    <style is="custom-style">
+      :host {
+        --iron-autogrow-textarea: {
+          font-weight: unset;
+        };
+      }
       :host > iron-autogrow-textarea {
         border: none;
         margin: 0.7em 0.57em;
