@@ -1,7 +1,7 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../web-animations-js/web-animations-next-lite.min.html">
-<link rel="import" href="../paper-button/paper-button.html">
 <link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../paper-button/paper-button.html">
 <link rel="import" href="../paper-listbox/paper-listbox.html">
 <link rel="import" href="../paper-tooltip/paper-tooltip.html">
@@ -27,10 +27,6 @@ A LRN element
       }
       :host paper-menu-button {
         margin: 0;
-        width: 100%;
-      }
-      :host #trigger-button {
-        text-transform: none;
         padding: 0;
       }
       :host paper-button {
@@ -43,8 +39,9 @@ A LRN element
         padding-top: 0;
         padding-bottom: 0;
       }
-      :host paper-item {
-        font-size: 95%;
+      :host #trigger-button {
+        text-transform: none;
+        padding: 0;
       }
       :host .setting {
         display: flex;
@@ -63,7 +60,7 @@ A LRN element
         margin-right: -15px;
       }
     </style>
-    <paper-menu-button id="settings" vertical-align="top" ignore-select>
+    <paper-menu-button id="settings" vertical-align="top" ignore-select$="[[ignoreSelect]]">
       <paper-button id="trigger-button" slot="dropdown-trigger">
         [[label]] <iron-icon icon="arrow-drop-down"></iron-icon>
       </paper-button>
@@ -94,6 +91,13 @@ A LRN element
         tooltip: {
           type: String,
           value: null
+        },
+        /**
+         * ignore select
+         */
+         ignoreSelect: {
+          type: Boolean,
+          value: true
         },
       },
     });

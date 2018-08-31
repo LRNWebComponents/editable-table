@@ -1,8 +1,11 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../dropdown-select/dropdown-select.html">
 <link rel="import" href="../iron-autogrow-textarea/iron-autogrow-textarea.html">
 <link rel="import" href="../dom-repeat-n/dom-repeat-n.html">
 <link rel="import" href="../simple-colors/simple-colors.html">
+<link rel="import" href="../responsive-utility/responsive-utility-behaviors.html">
 <link rel="import" href="editable-table-settings-menu.html">
 <link rel="import" href="editable-table-setting-toggle.html">
 <link rel="import" href="editable-table-rowcol-menu.html">
@@ -22,7 +25,7 @@ A LRN element
 <dom-module id="editable-table">
   <template>
     <style is="custom-style" include="simple-colors">
-      :host {
+      :host, :host[accent-color="none"] {
         display: block;
         --editable-table-light-weight: 200;
         --editable-table-medium-weight: 400;
@@ -35,9 +38,10 @@ A LRN element
         --editable-table-stripe-bg-color: var(--simple-colors-background2, #eee);
       }
       :host[accent-color]{
-        --editable-table-heading-bg-color: var(--simple-colors-accent-background1, #ddd);
+        --editable-table-heading-bg-color: var(--simple-colors-accent-background2, #ddd);
+        --editable-table-border-color: var(--simple-colors-accent-foreground5, #999);
       }
-      :host[dark]{
+      :host[dark], :host[dark][accent-color="none"]{
         --editable-table-light-weight: 100;
         --editable-table-medium-weight: 300;
         --editable-table-heavy-weight: 400;
@@ -50,65 +54,68 @@ A LRN element
       }
       :host[dark][accent-color]{
         --editable-table-heading-bg-color: var(--simple-colors-accent-background3, #000);
+        --editable-table-border-color: var(--simple-colors-accent-foreground5, #000);
       }
-      :host[dark][accent-color]{
+      :host, 
+      :host paper-item {
+        font-size: 12pt;
       }
       :host table caption {
         text-align: left;
+        line-height: 30px;
       }
-      :host table caption label {
-        font-weight: normal;
-      }
-      :host .flex {
-        display: flex;
+      :host .field-group {
         width: 100%;
         margin: 0 0 10px;
         padding: 0;
       }
-      :host .flex label {
-        line-height: 30px;
-      }
-      :host .flex > * {
+      :host .field-group > * {
         justify-content: space-between;
         align-items: baseline;
       }
-      :host .flex > .flex-grow {
+      :host .field-group > .field-group-grow {
         flex-grow: 1;
         width: auto;
       }
-      :host .flex > *:not(:last-child) {
+      :host .field-group > *:not(:last-child) {
         padding-right: 0.5em;
       }
-      :host .lone-toggle:last-of-type editable-table-setting-toggle {
-        --editable-table-item-padding: 0px 0px 0px 16px;
+      :host .field-group label {
+        line-height: 30px;
       }
-      :host div.flex:last-of-type,
-      :host div.flex:last-of-type p {
-        margin-bottom: 0;
+      :host[responsive-size="xs"] .field-group-responsive > * {
+        margin-bottom: 10px;
+      }
+      :host .field-group:not(.field-group-responsive),
+      :host:not([responsive-size="xs"]) .field-group {
+        display: flex;
+        align-items: center;
+      }
+      :host[responsive-size="xs"] editable-table-settings-menu {
+        padding: 3px 0;
+      }
+      :host .other-settings-toggle editable-table-setting-toggle {
+        padding-right: 32px;
+        --editable-table-toggle-padding: 0px;
+        --editable-table-toggle-min-width: unset;
+      }
+      :host .other-settings-toggle:last-child editable-table-setting-toggle {
+        padding-right: 0px;
+      }
+      :host[responsive-size="xs"] .other-settings-toggle editable-table-setting-toggle,
+      :host[responsive-size="sm"] .other-settings-toggle editable-table-setting-toggle, 
+      :host:not([responsive-size="xs"]):not([responsive-size="sm"]) .other-settings {
+        display: none;
       }
       :host table {
         width: 100%;
-        margin-top: 0;
       }
       :host table,
       :host table th,
       :host table td {
         border-collapse: collapse;
-      }
-      :host table,
-      :host table th,
-      :host table td {
         border: 1px solid #ddd;
       } 
-      :host table[bordered] td {
-        border: 1px solid var(--editable-table-border-color);
-      }
-      :host table[bordered] thead th:not(:first-child) {
-        border-bottom: 1px solid var(--editable-table-border-color);
-      }
-      :host table[bordered] tbody th {
-        border-right: 1px solid var(--editable-table-border-color);
-      }
       :host table th,
       :host table td {
         padding: 0;
@@ -120,6 +127,15 @@ A LRN element
         font-weight: var(--editable-table-light-weight);
         color: var(--editable-table-color, #222);
         background-color: var(--editable-table-bg-color);
+      }
+      :host table[bordered] td {
+        border: 1px solid var(--editable-table-border-color);
+      }
+      :host table[bordered] thead th:not(:first-child) {
+        border-bottom: 1px solid var(--editable-table-border-color);
+      }
+      :host table[bordered] tbody th {
+        border-right: 1px solid var(--editable-table-border-color);
       }
       :host table[striped] tbody tr:nth-child(2n+1) td {
         background-color: var(--editable-table-stripe-bg-color);
@@ -141,57 +157,84 @@ A LRN element
         border-top: 3px solid var(--editable-table-color);
       }
     </style>
-    <p class="flex">
-      <label for="caption" class="flex-padding">Table Caption: </label>
-      <iron-autogrow-textarea id="caption" class="flex-grow" value$="{{caption}}"></iron-autogrow-textarea>
+    <p class="field-group">
+      <label for="caption" class="field-group-padding">Table Caption: </label>
+      <iron-autogrow-textarea id="caption" class="field-group-grow" value$="{{caption}}"></iron-autogrow-textarea>
     </p>
-    <p class="flex">
-      <label for="summary" class="flex-padding">Table Summary (for accessibility): </label>
-      <iron-autogrow-textarea id="summary" class="flex-grow" value$="{{summary}}"></iron-autogrow-textarea>
+    <p class="field-group">
+      <label for="summary" class="field-group-padding">Table Summary (for accessibility): </label>
+      <iron-autogrow-textarea id="summary" 
+        class="field-group-grow" 
+        value$="{{summary}}" 
+        placeholder="Describe what the table contains. What does each row represent? What does each column represent?">
+      </iron-autogrow-textarea>
     </p>
-    <div class="flex">
-      <p class="flex-grow">
+    <div class="field-group field-group-responsive">
+      <div class="field-group-grow">
         <editable-table-settings-menu 
           label="Headers and Footers" 
           tooltip="Set headers and footers.">
           <editable-table-setting-toggle 
             label="First Column" 
             prop="rowHeader" 
-            tooltip="Display the first column as a row header."
+            tooltip="First column header."
             value$="{{rowHeader}}">
           </editable-table-setting-toggle>
           <editable-table-setting-toggle
             label="First Row" 
             prop="columnHeader" 
-            tooltip="Display the first row as a column header."
+            tooltip="First row header."
             value$="{{columnHeader}}">
           </editable-table-setting-toggle>
           <editable-table-setting-toggle
-            hidden$="[[disableFooter]]"
+            hidden$="[[hideFooter]]"
             label="Last Row" 
             prop="footer" 
-            tooltip="Display the last row as a footer."
+            tooltip="Last row footer."
             value$="{{footer}}">
           </editable-table-setting-toggle>
         </editable-table-settings-menu>
-      </p>
-      <p class="flex-grow">
+      </div>
+      <div class="field-group-grow">
         <editable-table-settings-menu 
           hidden$="[[hideTableStyles]]" 
           label="Table Styles" 
           tooltip="Set themes, borders, condensed styles.">
+          <paper-item>
+            <dropdown-select id="accent" label="Accent Color" value$="{{accentColor}}">
+              <paper-item value="none">None</paper-item>
+              <paper-item value="red">Red</paper-item>
+              <paper-item value="pink">Pink</paper-item>
+              <paper-item value="purple">Purple</paper-item>
+              <paper-item value="deep-purple">Deep Purple</paper-item>
+              <paper-item value="indigo">Indigo</paper-item>
+              <paper-item value="blue">Blue</paper-item>
+              <paper-item value="light-blue">Light Blue</paper-item>
+              <paper-item value="cyan">Cyan</paper-item>
+              <paper-item value="teal">Teal</paper-item>
+              <paper-item value="green">Green</paper-item>
+              <paper-item value="light-green">Light Green</paper-item>
+              <paper-item value="lime">Lime</paper-item>
+              <paper-item value="yellow">Yellow</paper-item>
+              <paper-item value="amber">Amber</paper-item>
+              <paper-item value="orange">Orange</paper-item>
+              <paper-item value="deep-orange">Deep Orange</paper-item>
+              <paper-item value="brown">Deep Orange</paper-item>
+              <paper-item value="blue-grey">Blue-Grey</paper-item>
+            </dropdown-select>
+          </paper-item>
           <editable-table-setting-toggle
             hidden$="[[hideBordered]]"
             label="Bordered" 
             prop="bordered" 
-            tooltip="Add borders to table and table cells."
+            tooltip="Add borders to cells."
             value$="{{bordered}}">
           </editable-table-setting-toggle>
           <editable-table-setting-toggle
             hidden$="[[hideCondensed]]"
             label="Condensed" 
             prop="condensed" 
-            tooltip="Condense height of table cells."
+            tooltip="Condense cell height."
             value$="{{condensed}}">
           </editable-table-setting-toggle>
           <editable-table-setting-toggle
@@ -205,12 +248,41 @@ A LRN element
             hidden$="[[hideStriped]]"
             label="Striped" 
             prop="striped" 
-            tooltip="Add striping to alternating rows."
+            tooltip="Alternating rows."
             value$="{{striped}}">
           </editable-table-setting-toggle>
         </editable-table-settings-menu>
-      </p>
-      <p class="lone-toggle">
+      </div>
+      <div class="other-settings">
+        <editable-table-settings-menu 
+          hidden$="[[hideOtherSettings]]" 
+          label="Other Settings" 
+          tooltip="Set sorting, filters, and mobile options.">
+          <editable-table-setting-toggle
+            hidden$="[[hideSort]]"
+            label="Enable Sorting" 
+            prop="sort" 
+            tooltip="Sortable by column."
+            value$="{{sort}}">
+          </editable-table-setting-toggle>
+          <editable-table-setting-toggle
+            hidden$="[[hideFilter]]"
+            label="Enable Filters" 
+            prop="filter" 
+            tooltip="Filter by cell."
+            value$="{{filter}}">
+          </editable-table-setting-toggle>
+          <editable-table-setting-toggle
+            hidden$="[[hideSplit]]"
+            label="Split on Mobile" 
+            prop="split" 
+            tooltip="Small 2-column tables."
+            value$="{{split}}">
+          </editable-table-setting-toggle>
+          <paper-tooltip for="settings">[[tooltop]]</paper-tooltip>
+        </editable-table-settings-menu>
+      </div>
+      <div class="other-settings-toggle">
         <editable-table-setting-toggle
           hidden$="[[hideSort]]"
           label="Enable Sorting" 
@@ -218,8 +290,8 @@ A LRN element
           tooltip="Enable sorting by column header."
           value$="{{sort}}">
         </editable-table-setting-toggle>
-      </p>
-      <p class="lone-toggle">
+      </div>
+      <div class="other-settings-toggle">
         <editable-table-setting-toggle
           hidden$="[[hideFilter]]"
           label="Enable Filters" 
@@ -227,8 +299,8 @@ A LRN element
           tooltip="Enable filtering by cell value."
           value$="{{filter}}">
         </editable-table-setting-toggle>
-      </p>
-      <p class="lone-toggle">
+      </div>
+      <div class="other-settings-toggle">
         <editable-table-setting-toggle
           hidden$="[[hideSplit]]"
           label="Split on Mobile" 
@@ -236,7 +308,7 @@ A LRN element
           tooltip="When table is wider than screens, split data into several smaller 2-column tables."
           value$="{{split}}">
         </editable-table-setting-toggle>
-      </p>
+      </div>
     </div>
     <table id="table" summary="editable table" bordered$="{{bordered}}" condensed$="{{condensed}}" striped$="{{striped}}">
       <caption>Table Cells: </caption>
@@ -271,9 +343,19 @@ A LRN element
         'cell-move': '_onCellMove'
       },
       
-      behaviors: [simpleColorsBehaviors],
+      behaviors: [
+        simpleColorsBehaviors,
+        ResponsiveUtilityBehaviors
+      ],
 
       properties: {
+        /**
+         * Get accent color and change unspecified to none.
+         */
+        accentSelected: {
+          type: String,
+          computed: '_getAccentSelected(accentColor)'
+        },
         /**
          * Add borders to table and table cells.
          */
@@ -432,9 +514,12 @@ A LRN element
           value: null
         },
       },
+      created: function(){
+        this.sm = 650;
+        this.md = 1100;
+      },
       ready: function(){
         let root = this;
-        console.log(this.dark, this.accentColor);
         root.$.table.addEventListener('modify-table', (e) => {
           let row = e.detail.item.getAttribute('type') === 'Row', index = parseInt(e.detail.item.getAttribute('index')), action = e.detail.item.getAttribute('action');
           if(action === 'delete') {
@@ -456,6 +541,9 @@ A LRN element
               root.insertColumn(index+1);
             }
           }
+        });
+        root.$.accent.addEventListener('change', (e) => {
+          root.accentColor = e.detail.value !== 'none' ? e.detail.value : null;
         });
       },
       attached: function(){
@@ -564,6 +652,9 @@ A LRN element
             body.children[y-2].children[body.children[y-2].children.length-2].children[0].focus();
           }
         }  
+      },
+      _getAccentSelected: function(accentColor){
+        return accentColor !== null ? accentColor : 'none';
       },
       _onToggleChanged: function(e){
         this[e.detail.prop] = e.detail.value;

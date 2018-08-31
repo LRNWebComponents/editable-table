@@ -26,7 +26,8 @@ A LRN element
       }
       :host paper-item {
         min-height: 40px;
-        padding: var(--editable-table-item-padding, 0px 16px);
+        font-size: 95%;
+        padding: var(--editable-table-toggle-padding, 0px 16px);
       }
       :host .setting {
         display: flex;
@@ -34,7 +35,7 @@ A LRN element
         width: 100%;
       }
       :host .setting-text {
-        min-width: 100px;
+        min-width: var(--editable-table-toggle-min-width,100px);
         padding-right: 0.5em;
       }
       :host .setting-control {
@@ -51,7 +52,7 @@ A LRN element
         <div class="setting-text">[[label]]</div>
         <div class="setting-control">
           <paper-toggle-button id="button" checked$="[[value]]"></paper-toggle-button>
-          <paper-tooltip for="button">[[tooltip]]</paper-tooltip>
+          <paper-tooltip for="button" position="left">[[tooltip]]</paper-tooltip>
         </div>
       </div>
     </paper-item>  
