@@ -25,7 +25,8 @@ A LRN element
         display: block;
       }
       :host paper-item {
-        font-size: 95%;
+        min-height: 40px;
+        padding: var(--editable-table-item-padding, 0px 16px);
       }
       :host .setting {
         display: flex;
@@ -34,6 +35,7 @@ A LRN element
       }
       :host .setting-text {
         min-width: 100px;
+        padding-right: 0.5em;
       }
       :host .setting-control {
         max-width: 100px;

@@ -2,6 +2,7 @@
 <link rel="import" href="../paper-input/paper-input.html">
 <link rel="import" href="../iron-autogrow-textarea/iron-autogrow-textarea.html">
 <link rel="import" href="../dom-repeat-n/dom-repeat-n.html">
+<link rel="import" href="../simple-colors/simple-colors.html">
 <link rel="import" href="editable-table-settings-menu.html">
 <link rel="import" href="editable-table-setting-toggle.html">
 <link rel="import" href="editable-table-rowcol-menu.html">
@@ -20,9 +21,37 @@ A LRN element
 
 <dom-module id="editable-table">
   <template>
-    <style is="custom-style">
+    <style is="custom-style" include="simple-colors">
       :host {
         display: block;
+        --editable-table-light-weight: 200;
+        --editable-table-medium-weight: 400;
+        --editable-table-heavy-weight: 500;
+        --editable-table-color: var(--simple-colors-foreground3, #222);
+        --editable-table-bg-color: var(--simple-colors-background1, #fff);
+        --editable-table-border-color: var(--simple-colors-background5, #999);
+        --editable-table-heading-color: var(--simple-colors-foreground1, #000);
+        --editable-table-heading-bg-color: var(--simple-colors-background3, #ddd);
+        --editable-table-stripe-bg-color: var(--simple-colors-background2, #eee);
+      }
+      :host[accent-color]{
+        --editable-table-heading-bg-color: var(--simple-colors-accent-background1, #ddd);
+      }
+      :host[dark]{
+        --editable-table-light-weight: 100;
+        --editable-table-medium-weight: 300;
+        --editable-table-heavy-weight: 400;
+        --editable-table-color: var(--simple-colors-foreground1, #fff);
+        --editable-table-bg-color:  var(--simple-colors-background3, #222);
+        --editable-table-border-color: var(--simple-colors-background1, #000);
+        --editable-table-heading-bg-color: var(--simple-colors-background1, #000);
+        --editable-table-heading-color: var(--simple-colors-foreground1, #fff);
+        --editable-table-stripe-bg-color: var(--simple-colors-background2, #111);
+      }
+      :host[dark][accent-color]{
+        --editable-table-heading-bg-color: var(--simple-colors-accent-background3, #000);
+      }
+      :host[dark][accent-color]{
       }
       :host table caption {
         text-align: left;
@@ -50,8 +79,16 @@ A LRN element
       :host .flex > *:not(:last-child) {
         padding-right: 0.5em;
       }
+      :host .lone-toggle:last-of-type editable-table-setting-toggle {
+        --editable-table-item-padding: 0px 0px 0px 16px;
+      }
+      :host div.flex:last-of-type,
+      :host div.flex:last-of-type p {
+        margin-bottom: 0;
+      }
       :host table {
         width: 100%;
+        margin-top: 0;
       }
       :host table,
       :host table th,
@@ -62,11 +99,15 @@ A LRN element
       :host table th,
       :host table td {
         border: 1px solid #ddd;
-      }
-      :host table[bordered],
-      :host table[bordered] th, 
+      } 
       :host table[bordered] td {
-        border: 1px solid #888;
+        border: 1px solid var(--editable-table-border-color);
+      }
+      :host table[bordered] thead th:not(:first-child) {
+        border-bottom: 1px solid var(--editable-table-border-color);
+      }
+      :host table[bordered] tbody th {
+        border-right: 1px solid var(--editable-table-border-color);
       }
       :host table th,
       :host table td {
@@ -75,112 +116,130 @@ A LRN element
       :host table th {
         background-color: #f0f0f0;
       }
-      :host table[striped] tbody tr:nth-child(2n) td {
-        background-color: #f8f8f8;
+      :host table td {
+        font-weight: var(--editable-table-light-weight);
+        color: var(--editable-table-color, #222);
+        background-color: var(--editable-table-bg-color);
       }
-      :host[column-header] table tbody tr:first-of-type td,
-      :host[footer] table tbody tr:last-of-type td, 
+      :host table[striped] tbody tr:nth-child(2n+1) td {
+        background-color: var(--editable-table-stripe-bg-color);
+      }
       :host[row-header] table td:first-of-type {
-        font-weight: bold;
+        font-weight:  var(--editable-table-medium-weight);
+        color: var(--editable-table-heading-color);
+        background-color: var(--editable-table-stripe-bg-color);
+      }
+      :host[column-header] table[striped] tbody tr:first-of-type td,
+      :host[column-header] table tbody tr:first-of-type td {
+        font-weight: var(--editable-table-heavy-weight);
+        color: var(--editable-table-heading-color);
+        background-color: var(--editable-table-heading-bg-color);
       }
       :host[footer] table tbody tr:last-of-type td {
-        border-top: 2px solid;
+        font-weight: var(--editable-table-heavy-weight);
+        color: var(--editable-table-heading-color);
+        border-top: 3px solid var(--editable-table-color);
       }
     </style>
+    <p class="flex">
+      <label for="caption" class="flex-padding">Table Caption: </label>
+      <iron-autogrow-textarea id="caption" class="flex-grow" value$="{{caption}}"></iron-autogrow-textarea>
+    </p>
+    <p class="flex">
+      <label for="summary" class="flex-padding">Table Summary (for accessibility): </label>
+      <iron-autogrow-textarea id="summary" class="flex-grow" value$="{{summary}}"></iron-autogrow-textarea>
+    </p>
+    <div class="flex">
+      <p class="flex-grow">
+        <editable-table-settings-menu 
+          label="Headers and Footers" 
+          tooltip="Set headers and footers.">
+          <editable-table-setting-toggle 
+            label="First Column" 
+            prop="rowHeader" 
+            tooltip="Display the first column as a row header."
+            value$="{{rowHeader}}">
+          </editable-table-setting-toggle>
+          <editable-table-setting-toggle
+            label="First Row" 
+            prop="columnHeader" 
+            tooltip="Display the first row as a column header."
+            value$="{{columnHeader}}">
+          </editable-table-setting-toggle>
+          <editable-table-setting-toggle
+            hidden$="[[disableFooter]]"
+            label="Last Row" 
+            prop="footer" 
+            tooltip="Display the last row as a footer."
+            value$="{{footer}}">
+          </editable-table-setting-toggle>
+        </editable-table-settings-menu>
+      </p>
+      <p class="flex-grow">
+        <editable-table-settings-menu 
+          hidden$="[[hideTableStyles]]" 
+          label="Table Styles" 
+          tooltip="Set themes, borders, condensed styles.">
+          <editable-table-setting-toggle
+            hidden$="[[hideBordered]]"
+            label="Bordered" 
+            prop="bordered" 
+            tooltip="Add borders to table and table cells."
+            value$="{{bordered}}">
+          </editable-table-setting-toggle>
+          <editable-table-setting-toggle
+            hidden$="[[hideCondensed]]"
+            label="Condensed" 
+            prop="condensed" 
+            tooltip="Condense height of table cells."
+            value$="{{condensed}}">
+          </editable-table-setting-toggle>
+          <editable-table-setting-toggle
+            hidden$="[[hideDarkTheme]]"
+            label="Dark" 
+            prop="dark" 
+            tooltip="Use the dark theme."
+            value$="{{dark}}">
+          </editable-table-setting-toggle>
+          <editable-table-setting-toggle
+            hidden$="[[hideStriped]]"
+            label="Striped" 
+            prop="striped" 
+            tooltip="Add striping to alternating rows."
+            value$="{{striped}}">
+          </editable-table-setting-toggle>
+        </editable-table-settings-menu>
+      </p>
+      <p class="lone-toggle">
+        <editable-table-setting-toggle
+          hidden$="[[hideSort]]"
+          label="Enable Sorting" 
+          prop="sort" 
+          tooltip="Enable sorting by column header."
+          value$="{{sort}}">
+        </editable-table-setting-toggle>
+      </p>
+      <p class="lone-toggle">
+        <editable-table-setting-toggle
+          hidden$="[[hideFilter]]"
+          label="Enable Filters" 
+          prop="filter" 
+          tooltip="Enable filtering by cell value."
+          value$="{{filter}}">
+        </editable-table-setting-toggle>
+      </p>
+      <p class="lone-toggle">
+        <editable-table-setting-toggle
+          hidden$="[[hideSplit]]"
+          label="Split on Mobile" 
+          prop="split" 
+          tooltip="When table is wider than screens, split data into several smaller 2-column tables."
+          value$="{{split}}">
+        </editable-table-setting-toggle>
+      </p>
+    </div>
     <table id="table" summary="editable table" bordered$="{{bordered}}" condensed$="{{condensed}}" striped$="{{striped}}">
-      <caption>
-          <p class="flex">
-            <label for="caption" class="flex-padding">Table Caption: </label>
-            <iron-autogrow-textarea id="caption" class="flex-grow" value$="{{caption}}"></iron-autogrow-textarea>
-          </p>
-        <p class="flex">
-          <label for="summary" class="flex-padding">Table Summary (for accessibility): </label>
-          <iron-autogrow-textarea id="summary" class="flex-grow" value$="{{summary}}"></iron-autogrow-textarea>
-        </p>
-        <div class="flex">
-          <p class="flex-grow">
-            <editable-table-settings-menu 
-              label="Headers and Footers" 
-              tooltip="Set headers and footers.">
-              <editable-table-setting-toggle 
-                label="First Column" 
-                prop="rowHeader" 
-                tooltip="Display the first column as a row header."
-                value$="{{rowHeader}}">
-              </editable-table-setting-toggle>
-              <editable-table-setting-toggle
-                label="First Row" 
-                prop="columnHeader" 
-                tooltip="Display the first row as a column header."
-                value$="{{columnHeader}}">
-              </editable-table-setting-toggle>
-              <editable-table-setting-toggle
-                hidden$="[[disableFooter]]"
-                label="Last Row" 
-                prop="footer" 
-                tooltip="Display the last row as a footer."
-                value$="{{footer}}">
-              </editable-table-setting-toggle>
-            </editable-table-settings-menu>
-          </p>
-          <p class="flex-grow">
-            <editable-table-settings-menu 
-              hidden$="[[hideTableStyles]]" 
-              label="Table Styles" 
-              tooltip="Set themes, borders, condensed styles.">
-              <editable-table-setting-toggle
-                hidden$="[[hideBordered]]"
-                label="Bordered" 
-                prop="bordered" 
-                tooltip="Add borders to table and table cells."
-                value$="{{bordered}}">
-              </editable-table-setting-toggle>
-              <editable-table-setting-toggle
-                hidden$="[[hideCondensed]]"
-                label="Condensed" 
-                prop="condensed" 
-                tooltip="Condense height of table cells."
-                value$="{{condensed}}">
-              </editable-table-setting-toggle>
-              <editable-table-setting-toggle
-                hidden$="[[hideStriped]]"
-                label="Striped" 
-                prop="striped" 
-                tooltip="Add alternating row striping."
-                value$="{{striped}}">
-              </editable-table-setting-toggle>
-              <editable-table-setting-toggle
-                hidden$="[[hideSplit]]"
-                label="Mobile-Friendly Splitting" 
-                prop="split" 
-                tooltip="When table is wider than screens, split data into several smaller tables."
-                value$="{{split}}">
-              </editable-table-setting-toggle>
-            </editable-table-settings-menu>
-          </p>
-          <p>
-            <editable-table-settings-menu 
-              hidden$="[[hideSortFilter]]" 
-              label="Sorting and Filtering" 
-              tooltip="Set sorting and filtering options.">
-              <editable-table-setting-toggle
-                hidden$="[[hideSort]]"
-                label="Enable Sorting" 
-                prop="sort" 
-                tooltip="Enable sorting by column header."
-                value$="{{sort}}">
-              </editable-table-setting-toggle>
-              <editable-table-setting-toggle
-                hidden$="[[hideFilter]]"
-                label="Enable Filters" 
-                prop="filter" 
-                tooltip="Enable filtering by cell value."
-                value$="{{filter}}">
-              </editable-table-setting-toggle>
-            </editable-table-settings-menu>
-          </p>
-        </div>
-      </caption>
+      <caption>Table Cells: </caption>
       <thead> 
         <tr>
           <th scope="col"></th>
@@ -206,10 +265,13 @@ A LRN element
     Polymer({
 
       is: 'editable-table',
+
       listeners: {
-        'editable-table-settings-changed': '_onToggleChanged',
+        'editable-table-setting-changed': '_onToggleChanged',
         'cell-move': '_onCellMove'
       },
+      
+      behaviors: [simpleColorsBehaviors],
 
       properties: {
         /**
@@ -285,25 +347,25 @@ A LRN element
           value: false
         },
         /**
-         * Hide the sorting option on the sorting & filtering menu.
+         * Hide the dark theme styles menu option.
+         */
+         hideDarkTheme: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Hide the filtering option.
          */
          hideFilter: {
           type: Boolean,
           value: false
         },
         /**
-         * Hide the sorting option on the sorting & filtering menu.
+         * Hide the sorting option.
          */
          hideSort: {
           type: Boolean,
           value: false
-        },
-        /**
-         * Hide the sorting & filtering menu.
-         */
-         hideSortFilter: {
-          type: Boolean,
-          computed: '_sortFilterHidden(hideSort,hideFilter)'
         },
         /**
          * Hide the split table styles menu option
@@ -324,7 +386,7 @@ A LRN element
          */
          hideTableStyles: {
           type: Boolean,
-          computed: '_tableStylesHidden(hideBordered,hideCondensed,hideStriped,hideSplit)'
+          computed: '_tableStylesHidden(hideBordered,hideCondensed,hideStriped,hideSplit,hideDarkTheme)'
         },
         /**
          * number of table columns
@@ -372,6 +434,7 @@ A LRN element
       },
       ready: function(){
         let root = this;
+        console.log(this.dark, this.accentColor);
         root.$.table.addEventListener('modify-table', (e) => {
           let row = e.detail.item.getAttribute('type') === 'Row', index = parseInt(e.detail.item.getAttribute('index')), action = e.detail.item.getAttribute('action');
           if(action === 'delete') {
@@ -465,11 +528,12 @@ A LRN element
           "rowHeader": this.rowHeader,
           "footer": this.footer,
           "bordered": !this.hideBordered ? this.bordered : null,
-          "split": !this.hideSplit ? this.split : null,
-          "striped": !this.hideStriped ? this.striped : null,
           "condensed": !this.hideCondensed ? this.condensed: null,
+          "dark": !this.hideDark ? this.dark : null,
+          "striped": !this.hideStriped ? this.striped : null,
           "sort": !this.hideSort ? this.sort : null,
           "filter": !this.hideFilter ? this.filter : null,
+          "split": !this.hideSplit ? this.split : null,
           "data": this.data,
         });
       },
@@ -504,11 +568,8 @@ A LRN element
       _onToggleChanged: function(e){
         this[e.detail.prop] = e.detail.value;
       },
-      _sortFilterHidden: function(hideSort,hideFilter){
-        return hideSort && hideFilter;
-      },
-      _tableStylesHidden: function(hideBordered,hideCondensed,hideStriped,hideSplit){
-        return hideBordered && hideCondensed && hideStriped && hideSplit;
+      _tableStylesHidden: function(hideBordered,hideCondensed,hideStriped,hideSplit,hideDarkTheme){
+        return hideBordered && hideCondensed && hideStriped && hideSplit && hideDarkTheme;
       },
     });
   </script>

@@ -4,7 +4,6 @@
 <link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="../paper-button/paper-button.html">
 <link rel="import" href="../paper-listbox/paper-listbox.html">
-<link rel="import" href="../paper-item/paper-item.html">
 <link rel="import" href="../paper-tooltip/paper-tooltip.html">
 
 <!--
@@ -28,7 +27,6 @@ A LRN element
       }
       :host paper-menu-button {
         margin: 0;
-        padding: 0;
         width: 100%;
       }
       :host #trigger-button {
@@ -97,12 +95,6 @@ A LRN element
           type: String,
           value: null
         },
-      },
-      ready: function(){
-        let root = this;
-        root.$.settings.addEventListener('editable-table-setting-changed', (e) => {
-          this.fire('editable-table-settings-changed',e.detail);
-        });
       },
     });
   </script>
