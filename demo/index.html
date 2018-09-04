@@ -24,17 +24,45 @@
       <h3>editable-table demo</h3>
       <demo-snippet>
         <template>
-          <editable-table id="table2" 
-            accent-color="cyan"
+          <editable-table id="table1" 
+            accent-color="indigo"
             bordered 
+            caption="Primary, Secondary, and Tertiary Colors"
             column-header
+            row-header
             condensed 
+            scroll
             striped 
-            data='[ [ "Food", "Enclosure", "Contents", "Orientation" ], [ "Hamburger", "one bun, split into two", "meat, vegetables, cheese, and/or condiments", "horizontal" ], [ "Hoagie", "one bun", "meat, vegetables, cheese, and/or condiments", "vertical" ], [ "Hot Dog", "one bun", "meat, vegetables, cheese, and/or condiments", "vertical" ], [ "Hot Pocket", "two crusts sealed together", "meat, vegetables, cheese, and/or condiments", "horizontal" ], [ "Pie", "two crusts sealed together", "fruit or meat, vegetables, and/or cheese", "horizontal" ], [ "Taco", "one shell", "meat, vegetables, cheese, and/or condiments", "vertical" ] ]' caption="Is it a sandwich? Food classification chart.">
+            data='[ ["Color","Red","Red-Orange","Orange","Yellow-Orange","Yellow","Yellow-Green","Green","Blue-Green","Blue","Blue-Violet","Violet","Red-Violet"], ["Type","primary","  tertiary","secondary","tertiary","primary","tertiary","secondary","tertiary","primary","tertiary","secondary","tertiary"], ["Mix","N/A","red, orange","red, yellow","yellow, orange","N/A","yellow, green","yellow, blue","blue, green","N/A","blue, violet","blue, red","red, violet"] ]'>
           </editable-table>
-          <p><paper-button onclick="alert(document.getElementById('table2').getData())" raised>Get Data</paper-button></p>
         </template>
       </demo-snippet>
+      <!--h3>editable-table-editor</h3>
+      <p>This is a standalone component that just displays the editor</p>
+      <demo-snippet>
+        <template>
+          <editable-table-editor id="table2"></editable-table-editor>
+          <p><paper-button onclick="alert(document.getElementById('table2').getData())" raised>Get Data</paper-button></p>          
+        </template>
+      </demo-snippet-->
+      <h3>editable-table-display</h3>
+      <p>This is a standalone component that just displays tables</p>
+      <demo-snippet>
+        <template>
+          <editable-table-display id="table3" 
+            accent-color="cyan"
+            bordered 
+            caption="Is it a sandwich? Food classification chart."
+            column-header 
+            row-header 
+            condensed 
+            scroll 
+            striped 
+            summary="A table of foods classification by attributes. Each row represents a food with columns for enclosure, contents, and orientation."
+            data='[ [ "Food", "Enclosure", "Contents", "Orientation" ], [ "Hamburger", "one bun, scroll into two", "meat, vegetables, cheese, and/or condiments", "horizontal" ], [ "Hoagie", "one bun", "meat, vegetables, cheese, and/or condiments", "vertical" ], [ "Hot Dog", "one bun", "meat, vegetables, cheese, and/or condiments", "vertical" ], [ "Hot Pocket", "two crusts sealed together", "meat, vegetables, cheese, and/or condiments", "horizontal" ], [ "Pie", "two crusts sealed together", "fruit or meat, vegetables, and/or cheese", "horizontal" ], [ "Taco", "one shell", "meat, vegetables, cheese, and/or condiments", "vertical" ] ]'>
+          </editable-table-display>
+        </template>
+      </demo-snippet-->
     </div>
   </body>
 </html>

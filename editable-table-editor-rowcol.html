@@ -7,7 +7,7 @@
 <link rel="import" href="../paper-item/paper-item.html">
 
 <!--
-`editable-table-rowcol-menu`
+`editable-table-editor-rowcol`
 A LRN element
 
 @demo demo/index.html
@@ -19,11 +19,15 @@ A LRN element
 
 -->
 
-<dom-module id="editable-table-rowcol-menu">
+<dom-module id="editable-table-editor-rowcol">
   <template>
     <style>
       :host {
         display: block;
+      }
+      :host #label {
+        margin: 0;
+        padding: 0;
       }
       :host paper-menu-button {
         margin: 0;
@@ -42,8 +46,7 @@ A LRN element
     </style>
     <paper-menu-button id="menu">
       <paper-button slot="dropdown-trigger">
-        <span id="label"></span>
-        <iron-icon icon="arrow-drop-down"></iron-icon>
+        <span id="label"></span> <iron-icon icon="arrow-drop-down"></iron-icon>
       </paper-button>
       <paper-listbox slot="dropdown-content" label$="[[label]]">
         <paper-item action="insert-before" index$="[[index]]" type$="[[type]]">Insert [[type]] Before</paper-item>
@@ -58,7 +61,7 @@ A LRN element
   <script>
     Polymer({
 
-      is: 'editable-table-rowcol-menu',
+      is: 'editable-table-editor-rowcol',
 
       properties: {
         label: {

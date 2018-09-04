@@ -1,16 +1,7 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../neon-animation/neon-animation.html">
-<link rel="import" href="../paper-input/paper-input.html">
-<link rel="import" href="../paper-tooltip/paper-tooltip.html">
-<link rel="import" href="../dropdown-select/dropdown-select.html">
-<link rel="import" href="../iron-autogrow-textarea/iron-autogrow-textarea.html">
-<link rel="import" href="../dom-repeat-n/dom-repeat-n.html">
-<link rel="import" href="../simple-colors/simple-colors.html">
-<link rel="import" href="../responsive-utility/responsive-utility-behaviors.html">
-<link rel="import" href="editable-table-settings-menu.html">
-<link rel="import" href="editable-table-setting-toggle.html">
-<link rel="import" href="editable-table-rowcol-menu.html">
-<link rel="import" href="editable-table-cell.html">
+<link rel="import" href="editable-table-behaviors.html">
+<link rel="import" href="editable-table-editor.html">
+<link rel="import" href="editable-table-display.html">
 <!--
 `editable-table`
 A LRN element
@@ -20,657 +11,74 @@ A LRN element
  -
  -
  -
-
+hideBordered
 -->
 
 <dom-module id="editable-table">
   <template>
-    <style is="custom-style" include="simple-colors">
-      :host, :host[accent-color="none"] {
-        display: block;
-        --editable-table-light-weight: 200;
-        --editable-table-medium-weight: 400;
-        --editable-table-heavy-weight: 500;
-        --editable-table-color: var(--simple-colors-foreground3, #222);
-        --editable-table-bg-color: var(--simple-colors-background1, #fff);
-        --editable-table-border-color: var(--simple-colors-background5, #999);
-        --editable-table-heading-color: var(--simple-colors-foreground1, #000);
-        --editable-table-heading-bg-color: var(--simple-colors-background3, #ddd);
-        --editable-table-stripe-bg-color: var(--simple-colors-background2, #eee);
-      }
-      :host[accent-color]{
-        --editable-table-heading-bg-color: var(--simple-colors-accent-background2, #ddd);
-        --editable-table-border-color: var(--simple-colors-accent-foreground5, #999);
-      }
-      :host[dark], :host[dark][accent-color="none"]{
-        --editable-table-light-weight: 100;
-        --editable-table-medium-weight: 300;
-        --editable-table-heavy-weight: 400;
-        --editable-table-color: var(--simple-colors-foreground1, #fff);
-        --editable-table-bg-color:  var(--simple-colors-background3, #222);
-        --editable-table-border-color: var(--simple-colors-background1, #000);
-        --editable-table-heading-bg-color: var(--simple-colors-background1, #000);
-        --editable-table-heading-color: var(--simple-colors-foreground1, #fff);
-        --editable-table-stripe-bg-color: var(--simple-colors-background2, #111);
-      }
-      :host[dark][accent-color]{
-        --editable-table-heading-bg-color: var(--simple-colors-accent-background3, #000);
-        --editable-table-border-color: var(--simple-colors-accent-foreground5, #000);
-      }
-      :host, 
-      :host paper-item {
-        font-size: 12pt;
-      }
-      :host table caption {
-        text-align: left;
-        line-height: 30px;
-      }
-      :host .field-group {
-        width: 100%;
-        margin: 0 0 10px;
-        padding: 0;
-      }
-      :host .field-group > * {
-        justify-content: space-between;
-        align-items: baseline;
-      }
-      :host .field-group > .field-group-grow {
-        flex-grow: 1;
-        width: auto;
-      }
-      :host .field-group > *:not(:last-child) {
-        padding-right: 0.5em;
-      }
-      :host .field-group label {
-        line-height: 30px;
-      }
-      :host[responsive-size="xs"] .field-group-responsive > * {
-        margin-bottom: 10px;
-      }
-      :host .field-group:not(.field-group-responsive),
-      :host:not([responsive-size="xs"]) .field-group {
-        display: flex;
-        align-items: center;
-      }
-      :host[responsive-size="xs"] editable-table-settings-menu {
-        padding: 3px 0;
-      }
-      :host .other-settings-toggle editable-table-setting-toggle {
-        padding-right: 32px;
-        --editable-table-toggle-padding: 0px;
-        --editable-table-toggle-min-width: unset;
-      }
-      :host .other-settings-toggle:last-child editable-table-setting-toggle {
-        padding-right: 0px;
-      }
-      :host[responsive-size="xs"] .other-settings-toggle editable-table-setting-toggle,
-      :host[responsive-size="sm"] .other-settings-toggle editable-table-setting-toggle, 
-      :host:not([responsive-size="xs"]):not([responsive-size="sm"]) .other-settings {
-        display: none;
-      }
-      :host table {
-        width: 100%;
-      }
-      :host table,
-      :host table th,
-      :host table td {
-        border-collapse: collapse;
-        border: 1px solid #ddd;
-      } 
-      :host table th,
-      :host table td {
-        padding: 0;
-      }
-      :host table th {
-        background-color: #f0f0f0;
-      }
-      :host table td {
-        font-weight: var(--editable-table-light-weight);
-        color: var(--editable-table-color, #222);
-        background-color: var(--editable-table-bg-color);
-      }
-      :host[dark] table td {
-        border: 1px solid var(--editable-table-bg-color);
-      }
-      :host[dark] table thead th:not(:first-child) {
-        border-bottom: 1px solid var(--editable-table-bg-color);
-      }
-      :host[dark] table tbody th {
-        border-right: 1px solid var(--editable-table-bg-color);
-      }
-      :host table[bordered] td {
-        border: 1px solid var(--editable-table-border-color);
-      }
-      :host table[bordered] thead th:not(:first-child) {
-        border-bottom: 1px solid var(--editable-table-border-color);
-      }
-      :host table[bordered] tbody th {
-        border-right: 1px solid var(--editable-table-border-color);
-      }
-      :host table[striped] tbody tr:nth-child(2n+1) td {
-        background-color: var(--editable-table-stripe-bg-color);
-      }
-      :host[row-header] table td:first-of-type {
-        font-weight:  var(--editable-table-medium-weight);
-        color: var(--editable-table-heading-color);
-        background-color: var(--editable-table-stripe-bg-color);
-      }
-      :host[column-header] table[striped] tbody tr:first-of-type td,
-      :host[column-header] table tbody tr:first-of-type td {
-        font-weight: var(--editable-table-heavy-weight);
-        color: var(--editable-table-heading-color);
-        background-color: var(--editable-table-heading-bg-color);
-      }
-      :host[footer] table tbody tr:last-of-type td {
-        font-weight: var(--editable-table-heavy-weight);
-        color: var(--editable-table-heading-color);
-        border-top: 3px solid var(--editable-table-color);
-      }
-    </style>
-    <p class="field-group">
-      <label for="caption" class="field-group-padding">Table Caption: </label>
-      <iron-autogrow-textarea id="caption" class="field-group-grow" value$="{{caption}}"></iron-autogrow-textarea>
-    </p>
-    <p class="field-group">
-      <label for="summary" class="field-group-padding">Table Summary (for accessibility): </label>
-      <iron-autogrow-textarea id="summary" 
-        class="field-group-grow" 
-        value$="{{summary}}" 
-        placeholder="Describe what the table contains. What does each row represent? What does each column represent?">
-      </iron-autogrow-textarea>
-    </p>
-    <div class="field-group field-group-responsive">
-      <div class="field-group-grow">
-        <editable-table-settings-menu 
-          label="Headers and Footers" 
-          tooltip="Set headers and footers.">
-          <editable-table-setting-toggle 
-            label="First Column" 
-            prop="rowHeader" 
-            tooltip="First column header."
-            value$="{{rowHeader}}">
-          </editable-table-setting-toggle>
-          <editable-table-setting-toggle
-            label="First Row" 
-            prop="columnHeader" 
-            tooltip="First row header."
-            value$="{{columnHeader}}">
-          </editable-table-setting-toggle>
-          <editable-table-setting-toggle
-            hidden$="[[hideFooter]]"
-            label="Last Row" 
-            prop="footer" 
-            tooltip="Last row footer."
-            value$="{{footer}}">
-          </editable-table-setting-toggle>
-        </editable-table-settings-menu>
-      </div>
-      <div class="field-group-grow">
-        <editable-table-settings-menu 
-          hidden$="[[hideTableStyles]]" 
-          label="Table Styles" 
-          tooltip="Set themes, borders, condensed styles.">
-          <paper-item>
-            <dropdown-select id="accent" label="Accent Color" value$="{{accentColor}}">
-              <paper-item value="none">None</paper-item>
-              <paper-item value="red">Red</paper-item>
-              <paper-item value="pink">Pink</paper-item>
-              <paper-item value="purple">Purple</paper-item>
-              <paper-item value="deep-purple">Deep Purple</paper-item>
-              <paper-item value="indigo">Indigo</paper-item>
-              <paper-item value="blue">Blue</paper-item>
-              <paper-item value="light-blue">Light Blue</paper-item>
-              <paper-item value="cyan">Cyan</paper-item>
-              <paper-item value="teal">Teal</paper-item>
-              <paper-item value="green">Green</paper-item>
-              <paper-item value="light-green">Light Green</paper-item>
-              <paper-item value="lime">Lime</paper-item>
-              <paper-item value="yellow">Yellow</paper-item>
-              <paper-item value="amber">Amber</paper-item>
-              <paper-item value="orange">Orange</paper-item>
-              <paper-item value="deep-orange">Deep Orange</paper-item>
-              <paper-item value="brown">Deep Orange</paper-item>
-              <paper-item value="blue-grey">Blue-Grey</paper-item>
-            </dropdown-select>
-          </paper-item>
-          <editable-table-setting-toggle
-            hidden$="[[hideBordered]]"
-            label="Bordered" 
-            prop="bordered" 
-            tooltip="Add borders to cells."
-            value$="{{bordered}}">
-          </editable-table-setting-toggle>
-          <editable-table-setting-toggle
-            hidden$="[[hideCondensed]]"
-            label="Condensed" 
-            prop="condensed" 
-            tooltip="Condense cell height."
-            value$="{{condensed}}">
-          </editable-table-setting-toggle>
-          <editable-table-setting-toggle
-            hidden$="[[hideDarkTheme]]"
-            label="Dark" 
-            prop="dark" 
-            tooltip="Use the dark theme."
-            value$="{{dark}}">
-          </editable-table-setting-toggle>
-          <editable-table-setting-toggle
-            hidden$="[[hideStriped]]"
-            label="Striped" 
-            prop="striped" 
-            tooltip="Alternating rows."
-            value$="{{striped}}">
-          </editable-table-setting-toggle>
-        </editable-table-settings-menu>
-      </div>
-      <div class="other-settings">
-        <editable-table-settings-menu 
-          hidden$="[[hideOtherSettings]]" 
-          label="Other Settings" 
-          tooltip="Set sorting, filters, and mobile options.">
-          <editable-table-setting-toggle
-            hidden$="[[hideSort]]"
-            label="Enable Sorting" 
-            prop="sort" 
-            tooltip="Sortable by column."
-            value$="{{sort}}">
-          </editable-table-setting-toggle>
-          <editable-table-setting-toggle
-            hidden$="[[hideFilter]]"
-            label="Enable Filters" 
-            prop="filter" 
-            tooltip="Filter by cell."
-            value$="{{filter}}">
-          </editable-table-setting-toggle>
-          <editable-table-setting-toggle
-            hidden$="[[hideSplit]]"
-            label="Split on Mobile" 
-            prop="split" 
-            tooltip="Small 2-column tables."
-            value$="{{split}}">
-          </editable-table-setting-toggle>
-          <paper-tooltip for="settings">[[tooltop]]</paper-tooltip>
-        </editable-table-settings-menu>
-      </div>
-      <div class="other-settings-toggle">
-        <editable-table-setting-toggle
-          hidden$="[[hideSort]]"
-          label="Enable Sorting" 
-          prop="sort" 
-          tooltip="Enable sorting by column header."
-          value$="{{sort}}">
-        </editable-table-setting-toggle>
-      </div>
-      <div class="other-settings-toggle">
-        <editable-table-setting-toggle
-          hidden$="[[hideFilter]]"
-          label="Enable Filters" 
-          prop="filter" 
-          tooltip="Enable filtering by cell value."
-          value$="{{filter}}">
-        </editable-table-setting-toggle>
-      </div>
-      <div class="other-settings-toggle">
-        <editable-table-setting-toggle
-          hidden$="[[hideSplit]]"
-          label="Split on Mobile" 
-          prop="split" 
-          tooltip="When table is wider than screens, split data into several smaller 2-column tables."
-          value$="{{split}}">
-        </editable-table-setting-toggle>
-      </div>
-    </div>
-    <table id="table" summary="editable table" bordered$="{{bordered}}" condensed$="{{condensed}}" striped$="{{striped}}">
-      <caption>Table Cells: </caption>
-      <thead> 
-        <tr>
-          <th scope="col"></th>
-          <template id="headers" is="dom-repeat-n" count="[[colCount]]" index-as="col">
-            <th scope="col"><editable-table-rowcol-menu condensed$="{{condensed}}" index$="[[col]]" type="Column"></editable-table-rowcol-menu></th>
-          </template>
-        </tr> 
-      </thead>
-      <tbody id="tbody"> 
-        <template id="rows" is="dom-repeat-n" count="[[rowCount]]" index-as="row">
-          <tr>
-            <th scope="row"><editable-table-rowcol-menu condensed$="{{condensed}}" index$="[[row]]" type="Row"></editable-table-rowcol-menu></th>
-            <template id="columns" is="dom-repeat" items="{{_getCurrentRow(row,data)}}" as="cell">
-              <td><editable-table-cell index="[[index]]" value$="{{cell}}"></editable-table-cell></td>
-            </template>
-          </tr> 
-        </template>
-      </tbody>
-    </table>
+    <template is="dom-if" if="[[!editMode]]">
+      <editable-table-display id="display-mode"
+        accent-color$="[[accentColor]]" 
+        caption$="[[caption]]" 
+        column-header$="[[columnHeader]]" 
+        dark$="[[dark]]" 
+        data$="[[data]]"
+        bordered$="[[bordered]]" 
+        condensed$="[[condensed]]" 
+        filter$="[[filter]]" 
+        row-header$="[[rowHeader]]"
+        sort$="[[sort]]" 
+        scroll$="[[scroll]]" 
+        striped$="[[striped]]" 
+        summary$="[[summary]]">
+      </editable-table-display>
+    </template>
+    <template is="dom-if" if="[[editMode]]">
+      <editable-table-editor id="edit-mode"
+        accent-color$="{{accentColor}}" 
+        caption$="{{caption}}" 
+        column-header$="{{columnHeader}}" 
+        dark$="{{dark}}" 
+        data$="{{data}}"
+        hide-accent-color$="{{hideAccentColor}}" 
+        hide-dark-theme$="{{hideDarkTheme}}" 
+        hide-bordered$="{{hideBordered}}" 
+        hide-condensed$="{{hideCondensed}}" 
+        hide-filter$="{{hideFilter}}" 
+        hide-sort$="{{hideSort}}" 
+        hide-scroll$="{{hideScroll}}" 
+        hide-striped$="{{hideStriped}}"
+        bordered$="{{bordered}}" 
+        condensed$="{{condensed}}" 
+        filter$="{{filter}}" 
+        row-header$="{{rowHeader}}"
+        sort$="{{sort}}" 
+        scroll$="{{scroll}}" 
+        striped$="{{striped}}" 
+        summary$="{{summary}}">
+      </editable-table-editor>
+    </template>
   </template>
 
   <script>
     Polymer({
-
       is: 'editable-table',
-
-      listeners: {
-        'editable-table-setting-changed': '_onToggleChanged',
-        'cell-move': '_onCellMove'
-      },
       
       behaviors: [
-        simpleColorsBehaviors,
-        ResponsiveUtilityBehaviors
+        editableTableBehaviors.displayBehaviors,
+        editableTableBehaviors.editBehaviors  
       ],
 
       properties: {
-        /**
-         * Get accent color and change unspecified to none.
-         */
-        accentSelected: {
-          type: String,
-          computed: '_getAccentSelected(accentColor)'
-        },
-        /**
-         * Add borders to table and table cells.
-         */
-        bordered: {
+        editMode: {
           type: Boolean,
           value: false
-        },
-        /**
-         * a table caption
-         */
-        caption: {
-          type: String,
-          value: null
-        },
-        /**
-         * number of table columns
-         */
-        colCount: {
-          type: Number,
-          computed: '_getColCount(data)'
-        },
-        /**
-         * Display the first row as a column header.
-         */
-         columnHeader: {
-          type: Boolean,
-          value: false,
-          reflectToAttribute: true
-        },
-        /**
-         * Condense height of table cells.
-         */
-        condensed: {
-          type: Boolean,
-          value: false
-        },
-        /**
-         * raw data
-         */
-        data: {
-          type: Array,
-          value: []
-        },
-        /**
-         * Enable filtering by cell value.
-         */
-         filter: {
-          type: Boolean,
-          value: false
-        },
-        /**
-         * Display the last row as a column footer.
-         */
-         footer: {
-          type: Boolean,
-          value: false,
-          reflectToAttribute: true
-        },
-        /**
-         * Hide the borders table styles menu option
-         */
-         hideBordered: {
-          type: Boolean,
-          value: false
-        },
-        /**
-         * Hide the condensed table styles menu option
-         */
-         hideCondensed: {
-          type: Boolean,
-          value: false
-        },
-        /**
-         * Hide the dark theme styles menu option.
-         */
-         hideDarkTheme: {
-          type: Boolean,
-          value: false
-        },
-        /**
-         * Hide the filtering option.
-         */
-         hideFilter: {
-          type: Boolean,
-          value: false
-        },
-        /**
-         * Hide the sorting option.
-         */
-         hideSort: {
-          type: Boolean,
-          value: false
-        },
-        /**
-         * Hide the split table styles menu option
-         */
-         hideSplit: {
-          type: Boolean,
-          value: false
-        },
-        /**
-         * Hide the striped table styles menu option
-         */
-         hideStriped: {
-          type: Boolean,
-          value: false
-        },
-        /**
-         * Hide the table styles menu
-         */
-         hideTableStyles: {
-          type: Boolean,
-          computed: '_tableStylesHidden(hideBordered,hideCondensed,hideStriped,hideSplit,hideDarkTheme)'
-        },
-        /**
-         * number of table columns
-         */
-        rowCount: {
-          type: Number,
-          computed: '_getRowCount(data)'
-        },
-        /**
-         * Display the first column as a row header.
-         */
-         rowHeader: {
-          type: Boolean,
-          value: false,
-          reflectToAttribute: true
-        },
-        /**
-         * Enable sorting by column header.
-         */
-        sort: {
-          type: Boolean,
-          value: false
-        },
-        /**
-         * When table is wider than screens, split data into several smaller tables. 
-         */
-        split: {
-          type: Boolean,
-          value: false
-        },
-        /**
-         * Add alternating row striping.
-         */
-        striped: {
-          type: Boolean,
-          value: false
-        },
-        /**
-         * a table summary
-         */
-        summary: {
-          type: String,
-          value: null
-        },
+        }
       },
-      created: function(){
-        this.sm = 650;
-        this.md = 1100;
-      },
+
       ready: function(){
-        let root = this;
-        root.$.table.addEventListener('modify-table', (e) => {
-          let row = e.detail.item.getAttribute('type') === 'Row', index = parseInt(e.detail.item.getAttribute('index')), action = e.detail.item.getAttribute('action');
-          if(action === 'delete') {
-            if (row) {
-              root.deleteRow(index);
-            } else {
-              root.deleteColumn(index);
-            }
-          } else if (action === 'insert-before') {
-            if (row) {
-              root.insertRow(index-1);
-            } else {
-              root.insertColumn(index);
-            }
-          } else if (action === 'insert-after') {
-            if (row) {
-              root.insertRow(index);
-            } else {
-              root.insertColumn(index+1);
-            }
-          }
-        });
-        root.$.accent.addEventListener('change', (e) => {
-          root.accentColor = e.detail.value !== 'none' ? e.detail.value : null;
-        });
       },
       attached: function(){
-        let root = this;
-      },
-      _getColCount: function(data){
-        let cols = 0;
-        if (data !== undefined && data !== null && data.length > 0) {
-          cols =  data[0].length;
-        }
-        return cols;
-      },
-      _getRowCount: function(data){
-        let rows = 0;
-        if (data !== undefined && data !== null) {
-          rows = data.length;
-        } 
-        return rows;
-      },
-      _getCurrentRow: function(index,data){
-        let row = null;
-        if (data !== undefined && data !== null && data[index] !== undefined && data[index] !== null) {
-          row = data[index];
-        }
-        return row;
-      },
-      insertRow: function(index){
-        let temp = new Array();
-        for(let i = 0; i < this.data[0].length; i++){
-          temp.push('');
-        }
-        this.splice('data',index+1,0,temp);
-        temp2 = this.data;
-        this.set('data',[]);
-        this.set('data',temp2);
-      },
-      deleteRow: function(index){
-        if (confirm('Delete entire row?')) {
-          this.splice('data',index,1);
-          temp = this.data;
-          this.set('data',[]);
-          this.set('data',temp);
-        }
-      },
-      insertColumn: function(index){
-        let temp = new Array();
-        for(let i = 0; i < this.data.length; i++){
-          temp.push(this.data[i]);
-          temp[i].splice(index,0,'');
-        }
-        this.set('data',[]);
-        this.set('data',temp);
-      },
-      deleteColumn: function(index){
-        let temp = [];
-        if (confirm('Delete entire column?')) {
-          for(let i=0; i<this.data.length; i++){
-            let temp2 = this.data[i], temp3 = temp2.splice(index,1);
-            temp.push(temp2);
-          }
-          this.set('data',[]);
-          this.set('data',temp);
-        }
-      },
-      getData: function(){
-        return JSON.stringify({
-          "caption": this.caption,
-          "summary": this.summary,
-          "columnHeader": this.columnHeader,
-          "rowHeader": this.rowHeader,
-          "footer": this.footer,
-          "bordered": !this.hideBordered ? this.bordered : null,
-          "condensed": !this.hideCondensed ? this.condensed: null,
-          "dark": !this.hideDark ? this.dark : null,
-          "striped": !this.hideStriped ? this.striped : null,
-          "sort": !this.hideSort ? this.sort : null,
-          "filter": !this.hideFilter ? this.filter : null,
-          "split": !this.hideSplit ? this.split : null,
-          "data": this.data,
-        });
-      },
-      _onCellMove: function(e){
-        let dir = e.detail.direction, cell = e.detail.cell;
-        let row = cell.parentNode, body = this.$.tbody;
-        let x = Array.prototype.indexOf.call(row.children, cell);
-        let y = Array.prototype.indexOf.call(body.children, row);
-        
-        if(dir ==='down'){
-          if(y+1 < body.children.length-1) {
-            body.children[y+1].children[x].children[0].focus();
-          }
-        } else if(dir ==='up'){
-          if(y > 0) {
-            body.children[y-1].children[x].children[0].focus();
-          }
-        } else if(dir ==='right'){
-          if(x+1 < row.children.length-1) {
-            row.children[x+1].children[0].focus();
-          } else if (y+1 < body.children.length-1) {
-            body.children[y+1].children[1].children[0].focus();
-          }
-        } else if(dir ==='left'){
-          if(x > 1) {
-            row.children[x-1].children[0].focus();
-          } else if (y > 0) {
-            body.children[y-2].children[body.children[y-2].children.length-2].children[0].focus();
-          }
-        }  
-      },
-      _getAccentSelected: function(accentColor){
-        return accentColor !== null ? accentColor : 'none';
-      },
-      _onToggleChanged: function(e){
-        this[e.detail.prop] = e.detail.value;
-      },
-      _tableStylesHidden: function(hideBordered,hideCondensed,hideStriped,hideSplit,hideDarkTheme){
-        return hideBordered && hideCondensed && hideStriped && hideSplit && hideDarkTheme;
       },
     });
   </script>

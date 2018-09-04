@@ -1,0 +1,318 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../dropdown-select/dropdown-select.html">
+<link rel="import" href="../dom-repeat-n/dom-repeat-n.html">
+<link rel="import" href="../simple-colors/simple-colors.html">
+<link rel="import" href="../responsive-utility/responsive-utility-behaviors.html">
+<link rel="import" href="editable-table-behaviors.html">
+<!--
+`editable-table`
+A LRN element
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ -
+ -
+ -
+
+-->
+
+<dom-module id="editable-table-display">
+  <template>
+    <style is="custom-style">
+      :host, :host[accent-color="none"] {
+        display: block;
+        max-width: 100%;
+        overflow-x: scroll;
+        --editable-table-light-weight: 200;
+        --editable-table-medium-weight: 400;
+        --editable-table-heavy-weight: 500;
+        --editable-table-color: var(--simple-colors-foreground3, #222);
+        --editable-table-bg-color: var(--simple-colors-background1, #fff);
+        --editable-table-border-color: var(--simple-colors-background5, #999);
+        --editable-table-caption-color:  var(--simple-colors-foreground3, #222);
+        --editable-table-heading-color: var(--simple-colors-foreground1, #000);
+        --editable-table-heading-bg-color: var(--simple-colors-background3, #ddd);
+        --editable-table-stripe-bg-color: var(--simple-colors-background2, #eee);
+      }
+      :host[accent-color]{
+        --editable-table-caption-color:  var(--simple-colors-accent-foreground3, #222);
+        --editable-table-heading-bg-color: var(--simple-colors-accent-background2, #ddd);
+        --editable-table-border-color: var(--simple-colors-accent-foreground5, #999);
+      }
+      :host[dark], :host[dark][accent-color="none"]{
+        --editable-table-light-weight: 100;
+        --editable-table-medium-weight: 300;
+        --editable-table-heavy-weight: 400;
+        --editable-table-color: var(--simple-colors-foreground1, #fff);
+        --editable-table-bg-color:  var(--simple-colors-background3, #222);
+        --editable-table-border-color: var(--simple-colors-background1, #000);
+        --editable-table-caption-color: var(--simple-colors-foreground1, #fff);
+        --editable-table-heading-bg-color: var(--simple-colors-background1, #000);
+        --editable-table-heading-color: var(--simple-colors-foreground1, #fff);
+        --editable-table-stripe-bg-color: var(--simple-colors-background2, #111);
+      }
+      :host[dark][accent-color]{
+        --editable-table-caption-color:  var(--simple-colors-accent-foreground3, #fff);
+        --editable-table-heading-bg-color: var(--simple-colors-accent-background3, #000);
+        --editable-table-border-color: var(--simple-colors-accent-foreground5, #000);
+      }
+      :host table {
+        width: 100%;
+        margin: 15px 0;
+      }
+      :host table,
+      :host table caption,
+      :host table th,
+      :host table td {
+        border-collapse: collapse;
+        background-color: var(--editable-table-bg-color);
+      } 
+      :host table caption {
+        font-size: 120%;
+        font-weight: var(--editable-table-heavy-weight);
+        color: var(--editable-table-caption-color);
+      }
+      :host table,
+      :host table th,
+      :host table td {
+        padding: 0.5em;
+        font-weight: var(--editable-table-light-weight);
+        color: var(--editable-table-color);
+      } 
+      :host table caption, 
+      :host table th, 
+      :host table td {
+        text-align: left;
+      }
+      :host table th[numeric], 
+      :host table td[numeric] {
+        text-align: right;
+      }
+      :host[bordered] table th,
+      :host[bordered] table td {
+        border: 1px solid var(--editable-table-border-color);
+      }
+      :host[striped] table tbody tr:nth-child(2n) th,
+      :host[striped] table tbody tr:nth-child(2n) td {
+        background-color: var(--editable-table-stripe-bg-color);
+      }
+      :host[column-header] table thead th {
+        font-weight: var(--editable-table-heavy-weight);
+        color: var(--editable-table-heading-color);
+        background-color: var(--editable-table-heading-bg-color);
+      }
+      :host[row-header] table tbody th {
+        font-weight:  var(--editable-table-heavy-weight);
+        color: var(--editable-table-heading-color);
+      }
+      :host[footer] table tfoot tr th, 
+      :host[footer] table tfoot tr td {
+        font-weight: var(--editable-table-heavy-weight);
+        color: var(--editable-table-heading-color);
+        border-top: 3px solid var(--editable-table-color);
+      }
+      :host[responsive-size="xs"]:not([scroll]) #full-table, 
+      :host #responsive-table {
+        display: none;
+      }
+      :host[responsive-size="xs"]:not([scroll]) #responsive-table {
+        display: table;
+      }
+      :host #responsive-table caption {
+        width: 100%;
+      }
+      :host #responsive-table caption > div {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+      }
+      :host #responsive-table caption > div > div {
+        padding-bottom: 8px;
+        flex-grow: 1;
+        width: auto;
+      }
+    </style>
+    <table id="full-table">
+      <caption>[[caption]]</caption>
+      <template is="dom-if" if="[[columnHeader]]">
+        <thead> 
+          <tr>
+            <template is="dom-repeat" items="[[thead]]" as="th">
+              <th scope="col">[[th]]</th>
+            </template>
+          </tr> 
+        </thead>
+      </template>
+      <tbody id="tbody"> 
+        <template is="dom-repeat" items="[[tbody]]" as="tr">
+          <tr>
+            <template is="dom-if" if="[[rowHeader]]">
+              <th scope="row">[[tr.th]]</th>
+            </template>
+            <template is="dom-repeat" items="[[tr.td]]" as="td">
+              <td>[[td]]</td>
+            </template>
+          </tr> 
+        </template>
+      </tbody>
+      <template is="dom-if" if="[[footer]]">
+        <tfoot>
+          <tr>
+            <template is="dom-if" if="[[rowHeader]]">
+              <th scope="row">[[tfoot.th]]</th>
+            </template>
+            <template is="dom-repeat" items="[[tfoot.td]]" as="td">
+              <td>[[td]]</td>
+            </template>
+          </tr> 
+        </tfoot>
+      </template>
+    </table>
+    <table id="responsive-table">
+      <caption>
+        <div>
+          <div>[[caption]]</div>
+          <dropdown-select id="column" label$="[[tables.0.label]]" value="0">
+            <template is="dom-repeat" items="[[tables]]" as="table">
+              <option value$="[[table.id]]">[[table.caption]]</option>
+            </template>
+          </dropdown-select>
+        </div>
+      </caption>
+      <tbody>
+        <template is="dom-repeat" items="[[selected.tbody]]" as="tr">
+          <tr>
+            <th scope="row">[[tr.th]]</th>
+            <td>[[tr.td]]</td>
+          </tr>
+        </template>
+      </tbody>
+      <template is="dom-if" if="[[footer]]">
+        <tfoot>
+          <tr>
+            <th scope="row">[[selected.tfoot.th]]</th>
+            <td>[[selected.tfoot.td]]</td>
+          </tr>
+        </tfoot>
+      </template>
+    </table>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'editable-table-display',
+      
+      behaviors: [ 
+        ResponsiveUtilityBehaviors,
+        simpleColorsBehaviors,
+        editableTableBehaviors.displayBehaviors 
+      ],
+      observers: [
+        '_splitTables(data,columnHeader,rowHeader,footer)',
+        '_getTbody(data,columnHeader,rowHeader,footer)'
+      ],
+
+      properties: {
+        /**
+         * Is the table in edit mode?
+         */
+        editMode: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Hide edit mode?
+         */
+        hideEditMode: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * An array of <thead> columns
+         */
+        thead: {
+          type: Array,
+          value: []
+        },
+        /**
+         * An array of <thead> columns
+         */
+        tbody: {
+          type: Array,
+          value: []
+        },
+        /**
+         * An array of tables
+         */
+        tables: {
+          type: Array,
+          value: []
+        },
+        /**
+         * The selected table
+         */
+        selected: {
+          type: Array,
+          value: []
+        },
+      },
+      ready: function(){
+        let root = this;
+        root.$.column.addEventListener('change', (e) => {
+          root.selected = root.tables[e.detail.value].table;
+        });
+      },
+      _getRowHeader: function(th,td,td2){
+        td2 = td2 !== undefined ? td2 : td.slice(1);
+        if(this.rowHeader) {
+          return {"th": th,"td": td2};
+        } else {
+          return {"td": td};
+        }
+      },
+      _splitTables: function(data,columnHeader,rowHeader,footer){
+        if(data !== undefined && data !== null && data.length > 0) {
+          let label = data[0][0] !== null ? data[0][0] : 'Select a Column', temp = [];
+          for(let i=1; i<data[0].length; i++){
+            let caption = columnHeader ? data[0][i] : "Column "+i, temp2 = [];
+            let start = columnHeader ? 1 : 0, end = footer ? data.length-1 : data.length;
+            for(let j=start; j<end;j++){
+              temp2.push(this._getRowHeader(data[j][0],data[j][i],data[j][i]));
+            }
+            temp.push({
+              "id": i-1,
+              "label": label, 
+              "caption": caption,
+              "table": {
+                "tbody": temp2,
+                "tfoot": footer ? this._getRowHeader(data[end][0],data[end][1],data[end][1]) : null
+              }
+            });
+          }
+          this.set('tables',[]);
+          this.set('tables',temp);
+          console.log(this.tables);
+        }
+      },
+      _getTbody: function(data,columnHeader,rowHeader,footer){
+        let start = columnHeader ? 1 : 0, end = footer ? data.length-1 : data.length, body = [];
+        if(data !== undefined && data !== null) {
+          if (data.length > 0) {
+            this.set('thead',[]);
+            this.set('thead',columnHeader ? data[0] : []);
+          }
+          for(let i=start; i<end; i++){
+            body.push(this._getRowHeader(data[i][0],data[i]));
+          }
+          if(footer){
+            this.set('tfoot',[]);
+            this.set('tfoot',this._getRowHeader(data[end][0],data[end]));
+          }
+        }
+        this.set('tbody',[]);
+        this.set('tbody',body);
+      },
+    });
+  </script>
+</dom-module>

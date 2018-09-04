@@ -1,0 +1,197 @@
+<!--
+`editable-table-behaviors`
+A set of behaviors for a11y-media components.
+@microcopy - the mental model for this element
+ - 
+ - 
+-->
+
+<script>
+  window.editableTableBehaviors = window.editableTableBehaviors || {};
+  editableTableBehaviors.displayBehaviors = {
+    properties: {
+      /**
+       * Add borders to table and table cells.
+       */
+      bordered: {
+        type: Boolean,
+        value: false
+      },
+      /**
+       * a table caption
+       */
+      caption: {
+        type: String,
+        value: null
+      },
+      /**
+        * number of table columns
+        */
+      colCount: {
+        type: Number,
+        computed: '_getColCount(data)'
+      },
+      /**
+       * Display the first row as a column header.
+       */
+       columnHeader: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true
+      },
+      /**
+       * Condense height of table cells.
+       */
+      condensed: {
+        type: Boolean,
+        value: false
+      },
+      /**
+       * raw data
+       */
+      data: {
+        type: Array,
+        value: []
+      },
+      /**
+       * Enable filtering by cell value.
+       */
+       filter: {
+        type: Boolean,
+        value: false
+      },
+      /**
+       * Display the last row as a column footer.
+       */
+       footer: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true
+      },
+      /**
+        * number of table columns
+        */
+      rowCount: {
+        type: Number,
+        computed: '_getRowCount(data)'
+      },
+      /**
+       * Display the first column as a row header.
+       */
+       rowHeader: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true
+      },
+      /**
+       * Enable sorting by column header.
+       */
+      sort: {
+        type: Boolean,
+        value: false
+      },
+      /**
+       * When table is wider than screens, users will scroll across the table instead of seclecting a column to display. 
+       */
+      scroll: {
+        type: Boolean,
+        value: false
+      },
+      /**
+       * Add alternating row striping.
+       */
+      striped: {
+        type: Boolean,
+        value: false
+      },
+      /**
+       * a table summary
+       */
+      summary: {
+        type: String,
+        value: null
+      },
+    },
+    _getColCount: function(data){
+      let cols = 0;
+      if (data !== undefined && data !== null && data.length > 0) {
+        cols =  data[0].length;
+      } else {
+        this.set('data', [['','',''],['','',''],['','',''],['','','']]);
+        cols = 3;
+      }
+      return cols;
+    },
+    _getRowCount: function(data){
+      let rows = 0;
+      if (data !== undefined && data !== null && data.length > 0) {
+        rows = data.length;
+      } else {
+        this.set('data', [['','',''],['','',''],['','',''],['','','']]);
+        rows = 3;
+      }
+      return rows;
+    },
+  };
+  window.editableTableBehaviors.editBehaviors = {
+    properties: {
+      /**
+        * Hide the borders table styles menu option
+        */
+        hideBordered: {
+        type: Boolean,
+        value: false
+      },
+      /**
+        * Hide the condensed table styles menu option
+        */
+        hideCondensed: {
+        type: Boolean,
+        value: false
+      },
+      /**
+        * Hide the accent color styles menu option.
+        */
+        hideAccentColor: {
+        type: Boolean,
+        value: false
+      },
+      /**
+        * Hide the dark theme styles menu option.
+        */
+        hideDarkTheme: {
+        type: Boolean,
+        value: false
+      },
+      /**
+        * Hide the filtering option.
+        */
+        hideFilter: {
+        type: Boolean,
+        value: false
+      },
+      /**
+        * Hide the sorting option.
+        */
+        hideSort: {
+        type: Boolean,
+        value: false
+      },
+      /**
+        * Hide the scroll table styles menu option
+        */
+        hideScroll: {
+        type: Boolean,
+        value: false
+      },
+      /**
+        * Hide the striped table styles menu option
+        */
+        hideStriped: {
+        type: Boolean,
+        value: false
+      },
+    },
+  };
+</script>
+
