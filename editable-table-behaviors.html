@@ -132,6 +132,24 @@ A set of behaviors for a11y-media components.
       }
       return rows;
     },
+    getData: function(){
+      let data = {
+        "caption": this.caption,
+        "summary": this.summary,
+        "columnHeader": this.columnHeader,
+        "rowHeader": this.rowHeader,
+        "footer": this.footer,
+        "bordered": !this.hideBordered ? this.bordered : null,
+        "condensed": !this.hideCondensed ? this.condensed: null,
+        "dark": !this.hideDark ? this.dark : null,
+        "striped": !this.hideStriped ? this.striped : null,
+        "sort": !this.hideSort ? this.sort : null,
+        "filter": !this.hideFilter ? this.filter : null,
+        "scroll": !this.hideScroll ? this.scroll : null,
+        "data": this.data,
+      };
+      return data;
+    }
   };
   window.editableTableBehaviors.editBehaviors = {
     properties: {
@@ -191,7 +209,7 @@ A set of behaviors for a11y-media components.
         type: Boolean,
         value: false
       },
-    },
+    }
   };
 </script>
 

@@ -17,6 +17,18 @@
       editable-table, paper-button[raised] {
         width: 100%;
       }
+      #table1toggle {
+        text-align: right;
+      }
+      #table1toggle > div {
+        width: auto;
+        display: inline-flex;
+        justify-content: space-between;
+        align-items: flex-end;
+      }
+      #table1toggle div > label {
+        margin-right: 1em;
+      }
     </style>
   </head>
   <body>
@@ -24,6 +36,12 @@
       <h3>editable-table demo</h3>
       <demo-snippet>
         <template>
+          <div id="table1toggle">
+            <div>
+              <label for="button">Edit Mode</label> 
+              <paper-toggle-button id="table1togglebutton"></paper-toggle-button>
+            </div>
+          </div>
           <editable-table id="table1" 
             accent-color="indigo"
             bordered 
@@ -35,16 +53,21 @@
             striped 
             data='[ ["Color","Red","Red-Orange","Orange","Yellow-Orange","Yellow","Yellow-Green","Green","Blue-Green","Blue","Blue-Violet","Violet","Red-Violet"], ["Type","primary","  tertiary","secondary","tertiary","primary","tertiary","secondary","tertiary","primary","tertiary","secondary","tertiary"], ["Mix","N/A","red, orange","red, yellow","yellow, orange","N/A","yellow, green","yellow, blue","blue, green","N/A","blue, violet","blue, red","red, violet"] ]'>
           </editable-table>
+          <script>
+            document.getElementById('table1togglebutton').addEventListener('change', (e) => {
+              document.getElementById('table1').toggleEditMode();
+            });
+          </script>
         </template>
       </demo-snippet>
-      <!--h3>editable-table-editor</h3>
+      <h3>editable-table-editor</h3>
       <p>This is a standalone component that just displays the editor</p>
       <demo-snippet>
         <template>
           <editable-table-editor id="table2"></editable-table-editor>
-          <p><paper-button onclick="alert(document.getElementById('table2').getData())" raised>Get Data</paper-button></p>          
+          <p><paper-button onclick="alert(JSON.stringify(document.getElementById('table2').getData()))" raised>Get Data</paper-button></p>          
         </template>
-      </demo-snippet-->
+      </demo-snippet>
       <h3>editable-table-display</h3>
       <p>This is a standalone component that just displays tables</p>
       <demo-snippet>

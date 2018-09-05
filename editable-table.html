@@ -1,4 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
 <link rel="import" href="editable-table-behaviors.html">
 <link rel="import" href="editable-table-editor.html">
 <link rel="import" href="editable-table-display.html">
@@ -16,8 +18,9 @@ hideBordered
 
 <dom-module id="editable-table">
   <template>
-    <template is="dom-if" if="[[!editMode]]">
-      <editable-table-display id="display-mode"
+    <paper-tooltip for="button" position="left">Edit this table.</paper-tooltip>
+    <template id="display" is="dom-if" if="[[!editMode]]" restamp="true">
+      <editable-table-display
         accent-color$="[[accentColor]]" 
         caption$="[[caption]]" 
         column-header$="[[columnHeader]]" 
@@ -33,13 +36,14 @@ hideBordered
         summary$="[[summary]]">
       </editable-table-display>
     </template>
-    <template is="dom-if" if="[[editMode]]">
-      <editable-table-editor id="edit-mode"
+    <template id="editor" is="dom-if" if="[[editMode]]" restamp="true">
+      <editable-table-editor
         accent-color$="{{accentColor}}" 
         caption$="{{caption}}" 
         column-header$="{{columnHeader}}" 
         dark$="{{dark}}" 
-        data$="{{data}}"
+        data$="{{data}}" 
+        enabled$="{{editMode}}" 
         hide-accent-color$="{{hideAccentColor}}" 
         hide-dark-theme$="{{hideDarkTheme}}" 
         hide-bordered$="{{hideBordered}}" 
@@ -75,11 +79,22 @@ hideBordered
           value: false
         }
       },
-
-      ready: function(){
-      },
-      attached: function(){
-      },
+      toggleEditMode: function(edit){
+        edit = edit !== undefined ? edit : !this.editMode;
+        if(edit){
+          this.editMode = true;
+        } else {
+          let temp = this.querySelector('editable-table-editor').getData();
+          for(prop in temp){
+            if(prop !== 'data') {
+              this[prop] = temp[prop];
+            } else {
+              this.set('data',temp[prop]);
+            }
+          }
+          this.editMode = false;
+        }
+      }
     });
   </script>
 </dom-module>

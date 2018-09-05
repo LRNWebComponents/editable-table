@@ -27,6 +27,8 @@ A LRN element
   <template>
     <style is="custom-style">
       :host, :host[accent-color="none"] {
+        max-width: 100%;
+        overflow-x: scroll;
         display: block;
         --editable-table-light-weight: 200;
         --editable-table-medium-weight: 400;
@@ -35,6 +37,7 @@ A LRN element
         --editable-table-bg-color: var(--simple-colors-background1, #fff);
         --editable-table-border-color: var(--simple-colors-background5, #999);
         --editable-table-caption-color:  var(--simple-colors-foreground3, #222);
+        --editable-table-caption-bg-color: var(--simple-colors-background1, #fff);
         --editable-table-heading-color: var(--simple-colors-foreground1, #000);
         --editable-table-heading-bg-color: var(--simple-colors-background3, #ddd);
         --editable-table-stripe-bg-color: var(--simple-colors-background2, #eee);
@@ -51,13 +54,14 @@ A LRN element
         --editable-table-color: var(--simple-colors-foreground1, #fff);
         --editable-table-bg-color:  var(--simple-colors-background3, #222);
         --editable-table-border-color: var(--simple-colors-background1, #000);
-        --editable-table-caption-color: var(--simple-colors-foreground1, #fff);
+        --editable-table-caption-color:  var(--simple-colors-background3, #222);
+        --editable-table-caption-bg-color: var(--simple-colors-foreground1, #fff);
         --editable-table-heading-bg-color: var(--simple-colors-background1, #000);
         --editable-table-heading-color: var(--simple-colors-foreground1, #fff);
         --editable-table-stripe-bg-color: var(--simple-colors-background2, #111);
       }
       :host[dark][accent-color]{
-        --editable-table-caption-color:  var(--simple-colors-accent-foreground3, #fff);
+        --editable-table-caption-color:  var(--simple-colors-accent-background3, #000);
         --editable-table-heading-bg-color: var(--simple-colors-accent-background3, #000);
         --editable-table-border-color: var(--simple-colors-accent-foreground5, #000);
       }
@@ -109,8 +113,14 @@ A LRN element
       }
       :host iron-autogrow-textarea#caption {
         font-size: 120%;
+        padding: 0em 0em 0em 0.25em;
         font-weight: var(--editable-table-heavy-weight);
         color: var(--editable-table-caption-color);
+        background-color: var(--editable-table-caption-bg-color);
+      }
+      :host[dark][bordered] iron-autogrow-textarea#caption {
+        border: 1px solid var(--editable-table-border-color);
+        border-bottom: none;
       }
       :host[responsive-size="xs"] editable-table-editor-settings {
         padding: 3px 0;
@@ -137,9 +147,13 @@ A LRN element
         border-collapse: collapse;
         border: 1px solid #ddd;
       } 
-      :host table th,
+      :host table th, 
       :host table td {
-        padding: 0;
+        padding: 0.15em;
+      }
+      :host[condensed] table th,
+      :host[condensed] table td {
+        padding: 0em 0.25em;
       }
       :host table th {
         background-color: #f0f0f0;
@@ -184,9 +198,11 @@ A LRN element
         color: var(--editable-table-heading-color);
         background-color: var(--editable-table-stripe-bg-color);
       }
-      :host[column-header] table tbody tr:first-of-type td {
+      :host[column-header] table tbody tr:first-of-type td,
+      :host[column-header][striped] table tbody tr:first-of-type:nth-child(2n+1) td {
         font-weight: var(--editable-table-heavy-weight);
         color: var(--editable-table-heading-color);
+        background-color: var(--editable-table-heading-bg-color);
       }
       :host[footer] table tbody tr:last-of-type td {
         font-weight: var(--editable-table-heavy-weight);
@@ -307,7 +323,7 @@ A LRN element
           <paper-tooltip for="settings">[[tooltop]]</paper-tooltip>
         </editable-table-editor-settings>
       </div>
-      <div class="other-settings-toggle">
+      <!--div class="other-settings-toggle">
         <editable-table-editor-toggle
           hidden$="[[hideSort]]"
           label="Enable Sorting" 
@@ -324,13 +340,13 @@ A LRN element
           tooltip="Enable filtering by cell value."
           value$="{{filter}}">
         </editable-table-editor-toggle>
-      </div>
+      </div-->
       <div class="other-settings-toggle">
         <editable-table-editor-toggle
           hidden$="[[hideScroll]]"
-          label="Scrolling" 
+          label="Disable Responsive" 
           prop="scroll" 
-          tooltip="When table is wider than screen, scroll across the columns."
+          tooltip="Disables the default responsive feature."
           value$="{{scroll}}">
         </editable-table-editor-toggle>
       </div>
@@ -380,7 +396,6 @@ A LRN element
       is: 'editable-table-editor',
 
       listeners: {
-        'editable-table-editor-setting-changed': '_onToggleChanged',
         'cell-move': '_onCellMove'
       },
       
@@ -413,6 +428,9 @@ A LRN element
       },
       ready: function(){
         let root = this;
+        root.addEventListener('editable-table-setting-changed', (e) => {
+          this[e.detail.prop] = e.detail.value;
+        });
         root.$.table.addEventListener('modify-table', (e) => {
           let row = e.detail.item.getAttribute('type') === 'Row', index = parseInt(e.detail.item.getAttribute('index')), action = e.detail.item.getAttribute('action');
           if(action === 'delete') {
@@ -507,23 +525,6 @@ A LRN element
           this.set('data',temp);
         }
       },
-      getData: function(){
-        return JSON.stringify({
-          "caption": this.caption,
-          "summary": this.summary,
-          "columnHeader": this.columnHeader,
-          "rowHeader": this.rowHeader,
-          "footer": this.footer,
-          "bordered": !this.hideBordered ? this.bordered : null,
-          "condensed": !this.hideCondensed ? this.condensed: null,
-          "dark": !this.hideDark ? this.dark : null,
-          "striped": !this.hideStriped ? this.striped : null,
-          "sort": !this.hideSort ? this.sort : null,
-          "filter": !this.hideFilter ? this.filter : null,
-          "scroll": !this.hideScroll ? this.scroll : null,
-          "data": this.data,
-        });
-      },
       _onCellMove: function(e){
         let dir = e.detail.direction, cell = e.detail.cell;
         let row = cell.parentNode, body = this.$.tbody;
@@ -532,31 +533,30 @@ A LRN element
         
         if(dir ==='down'){
           if(y+1 < body.children.length-1) {
-            body.children[y+1].children[x].children[0].focus();
+            body.children[y+1].children[x].children[0].setFocus();
+          } else {
+            this.insertRow(y);
           }
         } else if(dir ==='up'){
           if(y > 0) {
-            body.children[y-1].children[x].children[0].focus();
+            body.children[y-1].children[x].children[0].setFocus();
           }
         } else if(dir ==='right'){
           if(x+1 < row.children.length-1) {
-            row.children[x+1].children[0].focus();
+            row.children[x+1].children[0].setFocus();
           } else if (y+1 < body.children.length-1) {
-            body.children[y+1].children[1].children[0].focus();
-          }
+            body.children[y+1].children[1].children[0].setFocus();
+          } 
         } else if(dir ==='left'){
           if(x > 1) {
-            row.children[x-1].children[0].focus();
+            row.children[x-1].children[0].setFocus();
           } else if (y > 0) {
-            body.children[y-2].children[body.children[y-2].children.length-2].children[0].focus();
+            body.children[y-2].children[body.children[y-2].children.length-2].children[0].setFocus();
           }
         }  
       },
       _getAccentSelected: function(accentColor){
         return accentColor !== null ? accentColor : 'none';
-      },
-      _onToggleChanged: function(e){
-        this[e.detail.prop] = e.detail.value;
       },
       _tableStylesHidden: function(hideBordered,hideCondensed,hideStriped,hideScroll,hideDarkTheme){
         return hideBordered && hideCondensed && hideStriped && hideScroll && hideDarkTheme;

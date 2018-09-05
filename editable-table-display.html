@@ -30,6 +30,7 @@ A LRN element
         --editable-table-bg-color: var(--simple-colors-background1, #fff);
         --editable-table-border-color: var(--simple-colors-background5, #999);
         --editable-table-caption-color:  var(--simple-colors-foreground3, #222);
+        --editable-table-caption-bg-color: var(--simple-colors-background1, #fff);
         --editable-table-heading-color: var(--simple-colors-foreground1, #000);
         --editable-table-heading-bg-color: var(--simple-colors-background3, #ddd);
         --editable-table-stripe-bg-color: var(--simple-colors-background2, #eee);
@@ -46,13 +47,14 @@ A LRN element
         --editable-table-color: var(--simple-colors-foreground1, #fff);
         --editable-table-bg-color:  var(--simple-colors-background3, #222);
         --editable-table-border-color: var(--simple-colors-background1, #000);
-        --editable-table-caption-color: var(--simple-colors-foreground1, #fff);
+        --editable-table-caption-color:  var(--simple-colors-background3, #222);
+        --editable-table-caption-bg-color: var(--simple-colors-foreground1, #fff);
         --editable-table-heading-bg-color: var(--simple-colors-background1, #000);
         --editable-table-heading-color: var(--simple-colors-foreground1, #fff);
         --editable-table-stripe-bg-color: var(--simple-colors-background2, #111);
       }
       :host[dark][accent-color]{
-        --editable-table-caption-color:  var(--simple-colors-accent-foreground3, #fff);
+        --editable-table-caption-color:  var(--simple-colors-accent-background3, #000);
         --editable-table-heading-bg-color: var(--simple-colors-accent-background3, #000);
         --editable-table-border-color: var(--simple-colors-accent-foreground5, #000);
       }
@@ -71,14 +73,26 @@ A LRN element
         font-size: 120%;
         font-weight: var(--editable-table-heavy-weight);
         color: var(--editable-table-caption-color);
+        background-color: var(--editable-table-caption-bg-color);
+        padding: 0.5em 0 0;
+        width: 100%;
+      } 
+      :host[dark][bordered] table caption {
+        padding: 0.5em 0 0 0.25em;
+        border: 1px solid var(--editable-table-border-color);
+        border-bottom: none;
       }
       :host table,
       :host table th,
       :host table td {
-        padding: 0.5em;
+        padding: 1em 0.25em;
         font-weight: var(--editable-table-light-weight);
         color: var(--editable-table-color);
       } 
+      :host[condensed] table th,
+      :host[condensed] table td {
+        padding: 0.5em 0.25em;
+      }
       :host table caption, 
       :host table th, 
       :host table td {
@@ -111,9 +125,6 @@ A LRN element
         color: var(--editable-table-heading-color);
         border-top: 3px solid var(--editable-table-color);
       }
-      :host table caption {
-        width: 100%;
-      }
       :host table caption > div {
         display: flex;
         justify-content: space-between;
@@ -140,34 +151,32 @@ A LRN element
           <div>[[caption]]</div>
           <dropdown-select id="column" label$="[[tables.0.label]]" value="1">
             <template is="dom-if" if="[[columnHeader]]">
-              <template is="dom-repeat-n" index-as="col" count="[[theadCount]]">
+              <template is="dom-repeat-n" index-as="col" count$="[[theadCount]]">
                 <option id$="[[col]]" value$="[[col]]">[[_getData(0,col)]]</option>
               </template>
             </template>
             <template is="dom-if" if="[[!columnHeader]]">
-              <template is="dom-repeat-n" index-as="col" count="[[data.0.length]]">
+              <template is="dom-repeat-n" index-as="col" count$="[[data.0.length]]">
                 <option id$="[[col]]">Column [[col]]</option>
               </template>
             </template>
           </dropdown-select>
         </div>
       </caption>
-      <template is="dom-if" if="[[columnHeader]]">
-        <thead> 
-          <tr>
-            <template is="dom-repeat-n" index-as="cell" count="[[theadCount]]">
-              <th scope="col">[[_getData(0,cell)]]</th>
-            </template>
-          </tr> 
-        </thead>
-      </template>
+      <thead hidden="[[!columnHeader]]"> 
+        <tr>
+          <template is="dom-repeat-n" index-as="cell" count$="[[theadCount]]">
+            <th scope="col"><editable-table-cell-lookup row="0" column$="[[cell]]"></editable-table-cell-lookup>[[_getData(0,cell)]]</th>
+          </template>
+        </tr> 
+      </thead>
       <tbody id="tbody"> 
-        <template is="dom-repeat-n" index-as="row" count="[[tbodyCount]]" start="[[__tbodyStart]]">
+        <template is="dom-repeat-n" index-as="row" count$="[[tbodyCount]]" start$="[[__tbodyStart]]">
           <tr>
             <template is="dom-if" if="[[rowHeader]]">
               <th scope="row">[[_getData(row,0)]]</th>
             </template>
-            <template is="dom-repeat-n" index-as="cell" count="[[trCount]]" start="[[__trStart]]">
+            <template is="dom-repeat-n" index-as="cell" count$="[[trCount]]" start$="[[__trStart]]">
               <td>[[_getData(row,cell)]]</td>
             </template>
           </tr> 
@@ -179,7 +188,7 @@ A LRN element
             <template is="dom-if" if="[[rowHeader]]">
               <th scope="row">[[_getData(__tfoot,0)]]</th>
             </template>
-            <template is="dom-repeat-n" index-as="cell" count="[[trCount]]" start="[[__trStart]]">
+            <template is="dom-repeat-n" index-as="cell" count$="[[trCount]]" start$="[[__trStart]]">
               <td>[[_getData(__tfoot,cell)]]</td>
             </template>
           </tr> 
@@ -253,7 +262,7 @@ A LRN element
         trCount: {
           type: Number,
           computed: '_getTrCount(data,rowHeader)'
-        },
+        }
       },
       ready: function(){
         let root = this;
@@ -279,6 +288,7 @@ A LRN element
         this.$.table.removeAttribute('transition');
       },
       _getTheadCount: function(data,columnHeader){
+        let root = this;
         if(data !== undefined && data !== null && data.length > 0 && columnHeader){
           return data[0].length;
         }

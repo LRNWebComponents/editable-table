@@ -26,10 +26,10 @@ A LRN element
       }
       :host > iron-autogrow-textarea {
         border: none;
-        margin: 0.7em 0.57em;
-        min-width: calc(100% - 1.14em);
+        margin: 0;
+        padding: 0;
         width: auto;
-        margin: 0 0.57em;
+        min-width: calc(100% - 1.14em);
       }
     </style>
     <iron-autogrow-textarea 
@@ -138,7 +138,7 @@ A LRN element
       /**
        * set focus to textarea
        */ 
-       focus: function(start,end){
+       setFocus: function(start,end){
         this.$.cell.$$('textarea').focus();
         if (start !== undefined && end !== undefined) {
           this.setCaretPosition(start,end);
