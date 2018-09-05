@@ -111,46 +111,64 @@ A LRN element
         color: var(--editable-table-heading-color);
         border-top: 3px solid var(--editable-table-color);
       }
-      :host[responsive-size="xs"]:not([scroll]) #full-table, 
-      :host #responsive-table {
-        display: none;
-      }
-      :host[responsive-size="xs"]:not([scroll]) #responsive-table {
-        display: table;
-      }
-      :host #responsive-table caption {
+      :host table caption {
         width: 100%;
       }
-      :host #responsive-table caption > div {
+      :host table caption > div {
         display: flex;
         justify-content: space-between;
         align-items: flex-end;
       }
-      :host #responsive-table caption > div > div {
+      :host table caption > div > div {
         padding-bottom: 8px;
         flex-grow: 1;
         width: auto;
       }
+      :host[responsive-size="xs"] table[transition] {
+        opacity: 0;
+        transition: opacity 5s;
+      }
+      :host:not([responsive-size="xs"]) #column, 
+      :host[responsive-size="xs"] table th[xs-hidden],
+      :host[responsive-size="xs"] table td[xs-hidden] {
+        display: none;
+      }
     </style>
-    <table id="full-table">
-      <caption>[[caption]]</caption>
+    <table id="table">
+      <caption>
+        <div>
+          <div>[[caption]]</div>
+          <dropdown-select id="column" label$="[[tables.0.label]]" value="1">
+            <template is="dom-if" if="[[columnHeader]]">
+              <template is="dom-repeat-n" index-as="col" count="[[theadCount]]">
+                <option id$="[[col]]" value$="[[col]]">[[_getData(0,col)]]</option>
+              </template>
+            </template>
+            <template is="dom-if" if="[[!columnHeader]]">
+              <template is="dom-repeat-n" index-as="col" count="[[data.0.length]]">
+                <option id$="[[col]]">Column [[col]]</option>
+              </template>
+            </template>
+          </dropdown-select>
+        </div>
+      </caption>
       <template is="dom-if" if="[[columnHeader]]">
         <thead> 
           <tr>
-            <template is="dom-repeat" items="[[thead]]" as="th">
-              <th scope="col">[[th]]</th>
+            <template is="dom-repeat-n" index-as="cell" count="[[theadCount]]">
+              <th scope="col">[[_getData(0,cell)]]</th>
             </template>
           </tr> 
         </thead>
       </template>
       <tbody id="tbody"> 
-        <template is="dom-repeat" items="[[tbody]]" as="tr">
+        <template is="dom-repeat-n" index-as="row" count="[[tbodyCount]]" start="[[__tbodyStart]]">
           <tr>
             <template is="dom-if" if="[[rowHeader]]">
-              <th scope="row">[[tr.th]]</th>
+              <th scope="row">[[_getData(row,0)]]</th>
             </template>
-            <template is="dom-repeat" items="[[tr.td]]" as="td">
-              <td>[[td]]</td>
+            <template is="dom-repeat-n" index-as="cell" count="[[trCount]]" start="[[__trStart]]">
+              <td>[[_getData(row,cell)]]</td>
             </template>
           </tr> 
         </template>
@@ -159,40 +177,12 @@ A LRN element
         <tfoot>
           <tr>
             <template is="dom-if" if="[[rowHeader]]">
-              <th scope="row">[[tfoot.th]]</th>
+              <th scope="row">[[_getData(__tfoot,0)]]</th>
             </template>
-            <template is="dom-repeat" items="[[tfoot.td]]" as="td">
-              <td>[[td]]</td>
+            <template is="dom-repeat-n" index-as="cell" count="[[trCount]]" start="[[__trStart]]">
+              <td>[[_getData(__tfoot,cell)]]</td>
             </template>
           </tr> 
-        </tfoot>
-      </template>
-    </table>
-    <table id="responsive-table">
-      <caption>
-        <div>
-          <div>[[caption]]</div>
-          <dropdown-select id="column" label$="[[tables.0.label]]" value="0">
-            <template is="dom-repeat" items="[[tables]]" as="table">
-              <option value$="[[table.id]]">[[table.caption]]</option>
-            </template>
-          </dropdown-select>
-        </div>
-      </caption>
-      <tbody>
-        <template is="dom-repeat" items="[[selected.tbody]]" as="tr">
-          <tr>
-            <th scope="row">[[tr.th]]</th>
-            <td>[[tr.td]]</td>
-          </tr>
-        </template>
-      </tbody>
-      <template is="dom-if" if="[[footer]]">
-        <tfoot>
-          <tr>
-            <th scope="row">[[selected.tfoot.th]]</th>
-            <td>[[selected.tfoot.td]]</td>
-          </tr>
         </tfoot>
       </template>
     </table>
@@ -207,10 +197,6 @@ A LRN element
         ResponsiveUtilityBehaviors,
         simpleColorsBehaviors,
         editableTableBehaviors.displayBehaviors 
-      ],
-      observers: [
-        '_splitTables(data,columnHeader,rowHeader,footer)',
-        '_getTbody(data,columnHeader,rowHeader,footer)'
       ],
 
       properties: {
@@ -253,66 +239,77 @@ A LRN element
          * The selected table
          */
         selected: {
-          type: Array,
-          value: []
+          type: Number,
+          value: 1
+        },
+        theadCount: {
+          type: Number,
+          computed: '_getTheadCount(data,columnHeader)'
+        },
+        tbodyCount: {
+          type: Number,
+          computed: '_getTbodyCount(data,columnHeader,footer)'
+        },
+        trCount: {
+          type: Number,
+          computed: '_getTrCount(data,rowHeader)'
         },
       },
       ready: function(){
         let root = this;
-        root.$.column.addEventListener('change', (e) => {
-          root.selected = root.tables[e.detail.value].table;
+        root._updateCols(parseInt(1)); 
+        root.$.column.addEventListener('change', (e) => { 
+          root.selected = e.detail.value;
+          root._updateCols(parseInt(e.detail.value)); 
         });
       },
-      _getRowHeader: function(th,td,td2){
-        td2 = td2 !== undefined ? td2 : td.slice(1);
-        if(this.rowHeader) {
-          return {"th": th,"td": td2};
-        } else {
-          return {"td": td};
-        }
-      },
-      _splitTables: function(data,columnHeader,rowHeader,footer){
-        if(data !== undefined && data !== null && data.length > 0) {
-          let label = data[0][0] !== null ? data[0][0] : 'Select a Column', temp = [];
-          for(let i=1; i<data[0].length; i++){
-            let caption = columnHeader ? data[0][i] : "Column "+i, temp2 = [];
-            let start = columnHeader ? 1 : 0, end = footer ? data.length-1 : data.length;
-            for(let j=start; j<end;j++){
-              temp2.push(this._getRowHeader(data[j][0],data[j][i],data[j][i]));
+      _updateCols: function(selected){
+        let cols = this.$.table.querySelectorAll('th,td');
+        this.$.table.setAttribute('transition',true);
+        setTimeout(function(){
+          for(let i=0; i< cols.length; i++){
+            let col = cols[i], index = col.cellIndex, delay;
+            if(index === 0 || index === selected) {
+              col.removeAttribute('xs-hidden');
+            } else {
+              col.setAttribute('xs-hidden',true)
             }
-            temp.push({
-              "id": i-1,
-              "label": label, 
-              "caption": caption,
-              "table": {
-                "tbody": temp2,
-                "tfoot": footer ? this._getRowHeader(data[end][0],data[end][1],data[end][1]) : null
-              }
-            });
           }
-          this.set('tables',[]);
-          this.set('tables',temp);
-          console.log(this.tables);
-        }
+        }, 200);
+        this.$.table.removeAttribute('transition');
       },
-      _getTbody: function(data,columnHeader,rowHeader,footer){
-        let start = columnHeader ? 1 : 0, end = footer ? data.length-1 : data.length, body = [];
-        if(data !== undefined && data !== null) {
-          if (data.length > 0) {
-            this.set('thead',[]);
-            this.set('thead',columnHeader ? data[0] : []);
-          }
-          for(let i=start; i<end; i++){
-            body.push(this._getRowHeader(data[i][0],data[i]));
-          }
-          if(footer){
-            this.set('tfoot',[]);
-            this.set('tfoot',this._getRowHeader(data[end][0],data[end]));
-          }
+      _getTheadCount: function(data,columnHeader){
+        if(data !== undefined && data !== null && data.length > 0 && columnHeader){
+          return data[0].length;
         }
-        this.set('tbody',[]);
-        this.set('tbody',body);
+        return 0;
       },
+      _getTbodyCount: function(data,columnHeader,footer){
+        if(data !== undefined && data !== null && data.length > 0){
+          let ch = columnHeader ? 1 : 0, ft = footer ? 1 : 0;
+          this.__tbodyStart = columnHeader ? 1 : 0;
+          this.__tfoot = footer ? data.length - 1 : null;
+          return data.length - ch - ft;
+        }
+          this.__tbodyStart = 0;
+        return 0;
+      },
+      _getTrCount: function(data,rowHeader){
+        if(data !== undefined && data !== null && data.length > 0){
+          let rh = rowHeader ? 1 : 0;
+          this.__trStart = rh;
+          return data[0].length - rh;
+        }
+        this.__trStart = 0;
+        return 0;
+      },
+      _getData:function(row,col){
+        if(this.data !== undefined && this.data !== null && this.data[row] !== undefined && this.data[row] !== null && this.data[row][col] !== undefined && this.data[row][col] !== null) {
+          return this.data[row][col];
+        } else {
+          return '';
+        }
+      }
     });
   </script>
 </dom-module>
