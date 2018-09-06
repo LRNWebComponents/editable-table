@@ -86,12 +86,18 @@ A LRN element
           value: null
         },
       },
+      /**
+        * Set up event listener to fire when an option is selected
+        */
       ready: function(){
         let root = this;
         root.$.menu.addEventListener('iron-select', (e) => {
           this.fire('modify-table',e.detail);
         });
       },
+      /**
+        * Get the row or column label
+        */
       _getLabel: function(index,type){
         let num = index+1, alpha = '', 
         numerals = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''), 
