@@ -18,7 +18,7 @@
     "iron-a11y-keys": "PolymerElements/iron-a11y-keys#^2.1.1",
     "dom-repeat-n": "GeoloeG/dom-repeat-n#^1.0.6",
     "simple-colors": "LRNWebComponents/simple-colors#^1.0.5",
-    "responsive-utility": "LRNWebComponents/responsive-utility",
+    "responsive-utility": "LRNWebComponents/responsive-utility#^0.0.1",
     "paper-slider": "PolymerElements/paper-slider#^2.0.4",
     "dropdown-select": "LRNWebComponents/dropdown-select#^1.0.3"
   },
