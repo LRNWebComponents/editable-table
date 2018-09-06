@@ -92,10 +92,12 @@ A LRN element
           value: false
         },
       },
+      /**
+        * Set up event listener to fire when toggled
+        */
       ready: function(){
         let root = this;
         root.$.button.addEventListener('change', (e) => {
-          console.log('change');
           root.fire('editable-table-setting-changed',{"prop": this.prop,"value":e.srcElement.checked});
         });
       },

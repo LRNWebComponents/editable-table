@@ -64,18 +64,23 @@ A LRN element
       is: 'editable-table-editor-rowcol',
 
       properties: {
-        label: {
-          type: String,
-          value: null
-        },
+        /**
+          * The index of the row or column
+          */
         index: {
           type: Number,
           value: null
         },
+        /**
+          * The index of the row or column
+          */
         label: {
           type: String,
           computed: '_getLabel(index,type)'
         },
+        /**
+          * Is it row or column?
+          */
         type: {
           type: String,
           value: null

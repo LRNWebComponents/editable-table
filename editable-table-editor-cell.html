@@ -119,6 +119,9 @@ A LRN element
         return caret;
       },
 
+      /**
+        * make sure caret is in the correct position
+        */
       setCaretPosition: function(start,end){
         let textarea = this.$.cell.$$('textarea');
         textarea.focus();

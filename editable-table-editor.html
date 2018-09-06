@@ -203,6 +203,14 @@ A LRN element
       }
     </style>
     <h1 class="sr-only">Table Editor</h1>
+    <p class="field-group">
+      <label for="summary" class="field-group-padding">Table Summary (for accessibility): </label>
+      <iron-autogrow-textarea id="summary" 
+        class="field-group-grow" 
+        value$="{{summary}}" 
+        placeholder="Describe what the table contains. What does each row represent? What does each column represent?">
+      </iron-autogrow-textarea>
+    </p>
     <div class="field-group field-group-stretch">
       <div class="field-group-border field-group-grow">
         <label class="">Headers and Footers: </label>
@@ -226,9 +234,9 @@ A LRN element
           value$="{{footer}}">
         </editable-table-editor-toggle>
       </div>
-      <div class="field-group-border field-group-grow">
+      <div class="field-group-border field-group-grow" hidden$="[[hideTableTheme]]">
         <label>Theme: </label>
-        <paper-item>
+        <paper-item class="field-group-grow">
           <dropdown-select id="accent" label="Accent Color" value$="{{accentColor}}">
             <paper-item value="none">None</paper-item>
             <paper-item value="red">Red</paper-item>
@@ -260,7 +268,7 @@ A LRN element
           value$="{{dark}}">
         </editable-table-editor-toggle>
       </div>
-      <div class="field-group-border field-group-grow">
+      <div class="field-group-border field-group-grow" hidden$="[[hideTableStyles]]">
         <label>Styles: </label>
         <editable-table-editor-toggle
           hidden$="[[hideBordered]]"
@@ -291,7 +299,7 @@ A LRN element
           value$="{{scroll}}">
         </editable-table-editor-toggle>
       </div>
-      <div class="field-group-border field-group-grow">
+      <div class="field-group-border field-group-grow" hidden$="[[hideTableSort]]">
         <label>Sorting and Filtering: </label>
         <editable-table-editor-toggle
           hidden$="[[hideSort]]"
@@ -307,16 +315,8 @@ A LRN element
           tooltip="Filter by cell."
           value$="{{filter}}">
         </editable-table-editor-toggle> 
-      </div> 
+      </div>
     </div>
-    <p class="field-group">
-      <label for="summary" class="field-group-padding">Table Summary (for accessibility): </label>
-      <iron-autogrow-textarea id="summary" 
-        class="field-group-grow" 
-        value$="{{summary}}" 
-        placeholder="Describe what the table contains. What does each row represent? What does each column represent?">
-      </iron-autogrow-textarea>
-    </p>
     <table id="table" summary="Editable table in edit mode" bordered$="{{bordered}}" condensed$="{{condensed}}" striped$="{{striped}}">
       <caption>
         <p class="field-group">
@@ -377,13 +377,26 @@ A LRN element
          */
          hideTableStyles: {
           type: Boolean,
-          computed: '_tableStylesHidden(hideBordered,hideCondensed,hideStriped,hideScroll,hideDarkTheme)'
+          computed: '_tableStylesHidden(hideBordered,hideCondensed,hideStriped,hideScroll,hideResponsive)'
+        },
+        /**
+         * Hide the table theme menu
+         */
+         hideTableTheme: {
+          type: Boolean,
+          computed: '_tableThemeHidden(hideAccentColor,hideDarkTheme)'
+        },
+        /**
+         * Hide the table sorting & filtering menu
+         */
+         hideTableSort: {
+          type: Boolean,
+          computed: '_tableSortHidden(hideSort,hideFilter)'
         },
       },
-      created: function(){
-        this.sm = 650;
-        this.md = 1100;
-      },
+      /**
+        * Add event listeners
+        */
       ready: function(){
         let root = this;
         root.addEventListener('editable-table-setting-changed', (e) => {
@@ -415,29 +428,9 @@ A LRN element
           root.accentColor = e.detail.value !== 'none' ? e.detail.value : null;
         });
       },
-      attached: function(){
-        let root = this;
-      },
-      _getColCount: function(data){
-        let cols = 0;
-        if (data !== undefined && data !== null && data.length > 0) {
-          cols =  data[0].length;
-        } else {
-          this.set('data', [['','',''],['','',''],['','',''],['','','']]);
-          cols = 3;
-        }
-        return cols;
-      },
-      _getRowCount: function(data){
-        let rows = 0;
-        if (data !== undefined && data !== null && data.length > 0) {
-          rows = data.length;
-        } else {
-          this.set('data', [['','',''],['','',''],['','',''],['','','']]);
-          rows = 3;
-        }
-        return rows;
-      },
+      /**
+        * Get the row data for a given row index
+        */
       _getCurrentRow: function(index,data){
         let row = null;
         if (data !== undefined && data !== null && data[index] !== undefined && data[index] !== null) {
@@ -445,6 +438,9 @@ A LRN element
         }
         return row;
       },
+      /**
+        * Insert a row at the given index
+        */
       insertRow: function(index){
         let temp = new Array();
         for(let i = 0; i < this.data[0].length; i++){
@@ -455,6 +451,9 @@ A LRN element
         this.set('data',[]);
         this.set('data',temp2);
       },
+      /**
+        * Delete a row at the given index
+        */
       deleteRow: function(index){
         if (confirm('Delete entire row?')) {
           this.splice('data',index,1);
@@ -463,6 +462,9 @@ A LRN element
           this.set('data',temp);
         }
       },
+      /**
+        * Insert a column at the given index
+        */
       insertColumn: function(index){
         let temp = new Array();
         for(let i = 0; i < this.data.length; i++){
@@ -472,6 +474,9 @@ A LRN element
         this.set('data',[]);
         this.set('data',temp);
       },
+      /**
+        * Delete a column at the given index
+        */
       deleteColumn: function(index){
         let temp = [];
         if (confirm('Delete entire column?')) {
@@ -483,6 +488,9 @@ A LRN element
           this.set('data',temp);
         }
       },
+      /**
+        * Move the focus/cursor to the correct cell when navigation keys are pressed
+        */
       _onCellMove: function(e){
         let dir = e.detail.direction, cell = e.detail.cell;
         let row = cell.parentNode, body = this.$.tbody;
@@ -513,11 +521,29 @@ A LRN element
           }
         }  
       },
+      /**
+        * Get the current accent color
+        */
       _getAccentSelected: function(accentColor){
         return accentColor !== null ? accentColor : 'none';
       },
-      _tableStylesHidden: function(hideBordered,hideCondensed,hideStriped,hideScroll,hideDarkTheme){
-        return hideBordered && hideCondensed && hideStriped && hideScroll && hideDarkTheme;
+      /**
+        * Are all of the table style choices hidden?
+        */
+      _tableStylesHidden: function(hideBordered,hideCondensed,hideStriped,hideScroll,hideResponsive){
+        return hideBordered && hideCondensed && hideStriped && hideScroll && hideResponsive;
+      },
+      /**
+        * Are all of the theme choices hidden?
+        */
+      _tableThemeHidden: function(hideAccentColor,hideDarkTheme){
+        return hideAccentColor && hideDarkTheme;
+      },
+      /**
+        * Are all of the theme choices hidden?
+        */
+      _tableSortHidden: function(hideSort,hideFilter){
+        return hideSort && hideFilter;
       },
     });
   </script>

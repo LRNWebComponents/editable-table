@@ -112,26 +112,35 @@ A set of behaviors for a11y-media components.
         value: null
       },
     },
-    _getColCount: function(data){
-      let cols = 0;
-      if (data !== undefined && data !== null && data.length > 0) {
-        cols =  data[0].length;
-      } else {
-        this.set('data', [['','',''],['','',''],['','',''],['','','']]);
-        cols = 3;
-      }
-      return cols;
-    },
-    _getRowCount: function(data){
-      let rows = 0;
-      if (data !== undefined && data !== null && data.length > 0) {
-        rows = data.length;
-      } else {
-        this.set('data', [['','',''],['','',''],['','',''],['','','']]);
-        rows = 3;
-      }
-      return rows;
-    },
+    /**
+      * Get the number of columns in the data, and if there are none, add three empty rows and columns
+      */
+      _getColCount: function(data){
+        let cols = 0;
+        if (data !== undefined && data !== null && data.length > 0) {
+          cols =  data[0].length;
+        } else {
+          this.set('data', [['','',''],['','',''],['','',''],['','','']]);
+          cols = 3;
+        }
+        return cols;
+      },
+      /**
+        * Get the number of rows in the data, and if there are none, add three empty rows and columns
+        */
+      _getRowCount: function(data){
+        let rows = 0;
+        if (data !== undefined && data !== null && data.length > 0) {
+          rows = data.length;
+        } else {
+          this.set('data', [['','',''],['','',''],['','',''],['','','']]);
+          rows = 3;
+        }
+        return rows;
+      },
+    /**
+      * Return table data
+      */
     getData: function(){
       let data = {
         "caption": this.caption,
@@ -209,6 +218,13 @@ A set of behaviors for a11y-media components.
         type: Boolean,
         value: false
       },
+      /**
+        * Hide the responsive menu option
+        */
+        hideResponsive: {
+        type: Boolean,
+        value: false
+      }
     }
   };
 </script>

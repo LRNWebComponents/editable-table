@@ -251,19 +251,31 @@ A LRN element
           type: Number,
           value: 1
         },
+        /**
+         * # of <th> in <thead>
+         */
         theadCount: {
           type: Number,
           computed: '_getTheadCount(data,columnHeader)'
         },
+        /**
+         * # of <tr> in <tbody>
+         */
         tbodyCount: {
           type: Number,
           computed: '_getTbodyCount(data,columnHeader,footer)'
         },
+        /**
+         * # of <td> in each <tr>
+         */
         trCount: {
           type: Number,
           computed: '_getTrCount(data,rowHeader)'
         }
       },
+      /**
+        * initialize the responsive columns menu
+        */
       ready: function(){
         let root = this;
         root._updateCols(parseInt(1)); 
@@ -272,6 +284,9 @@ A LRN element
           root._updateCols(parseInt(e.detail.value)); 
         });
       },
+      /**
+        * update the responsive columns menu
+        */
       _updateCols: function(selected){
         let cols = this.$.table.querySelectorAll('th,td');
         this.$.table.setAttribute('transition',true);
@@ -287,6 +302,9 @@ A LRN element
         }, 200);
         this.$.table.removeAttribute('transition');
       },
+      /**
+        * Calculate the number of <th> in <thead>
+        */
       _getTheadCount: function(data,columnHeader){
         let root = this;
         if(data !== undefined && data !== null && data.length > 0 && columnHeader){
@@ -294,6 +312,9 @@ A LRN element
         }
         return 0;
       },
+      /**
+        * Calculate the number of <tr> in <tbody>
+        */
       _getTbodyCount: function(data,columnHeader,footer){
         if(data !== undefined && data !== null && data.length > 0){
           let ch = columnHeader ? 1 : 0, ft = footer ? 1 : 0;
@@ -304,6 +325,9 @@ A LRN element
           this.__tbodyStart = 0;
         return 0;
       },
+      /**
+        * Calculate the number of <td> in <tr>
+        */
       _getTrCount: function(data,rowHeader){
         if(data !== undefined && data !== null && data.length > 0){
           let rh = rowHeader ? 1 : 0;
@@ -313,6 +337,9 @@ A LRN element
         this.__trStart = 0;
         return 0;
       },
+      /**
+        * Get the data in a given cell based on its row/column position
+        */
       _getData:function(row,col){
         if(this.data !== undefined && this.data !== null && this.data[row] !== undefined && this.data[row] !== null && this.data[row][col] !== undefined && this.data[row][col] !== null) {
           return this.data[row][col];
