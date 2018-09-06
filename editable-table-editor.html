@@ -7,9 +7,8 @@
 <link rel="import" href="../simple-colors/simple-colors.html">
 <link rel="import" href="../responsive-utility/responsive-utility-behaviors.html">
 <link rel="import" href="editable-table-behaviors.html">
-<link rel="import" href="editable-table-editor-settings.html">
-<link rel="import" href="editable-table-editor-toggle.html">
 <link rel="import" href="editable-table-editor-rowcol.html">
+<link rel="import" href="editable-table-editor-toggle.html">
 <link rel="import" href="editable-table-editor-cell.html">
 <!--
 `editable-table-editor`
@@ -65,17 +64,6 @@ A LRN element
         --editable-table-heading-bg-color: var(--simple-colors-accent-background3, #000);
         --editable-table-border-color: var(--simple-colors-accent-foreground5, #000);
       }
-      :host, 
-      :host paper-item {
-        font-size: 12pt;
-      }
-      :host table caption {
-        text-align: left;
-        line-height: 30px;
-      }
-      :host table caption .field-group {
-        margin-bottom: 0;
-      }
       :host .sr-only {
         position: absolute;
         left: -9999px;
@@ -84,32 +72,13 @@ A LRN element
         width: 0;
         overflow: hidden;
       }
-      :host .field-group {
-        width: 100%;
-        margin: 0 0 10px;
-        padding: 0;
+      :host, 
+      :host paper-item {
+        font-size: 12pt;
       }
-      :host .field-group > * {
-        justify-content: space-between;
-        align-items: baseline;
-      }
-      :host .field-group > .field-group-grow {
-        flex-grow: 1;
-        width: auto;
-      }
-      :host .field-group > *:not(:last-child) {
-        padding-right: 0.5em;
-      }
-      :host .field-group label {
+      :host table caption {
+        text-align: left;
         line-height: 30px;
-      }
-      :host[responsive-size="xs"] .field-group-responsive > * {
-        margin-bottom: 10px;
-      }
-      :host .field-group:not(.field-group-responsive),
-      :host:not([responsive-size="xs"]) .field-group {
-        display: flex;
-        align-items: center;
       }
       :host iron-autogrow-textarea#caption {
         font-size: 120%;
@@ -125,19 +94,6 @@ A LRN element
       :host[responsive-size="xs"] editable-table-editor-settings {
         padding: 3px 0;
       }
-      :host .other-settings-toggle editable-table-editor-toggle {
-        padding-right: 32px;
-        --editable-table-toggle-padding: 0px;
-        --editable-table-toggle-min-width: unset;
-      }
-      :host .other-settings-toggle:last-child editable-table-editor-toggle {
-        padding-right: 0px;
-      }
-      :host[responsive-size="xs"] .other-settings-toggle editable-table-editor-toggle,
-      :host[responsive-size="sm"] .other-settings-toggle editable-table-editor-toggle, 
-      :host:not([responsive-size="xs"]):not([responsive-size="sm"]) .other-settings {
-        display: none;
-      }
       :host table {
         width: 100%;
       }
@@ -146,6 +102,7 @@ A LRN element
       :host table td {
         border-collapse: collapse;
         border: 1px solid #ddd;
+        font-weight: var(--editable-table-medium-weight);
       } 
       :host table th, 
       :host table td {
@@ -190,16 +147,16 @@ A LRN element
       :host table[bordered] tbody th {
         border-right: 1px solid var(--editable-table-border-color);
       }
-      :host table[striped] tbody tr:nth-child(2n+1) td {
+      :host[column-header] table[striped] tbody tr:nth-child(2n+1):not(:first-of-type) td,
+      :host:not([column-header]) table[striped] tbody tr:nth-child(2n+1) td {
         background-color: var(--editable-table-stripe-bg-color);
       }
-      :host[row-header] table td:first-of-type {
+      :host[row-header] tbody td:first-of-type {
         font-weight:  var(--editable-table-heavy-weight);
         color: var(--editable-table-heading-color);
         background-color: var(--editable-table-stripe-bg-color);
       }
-      :host[column-header] table tbody tr:first-of-type td,
-      :host[column-header][striped] table tbody tr:first-of-type:nth-child(2n+1) td {
+      :host[column-header] table tbody tr:first-of-type td {
         font-weight: var(--editable-table-heavy-weight);
         color: var(--editable-table-heading-color);
         background-color: var(--editable-table-heading-bg-color);
@@ -209,139 +166,123 @@ A LRN element
         color: var(--editable-table-heading-color);
         border-top: 3px solid var(--editable-table-color);
       }
+      :host .field-group {
+        width: 100%;
+        margin: 0 0 10px;
+        padding: 0;
+      }
+      :host table caption .field-group {
+        margin-bottom: 0;
+      }
+      :host .field-group {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        transition: all 2s;
+        flex-wrap: wrap;
+      }
+      :host .field-group.field-group-stretch {
+        align-items: stretch;
+      }
+      :host .field-group-border {
+        border: 1px solid #ddd;
+        border-radius: 0.25em;
+        padding: 15px;
+        margin: 15px;
+      }
+      :host .field-group-grow {
+        flex-grow: 1;
+        transition: width 2s;
+      }
+      :host .field-group-shrink {
+        flex-shrink: 1;
+        transition: width 2s;
+      }
+      :host .field-group label {
+        line-height: 30px;
+      }
     </style>
-    <div class="field-group field-group-responsive">
-      <div class="field-group-grow">
-        <editable-table-editor-settings 
-          label="Headers and Footers" 
-          tooltip="Set headers and footers.">
-          <editable-table-editor-toggle 
-            label="First Column" 
-            prop="rowHeader" 
-            tooltip="First column header."
-            value$="{{rowHeader}}">
-          </editable-table-editor-toggle>
-          <editable-table-editor-toggle
-            label="First Row" 
-            prop="columnHeader" 
-            tooltip="First row header."
-            value$="{{columnHeader}}">
-          </editable-table-editor-toggle>
-          <editable-table-editor-toggle
-            hidden$="[[hideFooter]]"
-            label="Last Row" 
-            prop="footer" 
-            tooltip="Last row footer."
-            value$="{{footer}}">
-          </editable-table-editor-toggle>
-        </editable-table-editor-settings>
-      </div>
-      <div class="field-group-grow">
-        <editable-table-editor-settings 
-          hidden$="[[hideTableStyles]]" 
-          label="Table Styles" 
-          tooltip="Set themes, borders, condensed styles.">
-          <paper-item>
-            <dropdown-select id="accent" label="Accent Color" value$="{{accentColor}}">
-              <paper-item value="none">None</paper-item>
-              <paper-item value="red">Red</paper-item>
-              <paper-item value="pink">Pink</paper-item>
-              <paper-item value="purple">Purple</paper-item>
-              <paper-item value="deep-purple">Deep Purple</paper-item>
-              <paper-item value="indigo">Indigo</paper-item>
-              <paper-item value="blue">Blue</paper-item>
-              <paper-item value="light-blue">Light Blue</paper-item>
-              <paper-item value="cyan">Cyan</paper-item>
-              <paper-item value="teal">Teal</paper-item>
-              <paper-item value="green">Green</paper-item>
-              <paper-item value="light-green">Light Green</paper-item>
-              <paper-item value="lime">Lime</paper-item>
-              <paper-item value="yellow">Yellow</paper-item>
-              <paper-item value="amber">Amber</paper-item>
-              <paper-item value="orange">Orange</paper-item>
-              <paper-item value="deep-orange">Deep Orange</paper-item>
-              <paper-item value="brown">Deep Orange</paper-item>
-              <paper-item value="blue-grey">Blue-Grey</paper-item>
-            </dropdown-select>
-          </paper-item>
-          <editable-table-editor-toggle
-            hidden$="[[hideBordered]]"
-            label="Bordered" 
-            prop="bordered" 
-            tooltip="Add borders to cells."
-            value$="{{bordered}}">
-          </editable-table-editor-toggle>
-          <editable-table-editor-toggle
-            hidden$="[[hideCondensed]]"
-            label="Condensed" 
-            prop="condensed" 
-            tooltip="Condense cell height."
-            value$="{{condensed}}">
-          </editable-table-editor-toggle>
-          <editable-table-editor-toggle
-            hidden$="[[hideDarkTheme]]"
-            label="Dark" 
-            prop="dark" 
-            tooltip="Use the dark theme."
-            value$="{{dark}}">
-          </editable-table-editor-toggle>
-          <editable-table-editor-toggle
-            hidden$="[[hideStriped]]"
-            label="Striped" 
-            prop="striped" 
-            tooltip="Alternating rows."
-            value$="{{striped}}">
-          </editable-table-editor-toggle>
-        </editable-table-editor-settings>
-      </div>
-      <div class="other-settings">
-        <editable-table-editor-settings 
-          hidden$="[[hideOtherSettings]]" 
-          label="Other Settings" 
-          tooltip="Set sorting, filters, and mobile options.">
-          <editable-table-editor-toggle
-            hidden$="[[hideSort]]"
-            label="Enable Sorting" 
-            prop="sort" 
-            tooltip="Sortable by column."
-            value$="{{sort}}">
-          </editable-table-editor-toggle>
-          <editable-table-editor-toggle
-            hidden$="[[hideFilter]]"
-            label="Enable Filters" 
-            prop="filter" 
-            tooltip="Filter by cell."
-            value$="{{filter}}">
-          </editable-table-editor-toggle>
-          <editable-table-editor-toggle
-            hidden$="[[hideScroll]]"
-            label="Scrolling" 
-            prop="scroll" 
-            tooltip="Scroll when tables are wide."
-            value$="{{scroll}}">
-          </editable-table-editor-toggle>
-          <paper-tooltip for="settings">[[tooltop]]</paper-tooltip>
-        </editable-table-editor-settings>
-      </div>
-      <!--div class="other-settings-toggle">
+    <h1 class="sr-only">Table Editor</h1>
+    <div class="field-group field-group-stretch">
+      <div class="field-group-border field-group-grow">
+        <label class="">Headers and Footers: </label>
+        <editable-table-editor-toggle 
+          label="First Column" 
+          prop="rowHeader" 
+          tooltip="The first column is a row header."
+          value$="{{rowHeader}}">
+        </editable-table-editor-toggle>
         <editable-table-editor-toggle
-          hidden$="[[hideSort]]"
-          label="Enable Sorting" 
-          prop="sort" 
-          tooltip="Enable sorting by column header."
-          value$="{{sort}}">
+          label="First Row" 
+          prop="columnHeader" 
+          tooltip="The first row is a column header."
+          value$="{{columnHeader}}">
+        </editable-table-editor-toggle>
+        <editable-table-editor-toggle
+          hidden$="[[hideFooter]]"
+          label="Last Row" 
+          prop="footer" 
+          tooltip="The last row is a table footer."
+          value$="{{footer}}">
         </editable-table-editor-toggle>
       </div>
-      <div class="other-settings-toggle">
+      <div class="field-group-border field-group-grow">
+        <label>Theme: </label>
+        <paper-item>
+          <dropdown-select id="accent" label="Accent Color" value$="{{accentColor}}">
+            <paper-item value="none">None</paper-item>
+            <paper-item value="red">Red</paper-item>
+            <paper-item value="pink">Pink</paper-item>
+            <paper-item value="purple">Purple</paper-item>
+            <paper-item value="deep-purple">Deep Purple</paper-item>
+            <paper-item value="indigo">Indigo</paper-item>
+            <paper-item value="blue">Blue</paper-item>
+            <paper-item value="light-blue">Light Blue</paper-item>
+            <paper-item value="cyan">Cyan</paper-item>
+            <paper-item value="teal">Teal</paper-item>
+            <paper-item value="green">Green</paper-item>
+            <paper-item value="light-green">Light Green</paper-item>
+            <paper-item value="lime">Lime</paper-item>
+            <paper-item value="yellow">Yellow</paper-item>
+            <paper-item value="amber">Amber</paper-item>
+            <paper-item value="orange">Orange</paper-item>
+            <paper-item value="deep-orange">Deep Orange</paper-item>
+            <paper-item value="brown">Deep Orange</paper-item>
+            <paper-item value="blue-grey">Blue-Grey</paper-item>
+          </dropdown-select>
+        </paper-item>
+        <paper-tooltip for="accent">Set an accent color for the table.</paper-tooltip>
         <editable-table-editor-toggle
-          hidden$="[[hideFilter]]"
-          label="Enable Filters" 
-          prop="filter" 
-          tooltip="Enable filtering by cell value."
-          value$="{{filter}}">
+          hidden$="[[hideDarkTheme]]"
+          label="Dark" 
+          prop="dark" 
+          tooltip="Use the dark theme."
+          value$="{{dark}}">
         </editable-table-editor-toggle>
-      </div-->
-      <div class="other-settings-toggle">
+      </div>
+      <div class="field-group-border field-group-grow">
+        <label>Styles: </label>
+        <editable-table-editor-toggle
+          hidden$="[[hideBordered]]"
+          label="Bordered" 
+          prop="bordered" 
+          tooltip="Add borders to cells."
+          value$="{{bordered}}">
+        </editable-table-editor-toggle>
+        <editable-table-editor-toggle
+          hidden$="[[hideStriped]]"
+          label="Striped" 
+          prop="striped" 
+          tooltip="Add shading to alternating rows."
+          value$="{{striped}}">
+        </editable-table-editor-toggle>
+        <editable-table-editor-toggle
+          hidden$="[[hideCondensed]]"
+          label="Condensed" 
+          prop="condensed" 
+          tooltip="Condense cell height."
+          value$="{{condensed}}">
+        </editable-table-editor-toggle>
         <editable-table-editor-toggle
           hidden$="[[hideScroll]]"
           label="Disable Responsive" 
@@ -350,6 +291,23 @@ A LRN element
           value$="{{scroll}}">
         </editable-table-editor-toggle>
       </div>
+      <div class="field-group-border field-group-grow">
+        <label>Sorting and Filtering: </label>
+        <editable-table-editor-toggle
+          hidden$="[[hideSort]]"
+          label="Enable Sorting" 
+          prop="sort" 
+          tooltip="Sortable by column."
+          value$="{{sort}}">
+        </editable-table-editor-toggle>
+        <editable-table-editor-toggle
+          hidden$="[[hideFilter]]"
+          label="Enable Filters" 
+          prop="filter" 
+          tooltip="Filter by cell."
+          value$="{{filter}}">
+        </editable-table-editor-toggle> 
+      </div> 
     </div>
     <p class="field-group">
       <label for="summary" class="field-group-padding">Table Summary (for accessibility): </label>
