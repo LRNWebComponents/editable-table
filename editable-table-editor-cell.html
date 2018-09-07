@@ -19,17 +19,33 @@ A LRN element
 <dom-module id="editable-table-editor-cell">
   <template>
     <style is="custom-style">
-      :host {
-        --iron-autogrow-textarea: {
-          font-weight: unset;
-        };
-      }
-      :host > iron-autogrow-textarea {
-        border: none;
-        margin: 0;
+      :host iron-autogrow-textarea {
         padding: 0;
-        width: auto;
-        min-width: calc(100% - 1.14em);
+        border: none;
+        font-weight: unset;
+        resize: none;
+        -webkit-appearance: none;
+        -mozilla-appearance: none;
+        --iron-autogrow-textarea: {
+          padding: 0 0.5em;
+          font-weight: unset;
+          border: none;
+          resize: none;
+          flex-direction: column;
+          -webkit-flex-direction: column;
+          -webkit-appearance: none;
+          -mozilla-appearance: none;
+        }
+      }
+      :host iron-autogrow-textarea > * {
+        padding: 0;
+        font-weight: unset;
+        border: none;
+        resize: none;
+        flex-direction: column;
+        -webkit-flex-direction: column;
+        -webkit-appearance: none;
+        -mozilla-appearance: none;
       }
     </style>
     <iron-autogrow-textarea 
@@ -41,25 +57,25 @@ A LRN element
     <iron-a11y-keys 
       id="down" 
       keys="down" 
-      target$="[[button]]"
+      target$="[[cell]]"
       on-keys-pressed="_onCellBelow">
     </iron-a11y-keys>
     <iron-a11y-keys 
       id="up" 
       keys="up" 
-      target$="[[button]]"
+      target$="[[cell]]"
       on-keys-pressed="_onCellAbove">
     </iron-a11y-keys>
     <iron-a11y-keys 
       id="left" 
       keys="left" 
-      target$="[[button]]"
+      target$="[[cell]]"
       on-keys-pressed="_onCellLeft">
     </iron-a11y-keys>
     <iron-a11y-keys 
       id="right" 
       keys="right" 
-      target$="[[button]]"
+      target$="[[cell]]"
       on-keys-pressed="_onCellRight">
     </iron-a11y-keys>
   </template>
@@ -84,7 +100,7 @@ A LRN element
        * set iron-a11y-keys target to this
        */ 
        ready: function(){
-        this.button = this.$.cell;
+        this.cell = this.$.cell;
       },
 
       /**

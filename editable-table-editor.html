@@ -28,8 +28,6 @@ A LRN element
       :host, :host[accent-color="none"] {
         display: block;
         width: 100%;
-        max-width: 100%;
-        overflow-x: scroll;
         --editable-table-light-weight: 200;
         --editable-table-medium-weight: 400;
         --editable-table-heavy-weight: 500;
@@ -98,20 +96,25 @@ A LRN element
       :host table {
         width: 100%;
       }
+      :host #table-outer {
+        max-width: 100%;
+        overflow-x: scroll;
+      }
       :host table,
       :host table th,
       :host table td {
+        padding: 0;
         border-collapse: collapse;
         border: 1px solid #ddd;
         font-weight: var(--editable-table-medium-weight);
-      } 
-      :host table th, 
-      :host table td {
-        padding: 0.15em;
       }
-      :host[condensed] table th,
+      :host table th,
+      :host table td {
+        height: 100%;
+        padding: 0;
+      }
       :host[condensed] table td {
-        padding: 0em 0.25em;
+        padding: 0.5em 0;
       }
       :host table th {
         background-color: #f0f0f0;
@@ -318,36 +321,38 @@ A LRN element
         </editable-table-editor-toggle> 
       </div>
     </div>
-    <table id="table" summary="Editable table in edit mode" bordered$="{{bordered}}" condensed$="{{condensed}}" striped$="{{striped}}">
-      <caption>
-        <p class="field-group">
-          <label for="caption" class="field-group-padding sr-only" sr-only>Table Caption: </label>
-          <iron-autogrow-textarea id="caption" 
-            class="field-group-grow" 
-            value$="{{caption}}" 
-            placeholder="A title for the table.">
-          </iron-autogrow-textarea>
-        </p>
-      </caption>
-      <thead> 
-        <tr>
-          <th scope="col"></th>
-          <template id="headers" is="dom-repeat-n" count="[[colCount]]" index-as="col">
-            <th scope="col"><editable-table-editor-rowcol condensed$="{{condensed}}" index$="[[col]]" type="Column"></editable-table-editor-rowcol></th>
-          </template>
-        </tr> 
-      </thead>
-      <tbody id="tbody"> 
-        <template id="rows" is="dom-repeat-n" count="[[rowCount]]" index-as="row">
+    <div id="table-outer">
+      <table id="table" summary="Editable table in edit mode" bordered$="{{bordered}}" condensed$="{{condensed}}" striped$="{{striped}}">
+        <caption>
+          <p class="field-group">
+            <label for="caption" class="field-group-padding sr-only" sr-only>Table Caption: </label>
+            <iron-autogrow-textarea id="caption" 
+              class="field-group-grow" 
+              value$="{{caption}}" 
+              placeholder="A title for the table.">
+            </iron-autogrow-textarea>
+          </p>
+        </caption>
+        <thead> 
           <tr>
-            <th scope="row"><editable-table-editor-rowcol condensed$="{{condensed}}" index$="[[row]]" type="Row"></editable-table-editor-rowcol></th>
-            <template id="columns" is="dom-repeat" items="{{_getCurrentRow(row,data)}}" as="cell">
-              <td><editable-table-editor-cell index="[[index]]" value$="{{cell}}"></editable-table-editor-cell></td>
+            <th scope="col"></th>
+            <template id="headers" is="dom-repeat-n" count="[[colCount]]" index-as="col">
+              <th scope="col"><editable-table-editor-rowcol condensed$="{{condensed}}" index$="[[col]]" type="Column"></editable-table-editor-rowcol></th>
             </template>
           </tr> 
-        </template>
-      </tbody>
-    </table>
+        </thead>
+        <tbody id="tbody"> 
+          <template id="rows" is="dom-repeat-n" count="[[rowCount]]" index-as="row">
+            <tr>
+              <th scope="row"><editable-table-editor-rowcol condensed$="{{condensed}}" index$="[[row]]" type="Row"></editable-table-editor-rowcol></th>
+              <template id="columns" is="dom-repeat" items="{{_getCurrentRow(row,data)}}" as="cell">
+                <td><editable-table-editor-cell index="[[index]]" value$="{{cell}}"></editable-table-editor-cell></td>
+              </template>
+            </tr> 
+          </template>
+        </tbody>
+      </table>
+    </div>
   </template>
   <script>
     Polymer({

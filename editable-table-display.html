@@ -86,10 +86,13 @@ A LRN element
       :host table,
       :host table th,
       :host table td {
-        padding: 1em 0.25em;
         font-weight: var(--editable-table-light-weight);
         color: var(--editable-table-color);
       } 
+      :host table th, 
+      :host table td {
+        padding: 0 0.25em;
+      }
       :host[condensed] table th,
       :host[condensed] table td {
         padding: 0.5em 0.25em;
