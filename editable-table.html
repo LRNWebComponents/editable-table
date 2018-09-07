@@ -18,6 +18,12 @@ hideBordered
 
 <dom-module id="editable-table">
   <template>
+    <style>
+      :host {
+        display: block;
+        width: 100%;
+      }
+    </style>
     <paper-tooltip for="button" position="left">Edit this table.</paper-tooltip>
     <template id="display" is="dom-if" if="[[!editMode]]" restamp="true">
       <editable-table-display
