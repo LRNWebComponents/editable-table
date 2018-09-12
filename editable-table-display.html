@@ -1,11 +1,12 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../dropdown-select/dropdown-select.html">
-<link rel="import" href="../dom-repeat-n/dom-repeat-n.html">
 <link rel="import" href="../simple-colors/simple-colors.html">
 <link rel="import" href="../responsive-utility/responsive-utility-behaviors.html">
 <link rel="import" href="editable-table-behaviors.html">
+<link rel="import" href="editable-table-sort.html">
+<link rel="import" href="editable-table-filter.html">
 <!--
-`editable-table`
+`editable-table-display`
 A LRN element
 @demo demo/index.html
 
@@ -91,11 +92,11 @@ A LRN element
       } 
       :host table th, 
       :host table td {
-        padding: 0 0.25em;
+        padding: 0.5em 0.25em;
       }
       :host[condensed] table th,
       :host[condensed] table td {
-        padding: 0.5em 0.25em;
+        padding: 0 0.25em;
       }
       :host table caption, 
       :host table th, 
@@ -148,20 +149,21 @@ A LRN element
       :host[responsive-size="xs"] table td[xs-hidden] {
         display: none;
       }
+      :host editable-table-sort {
+        width: 100%;
+      }
     </style>
     <table id="table">
       <caption>
         <div>
           <div>[[caption]]</div>
           <dropdown-select id="column" label$="[[tables.0.label]]" value="1">
-            <template is="dom-if" if="[[columnHeader]]">
-              <template is="dom-repeat-n" index-as="col" count$="[[theadCount]]">
-                <option id$="[[col]]" value$="[[col]]">[[_getData(0,col)]]</option>
+            <template is="dom-repeat" items$="[[thead.0]]" as="[[col]]" index-as="index">
+              <template is="dom-if" if="[[columnHeader]]">
+                <option id$="[[index]]" value$="[[index]]">[[col]]</option>
               </template>
-            </template>
-            <template is="dom-if" if="[[!columnHeader]]">
-              <template is="dom-repeat-n" index-as="col" count$="[[data.0.length]]">
-                <option id$="[[col]]">Column [[col]]</option>
+              <template is="dom-if" if="[[!columnHeader]]">
+                <option id$="[[index]]">Column [[index]]</option>
               </template>
             </template>
           </dropdown-select>
@@ -169,19 +171,36 @@ A LRN element
       </caption>
       <thead hidden="[[!columnHeader]]"> 
         <tr>
-          <template is="dom-repeat-n" index-as="cell" count$="[[theadCount]]">
-            <th scope="col"><editable-table-cell-lookup row="0" column$="[[cell]]"></editable-table-cell-lookup>[[_getData(0,cell)]]</th>
+          <template is="dom-repeat" items$="[[thead.0]]" as="th" index-as="index">
+            <th scope="col">
+              <template is="dom-if" if="[[sort]]" restamp> 
+                <editable-table-sort sort="sort" column-number="[[index]]" text$="[[th]]"></editable-table-sort>
+              </template>
+              <template is="dom-if" if="[[!sort]]" restamp>[[th]]</template>
+            </th>
           </template>
         </tr> 
       </thead>
       <tbody id="tbody"> 
-        <template is="dom-repeat-n" index-as="row" count$="[[tbodyCount]]" start$="[[__tbodyStart]]">
+        <template is="dom-repeat" items$="[[tbody]]" as="tr" filter="{{filterRows(filterColumn,filterText)}}" restamp>
           <tr>
-            <template is="dom-if" if="[[rowHeader]]">
-              <th scope="row">[[_getData(row,0)]]</th>
-            </template>
-            <template is="dom-repeat-n" index-as="cell" count$="[[trCount]]" start$="[[__trStart]]">
-              <td>[[_getData(row,cell)]]</td>
+            <template is="dom-repeat" items$="[[tr]]" as="cell" index-as="index" restamp>
+              <template is="dom-if" if="[[_isRowHeader(rowHeader,index)]]" restamp>
+                <th scope="row">
+                  <template is="dom-if" if="[[filter]]" restamp>
+                    <editable-table-filter column-number="[[index]]" text$="[[cell]]"></editable-table-filter>                      
+                  </template>
+                  <template is="dom-if" if="[[!filter]]" restamp>[[cell]]</template>
+                </th>
+              </template>
+              <template is="dom-if" if="[[!_isRowHeader(rowHeader,index)]]" restamp>
+                <td>
+                  <template is="dom-if" if="[[filter]]" restamp>
+                    <editable-table-filter column-number="[[index]]" text$="[[cell]]" filtered$="[[_isFiltered(index,filterColumn)]]"></editable-table-filter>                      
+                  </template>
+                  <template is="dom-if" if="[[!filter]]" restamp>[[cell]]</template>
+                </td>
+              </template>
             </template>
           </tr> 
         </template>
@@ -189,11 +208,13 @@ A LRN element
       <template is="dom-if" if="[[footer]]">
         <tfoot>
           <tr>
-            <template is="dom-if" if="[[rowHeader]]">
-              <th scope="row">[[_getData(__tfoot,0)]]</th>
-            </template>
-            <template is="dom-repeat-n" index-as="cell" count$="[[trCount]]" start$="[[__trStart]]">
-              <td>[[_getData(__tfoot,cell)]]</td>
+            <template is="dom-repeat" items$="[[__tfoot.0]]" as="cell" index-as="index">
+              <template is="dom-if" if="[[_isRowHeader(rowHeader,index)]]">
+                <th scope="row">[[cell]]</th>
+              </template>
+              <template is="dom-if" if="[[!_isRowHeader(rowHeader,index)]]">
+                <td>[[cell]]</td>
+              </template>
             </template>
           </tr> 
         </tfoot>
@@ -205,6 +226,11 @@ A LRN element
     Polymer({
 
       is: 'editable-table-display',
+
+      listeners: {
+        "change-sort-mode": "changeSortMode",
+        "toggle-filter": "toggleFilter"
+      },
       
       behaviors: [ 
         ResponsiveUtilityBehaviors,
@@ -221,32 +247,25 @@ A LRN element
           value: false
         },
         /**
+         * Column for filtering
+         */
+        filterColumn: {
+          type: Number,
+          value: null
+        },
+        /**
+         * Text for Filtering
+         */
+        filterText: {
+          type: String,
+          value: null
+        },
+        /**
          * Hide edit mode?
          */
         hideEditMode: {
           type: Boolean,
           value: false
-        },
-        /**
-         * An array of <thead> columns
-         */
-        thead: {
-          type: Array,
-          value: []
-        },
-        /**
-         * An array of <thead> columns
-         */
-        tbody: {
-          type: Array,
-          value: []
-        },
-        /**
-         * An array of tables
-         */
-        tables: {
-          type: Array,
-          value: []
         },
         /**
          * The selected table
@@ -258,23 +277,42 @@ A LRN element
         /**
          * # of <th> in <thead>
          */
-        theadCount: {
-          type: Number,
-          computed: '_getTheadCount(data,columnHeader)'
+        thead: {
+          type: Array,
+          computed: '_getThead(data,columnHeader)'
         },
         /**
          * # of <tr> in <tbody>
          */
-        tbodyCount: {
-          type: Number,
-          computed: '_getTbodyCount(data,columnHeader,footer)'
+        tbody: {
+          type: Array,
+          computed: '_getTbody(data,columnHeader,footer)'
         },
-        /**
-         * # of <td> in each <tr>
-         */
-        trCount: {
-          type: Number,
-          computed: '_getTrCount(data,rowHeader)'
+      },
+      /**
+        * initialize the responsive columns menu
+        */
+      _sortData: function(column,type){
+        if (this.__backupData === undefined) this.__backupData = this.tbody.slice();
+        if(type !== "none"){
+          let temp = this.tbody.slice();
+          for(let i = 0; i<temp.length; i++){
+            temp[i].unshift(temp[i][column]);
+          }
+          if(type === "asc") {
+            temp.sort();
+          } else {
+            temp.reverse();
+          }
+          for(let i = 0; i<temp.length; i++){
+            this.set('tbody.'+i,[]);
+            this.set('tbody.'+i,temp[i].slice(1));
+          }
+        } else {
+          for(let i = 0; i<this.__backupData.length; i++){
+            this.set('tbody.'+i,[]);
+            this.set('tbody.'+i,this.__backupData[i].slice(1));
+          }
         }
       },
       /**
@@ -287,6 +325,48 @@ A LRN element
           root.selected = e.detail.value;
           root._updateCols(parseInt(e.detail.value)); 
         });
+      },
+      /**
+        * Handle sort button click
+        */
+      changeSortMode: function(e){
+        if(e.detail.sortMode === "asc"){
+          e.detail.setSortMode("desc");
+        } else if(e.detail.sortMode === "desc"){
+          e.detail.setSortMode("none");
+        } else {
+          e.detail.setSortMode("asc");
+        }
+        this._sortData(e.detail.columnNumber,e.detail.sortMode);
+      },
+
+      /**
+        * sets a column's cells to filtered when in filtered mode so that filter can toggle
+        */
+      _isFiltered: function(column,filterColumn){
+        return filterColumn !== null && filterColumn === column;
+      },
+
+      /**
+        * Handle filter based on collumn and text of cell that is clicked
+        */
+      filterRows: function(filterColumn,filterText){
+        if(filterColumn !== null && filterText !== null) {
+          return function(tr) {
+            return tr[filterColumn].toLowerCase().trim() === filterText.toLowerCase().trim();
+          };
+        }
+        else {
+          return null;
+        }
+      },
+
+      /**
+        * Handle filter button click
+        */
+      toggleFilter: function(e){
+        this.filterText = !e.detail.filtered ? e.detail.text : null;
+        this.filterColumn = !e.detail.filtered ? e.detail.columnNumber : null;
       },
       /**
         * update the responsive columns menu
@@ -309,47 +389,35 @@ A LRN element
       /**
         * Calculate the number of <th> in <thead>
         */
-      _getTheadCount: function(data,columnHeader){
+      _getThead: function(data,columnHeader){
         let root = this;
         if(data !== undefined && data !== null && data.length > 0 && columnHeader){
-          return data[0].length;
+          return data.slice(0,1);
         }
-        return 0;
+        return [];
       },
       /**
         * Calculate the number of <tr> in <tbody>
         */
-      _getTbodyCount: function(data,columnHeader,footer){
+      _getTbody: function(data,columnHeader,footer){
         if(data !== undefined && data !== null && data.length > 0){
-          let ch = columnHeader ? 1 : 0, ft = footer ? 1 : 0;
-          this.__tbodyStart = columnHeader ? 1 : 0;
-          this.__tfoot = footer ? data.length - 1 : null;
-          return data.length - ch - ft;
+          let ch = columnHeader ? 1 : 0, tbody;
+          if(footer) {
+            tbody = data.slice(ch,data.length-1);
+            this.__tfoot = data.slice(data.length-1);
+          } else {
+            tbody = data.slice(ch,data.length);
+            this.__tfoot = [];
+          }
+          return tbody;
         }
-          this.__tbodyStart = 0;
-        return 0;
+        return [];
       },
       /**
-        * Calculate the number of <td> in <tr>
+        * Calculate if the cell is a th or td
         */
-      _getTrCount: function(data,rowHeader){
-        if(data !== undefined && data !== null && data.length > 0){
-          let rh = rowHeader ? 1 : 0;
-          this.__trStart = rh;
-          return data[0].length - rh;
-        }
-        this.__trStart = 0;
-        return 0;
-      },
-      /**
-        * Get the data in a given cell based on its row/column position
-        */
-      _getData:function(row,col){
-        if(this.data !== undefined && this.data !== null && this.data[row] !== undefined && this.data[row] !== null && this.data[row][col] !== undefined && this.data[row][col] !== null) {
-          return this.data[row][col];
-        } else {
-          return '';
-        }
+      _isRowHeader: function(rowHeader,index){
+        return index === 0 && rowHeader;
       }
     });
   </script>

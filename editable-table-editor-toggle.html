@@ -38,6 +38,9 @@ A LRN element
         min-width: var(--editable-table-toggle-min-width,100px);
         padding-right: 0.5em;
       }
+      :host[disabled] .setting-text {
+        opacity: 0.5;
+      }
       :host .setting-control {
         max-width: 100px;
       }
@@ -51,7 +54,7 @@ A LRN element
       <div class="setting">
         <div class="setting-text">[[label]]</div>
         <div class="setting-control">
-          <paper-toggle-button id="button" checked$="[[value]]"></paper-toggle-button>
+          <paper-toggle-button id="button" checked$="[[value]]" disabled$="[[disabled]]"></paper-toggle-button>
           <paper-tooltip for="button">[[tooltip]]</paper-tooltip>
         </div>
       </div>
@@ -63,6 +66,14 @@ A LRN element
       is: 'editable-table-editor-toggle',
 
       properties: {
+        /**
+         * is the toggle disabled
+         */
+        disabled: {
+          type: Boolean,
+          value: false, 
+          reflectToAttribute: true
+        },
         /**
          * label for menu setting
          */

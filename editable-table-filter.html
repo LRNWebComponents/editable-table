@@ -1,0 +1,106 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="editable-table-iconset.html">
+
+<!--
+`editable-table-filter`
+A LRN element
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ -
+ -
+ -
+
+-->
+
+<dom-module id="editable-table-filter">
+  <template>
+    <style is="custom-style">
+      :host paper-button {
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        min-width: unset;
+        display: inline-flex;
+        justify-content: space-between;
+        align-items:center;
+        align-content: stretch;
+        text-transform: unset;
+      }
+      :host paper-button > div {
+        flex-grow: 1;
+      }
+      :host #filter-off {
+        opacity: 0.25;
+      }
+      :host:not([filtered]):not(:focus):not(:hover) #filter,
+      :host:not([filtered]):focus #filter-off, 
+      :host:not([filtered]):hover #filter-off,
+      :host[filtered]:not(:focus):not(:hover) #filter-off,
+      :host[filtered]:focus #filter, 
+      :host[filtered]:hover #filter {
+        display: none;
+      }
+    </style>
+    <paper-button id="button" class="container">
+      <div>[[text]]</div>
+      <iron-icon id="filter" icon="editable-table:filter"></iron-icon>
+      <iron-icon id="filter-off" icon="editable-table:filter-off"></iron-icon>
+    </paper-button>
+    <paper-tooltip for="button">Toggle filter for "[[text]]"</paper-tooltip>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'editable-table-filter',
+
+      listeners: {
+        "tap": "_onFilterTapped"
+      },
+
+      properties: {
+        /**
+         * the column for the filter
+         */
+         columnNumber: {
+          type: Number,
+          value: null
+        },
+        /**
+         * sort ascending, descending or none
+         */
+         filtered: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        },
+        /**
+         * the column header text
+         */
+         text: {
+          type: String,
+          value: ""
+        },
+      },
+      /**
+       * listen for button tap
+       */ 
+       _onFilterTapped: function(){
+        let root = this;
+        root.fire('toggle-filter',root);
+      },
+      /**
+       * changes the sort mode
+       */ 
+      setFilter: function(mode){
+        mode = mode === undefined ? !this.filtered : mode;
+        this.filtered = mode;
+      }
+    });
+  </script>
+</dom-module>

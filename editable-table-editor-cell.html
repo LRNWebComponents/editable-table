@@ -19,6 +19,16 @@ A LRN element
 <dom-module id="editable-table-editor-cell">
   <template>
     <style is="custom-style">
+      :host {
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        min-width: unset;
+        display: inline-flex;
+        justify-content: space-between;
+        align-items:center;
+        align-content: stretch;
+      }
       :host iron-autogrow-textarea {
         width: 100%;
         padding: 0;
@@ -27,6 +37,7 @@ A LRN element
         resize: none;
         -webkit-appearance: none;
         -mozilla-appearance: none;
+        flex-grow: 1;
         --iron-autogrow-textarea: {
           padding: 0 0.5em;
           font-weight: unset;
@@ -55,6 +66,7 @@ A LRN element
       placeholder=""
       value$="{{value}}">
     </iron-autogrow-textarea>
+    <div id="icons"><slot></slot></div>
     <iron-a11y-keys 
       id="down" 
       keys="down" 

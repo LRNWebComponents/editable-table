@@ -6,10 +6,12 @@
 <link rel="import" href="../dom-repeat-n/dom-repeat-n.html">
 <link rel="import" href="../simple-colors/simple-colors.html">
 <link rel="import" href="../responsive-utility/responsive-utility-behaviors.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="editable-table-behaviors.html">
 <link rel="import" href="editable-table-editor-rowcol.html">
 <link rel="import" href="editable-table-editor-toggle.html">
 <link rel="import" href="editable-table-editor-cell.html">
+<link rel="import" href="editable-table-iconset.html">
 <!--
 `editable-table-editor`
 A LRN element
@@ -165,10 +167,27 @@ A LRN element
         color: var(--editable-table-heading-color);
         background-color: var(--editable-table-heading-bg-color);
       }
+      :host[column-header][sort] table tbody tr:first-of-type .sortable-icon {
+        display: inline-block;
+      }
+      :host[column-header][filter] table tbody tr:first-of-type .filter-icon {
+        display: none;
+      }
       :host[footer] table tbody tr:last-of-type td {
         font-weight: var(--editable-table-heavy-weight);
         color: var(--editable-table-heading-color);
         border-top: 3px solid var(--editable-table-color);
+      }
+      :host[filter] .filter-icon {
+        display: inline-block;
+        opacity: 0.25;
+      }
+      :host .filter-icon,
+      :host .sortable-icon {
+        display: none;
+        opacity: 0.4;
+        width: 24px;
+        height: 24px;
       }
       :host .field-group {
         width: 100%;
@@ -305,18 +324,19 @@ A LRN element
       </div>
       <div class="field-group-border field-group-grow" hidden$="[[hideTableSort]]">
         <label>Sorting and Filtering: </label>
-        <editable-table-editor-toggle
+        <editable-table-editor-toggle 
+          disabled$="[[!columnHeader]]"
           hidden$="[[hideSort]]"
           label="Enable Sorting" 
           prop="sort" 
-          tooltip="Sortable by column."
+          tooltip="When first row is a column header, make the column sortable."
           value$="{{sort}}">
         </editable-table-editor-toggle>
         <editable-table-editor-toggle
           hidden$="[[hideFilter]]"
           label="Enable Filters" 
           prop="filter" 
-          tooltip="Filter by cell."
+          tooltip="When a cell is clicked toggle a filter based on that cell's value."
           value$="{{filter}}">
         </editable-table-editor-toggle> 
       </div>
@@ -346,7 +366,12 @@ A LRN element
             <tr>
               <th scope="row"><editable-table-editor-rowcol condensed$="{{condensed}}" index$="[[row]]" type="Row"></editable-table-editor-rowcol></th>
               <template id="columns" is="dom-repeat" items="{{_getCurrentRow(row,data)}}" as="cell">
-                <td><editable-table-editor-cell index="[[index]]" value$="{{cell}}"></editable-table-editor-cell></td>
+                <td>
+                  <editable-table-editor-cell index="[[index]]" value$="{{cell}}">
+                    <iron-icon class="sortable-icon"icon="editable-table:sortable" aria-hidden="true"></iron-icon>
+                    <iron-icon class="filter-icon"icon="editable-table:filter-off"></iron-icon>
+                  </editable-table-editor-cell>
+                </td>
               </template>
             </tr> 
           </template>
@@ -406,7 +431,8 @@ A LRN element
       ready: function(){
         let root = this;
         root.addEventListener('editable-table-setting-changed', (e) => {
-          this[e.detail.prop] = e.detail.value;
+          root[e.detail.prop] = e.detail.value;
+          console.log(root,e.detail)
         });
         root.$.table.addEventListener('modify-table', (e) => {
           let row = e.detail.item.getAttribute('type') === 'Row', index = parseInt(e.detail.item.getAttribute('index')), action = e.detail.item.getAttribute('action');
