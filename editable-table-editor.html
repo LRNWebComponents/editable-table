@@ -438,28 +438,6 @@ A LRN element
           root[e.detail.prop] = e.detail.value;
           console.log(root,e.detail)
         });
-        /*root.$.table.addEventListener('modify-table', (e) => {
-          let row = e.detail.item.getAttribute('type') === 'Row', index = parseInt(e.detail.item.getAttribute('index')), action = e.detail.item.getAttribute('action');
-          if(action === 'delete') {
-            if (row) {
-              root.deleteRow(index);
-            } else {
-              root.deleteColumn(index);
-            }
-          } else if (action === 'insert-before') {
-            if (row) {
-              root.insertRow(index-1);
-            } else {
-              root.insertColumn(index);
-            }
-          } else if (action === 'insert-after') {
-            if (row) {
-              root.insertRow(index);
-            } else {
-              root.insertColumn(index+1);
-            }
-          }
-        });*/
         root.$.accent.addEventListener('change', (e) => {
           root.accentColor = e.detail.value !== 'none' ? e.detail.value : null;
         });

@@ -1,5 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../dropdown-select/dropdown-select.html">
+<link rel="import" href="../paper-item/paper-item.html">
 <link rel="import" href="../simple-colors/simple-colors.html">
 <link rel="import" href="../responsive-utility/responsive-utility-behaviors.html">
 <link rel="import" href="editable-table-behaviors.html">
@@ -140,6 +141,9 @@ A LRN element
         flex-grow: 1;
         width: auto;
       }
+      :host editable-table-sort {
+        width: 100%;
+      }
       :host[responsive-size="xs"] table[transition] {
         opacity: 0;
         transition: opacity 5s;
@@ -149,21 +153,18 @@ A LRN element
       :host[responsive-size="xs"] table td[xs-hidden] {
         display: none;
       }
-      :host editable-table-sort {
-        width: 100%;
-      }
     </style>
     <table id="table">
       <caption>
         <div>
           <div>[[caption]]</div>
           <dropdown-select id="column" label$="[[tables.0.label]]" value="1">
-            <template is="dom-repeat" items$="[[thead.0]]" as="[[col]]" index-as="index">
+            <template is="dom-repeat" items$="[[thead.0]]" as="col" index-as="index">
               <template is="dom-if" if="[[columnHeader]]">
-                <option id$="[[index]]" value$="[[index]]">[[col]]</option>
+                <paper-item id$="[[index]]" value$="[[index]]">[[col]]</paper-item>
               </template>
               <template is="dom-if" if="[[!columnHeader]]">
-                <option id$="[[index]]">Column [[index]]</option>
+                <paper-item id$="[[index]]">Column [[index]]</paper-item>
               </template>
             </template>
           </dropdown-select>
