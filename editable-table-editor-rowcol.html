@@ -4,7 +4,7 @@
 <link rel="import" href="../paper-button/paper-button.html">
 <link rel="import" href="../paper-listbox/paper-listbox.html">
 <link rel="import" href="../paper-tooltip/paper-tooltip.html">
-<link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="editable-table-editor-insdel.html">
 
 <!--
 `editable-table-editor-rowcol`
@@ -49,9 +49,9 @@ A LRN element
         <span id="label"></span> <iron-icon icon="arrow-drop-down"></iron-icon>
       </paper-button>
       <paper-listbox slot="dropdown-content" label$="[[label]]">
-        <paper-item action="insert-before" index$="[[index]]" type$="[[type]]">Insert [[type]] Before</paper-item>
-        <paper-item action="insert-after" index$="[[index]]" type$="[[type]]">Insert [[type]] After</paper-item>
-        <paper-item action="delete" index$="[[index]]" type$="[[type]]">Delete [[type]]</paper-item>
+        <editable-table-editor-insdel action="insert" index$="[[index]]" type$="[[type]]" before="true">Insert [[type]] Before</editable-table-editor-insdel>
+        <editable-table-editor-insdel action="insert" index$="[[index]]" type$="[[type]]">Insert [[type]] After</editable-table-editor-insdel>
+        <editable-table-editor-insdel action="delete" index$="[[index]]" type$="[[type]]">Delete [[type]]</editable-table-editor-insdel>
       </paper-listbox>
     </paper-menu-button>
     <paper-tooltip for="menu">insert/delete options for [[type]] <span id="label2"></span></paper-tooltip>
@@ -62,6 +62,10 @@ A LRN element
     Polymer({
 
       is: 'editable-table-editor-rowcol',
+
+      listeners: {
+        'insdel-tapped': '_onTap'
+      },
 
       properties: {
         /**
@@ -85,15 +89,6 @@ A LRN element
           type: String,
           value: null
         },
-      },
-      /**
-        * Set up event listener to fire when an option is selected
-        */
-      ready: function(){
-        let root = this;
-        root.$.menu.addEventListener('iron-select', (e) => {
-          this.fire('modify-table',e.detail);
-        });
       },
       /**
         * Get the row or column label

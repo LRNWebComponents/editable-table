@@ -1,5 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../neon-animation/neon-animation.html">
+<link rel="import" href="../web-animations-js/web-animations-next-lite.min.html">
 <link rel="import" href="../paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../dropdown-select/dropdown-select.html">
 <link rel="import" href="../iron-autogrow-textarea/iron-autogrow-textarea.html">
@@ -356,16 +356,16 @@ A LRN element
         <thead> 
           <tr>
             <th scope="col"></th>
-            <template id="headers" is="dom-repeat-n" count="[[colCount]]" index-as="col">
+            <template id="headers" is="dom-repeat-n" count="[[colCount]]" index-as="col" restamp>
               <th scope="col"><editable-table-editor-rowcol condensed$="{{condensed}}" index$="[[col]]" type="Column"></editable-table-editor-rowcol></th>
             </template>
           </tr> 
         </thead>
         <tbody id="tbody"> 
-          <template id="rows" is="dom-repeat-n" count="[[rowCount]]" index-as="row">
+          <template id="rows" is="dom-repeat-n" count="[[rowCount]]" index-as="row" restamp>
             <tr>
               <th scope="row"><editable-table-editor-rowcol condensed$="{{condensed}}" index$="[[row]]" type="Row"></editable-table-editor-rowcol></th>
-              <template id="columns" is="dom-repeat" items="{{_getCurrentRow(row,data)}}" as="cell">
+              <template id="columns" is="dom-repeat" items="{{_getCurrentRow(row,data)}}" as="cell" restamp>
                 <td>
                   <editable-table-editor-cell index="[[index]]" value$="{{cell}}">
                     <iron-icon class="sortable-icon"icon="editable-table:sortable" aria-hidden="true"></iron-icon>
@@ -385,7 +385,11 @@ A LRN element
       is: 'editable-table-editor',
 
       listeners: {
-        'cell-move': '_onCellMove'
+        'cell-move': '_onCellMove',
+        'insert-row': '_handleInsertRow',
+        'insert-column': '_handleInsertColumn',
+        'delete-row': '_handleDeleteRow',
+        'delete-column': '_handleDeleteColumn'
       },
       
       behaviors: [ 
@@ -434,7 +438,7 @@ A LRN element
           root[e.detail.prop] = e.detail.value;
           console.log(root,e.detail)
         });
-        root.$.table.addEventListener('modify-table', (e) => {
+        /*root.$.table.addEventListener('modify-table', (e) => {
           let row = e.detail.item.getAttribute('type') === 'Row', index = parseInt(e.detail.item.getAttribute('index')), action = e.detail.item.getAttribute('action');
           if(action === 'delete') {
             if (row) {
@@ -455,7 +459,7 @@ A LRN element
               root.insertColumn(index+1);
             }
           }
-        });
+        });*/
         root.$.accent.addEventListener('change', (e) => {
           root.accentColor = e.detail.value !== 'none' ? e.detail.value : null;
         });
@@ -471,17 +475,46 @@ A LRN element
         return row;
       },
       /**
-        * Insert a row at the given index
+        * Handles delete column event
         */
-      insertRow: function(index){
-        let temp = new Array();
-        for(let i = 0; i < this.data[0].length; i++){
-          temp.push('');
+      _handleDeleteColumn: function(e){
+        console.log('this.deleteColumn',e.detail);
+        this.deleteColumn(e.detail);
+      },
+      /**
+        * Handles delete row event
+        */
+      _handleDeleteRow: function(e){
+        console.log('this.deleteRow',e.detail);
+        this.deleteRow(e.detail);
+      },
+      /**
+        * Handles insert column event
+        */
+      _handleInsertColumn: function(e){
+        console.log('this.insertColumn',e.detail);
+        this.insertColumn(e.detail);
+      },
+      /**
+        * Handles insert row event
+        */
+      _handleInsertRow: function(e){
+        console.log('this.insertRow',e.detail);
+        this.insertRow(e.detail);
+      },
+      /**
+        * Delete a column at the given index
+        */
+      deleteColumn: function(index){
+        let temp = [];
+        if (confirm('Delete entire column?')) {
+          for(let i=0; i<this.data.length; i++){
+            let temp2 = this.data[i], temp3 = temp2.splice(index,1);
+            temp.push(temp2);
+          }
+          this.set('data',[]);
+          this.set('data',temp);
         }
-        this.splice('data',index+1,0,temp);
-        temp2 = this.data;
-        this.set('data',[]);
-        this.set('data',temp2);
       },
       /**
         * Delete a row at the given index
@@ -507,18 +540,17 @@ A LRN element
         this.set('data',temp);
       },
       /**
-        * Delete a column at the given index
+        * Insert a row at the given index
         */
-      deleteColumn: function(index){
-        let temp = [];
-        if (confirm('Delete entire column?')) {
-          for(let i=0; i<this.data.length; i++){
-            let temp2 = this.data[i], temp3 = temp2.splice(index,1);
-            temp.push(temp2);
-          }
-          this.set('data',[]);
-          this.set('data',temp);
+      insertRow: function(index){
+        let temp = new Array();
+        for(let i = 0; i < this.data[0].length; i++){
+          temp.push('');
         }
+        this.splice('data',index+1,0,temp);
+        temp2 = this.data;
+        this.set('data',[]);
+        this.set('data',temp2);
       },
       /**
         * Move the focus/cursor to the correct cell when navigation keys are pressed
