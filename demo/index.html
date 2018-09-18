@@ -85,6 +85,28 @@
           <p><paper-button onclick="alert(JSON.stringify(document.getElementById('table2').getData()))" raised>Get Data</paper-button></p>          
         </template>
       </demo-snippet>
+      <h3>editable-table-display number styles</h3>
+      <p>This is a standalone component that just displays tables</p>
+      <demo-snippet>
+        <template>
+          <style is="custom-style">
+            #table4 {
+              --editable-table-numeric-text-align: right;
+              --editable-table-negative-color: red;
+            }
+          </style>
+          <editable-table-display id="table4" 
+            bordered 
+            caption="The Money Game: Player earnings by round."
+            column-header 
+            condensed 
+            footer 
+            row-header 
+            striped
+            data='[ ["Round", "Player 1", "Player 2"], ["Round 1", "-100.00", "10.00"], ["Round 2", "1823.01", "1211.80"], ["Round 3", "1100.50", "4873.99"], ["Round 4", "3800.75", "921.00"], ["Total", "$6624.26","$7016.79"] ]'>
+          </editable-table-display>
+        </template>
+      </demo-snippet>
     </div>
   </body>
 </html>

@@ -104,9 +104,12 @@ A LRN element
       :host table td {
         text-align: left;
       }
-      :host table th[numeric], 
+      :host table th[numeric],
       :host table td[numeric] {
-        text-align: right;
+        text-align: var(--editable-table-numeric-text-align, unset);
+      }
+      :host table td[negative] .cell {
+        color: var(--editable-table-negative-color, --editable-table-color);
       }
       :host[bordered] table th,
       :host[bordered] table td {
@@ -173,7 +176,7 @@ A LRN element
       <thead hidden="[[!columnHeader]]"> 
         <tr>
           <template is="dom-repeat" items$="[[thead.0]]" as="th" index-as="index">
-            <th scope="col">
+            <th scope="col" numeric$="[[_isNumericColumn(index)]]">
               <template is="dom-if" if="[[sort]]" restamp> 
                 <editable-table-sort sort="sort" column-number="[[index]]" text$="[[th]]"></editable-table-sort>
               </template>
@@ -187,19 +190,19 @@ A LRN element
           <tr>
             <template is="dom-repeat" items$="[[tr]]" as="cell" index-as="index" restamp>
               <template is="dom-if" if="[[_isRowHeader(rowHeader,index)]]" restamp>
-                <th scope="row">
+                <th scope="row" numeric$="[[_isNumericColumn(index)]]">
                   <template is="dom-if" if="[[filter]]" restamp>
                     <editable-table-filter column-number="[[index]]" text$="[[cell]]"></editable-table-filter>                      
                   </template>
-                  <template is="dom-if" if="[[!filter]]" restamp>[[cell]]</template>
+                  <template is="dom-if" if="[[!filter]]" restamp><span class="cell">[[cell]]</span></template>
                 </th>
               </template>
               <template is="dom-if" if="[[!_isRowHeader(rowHeader,index)]]" restamp>
-                <td>
+                <td numeric$="[[_isNumericColumn(index)]]" negative$="[[_isNegative(cell)]]">
                   <template is="dom-if" if="[[filter]]" restamp>
                     <editable-table-filter column-number="[[index]]" text$="[[cell]]" filtered$="[[_isFiltered(index,filterColumn)]]"></editable-table-filter>                      
                   </template>
-                  <template is="dom-if" if="[[!filter]]" restamp>[[cell]]</template>
+                  <template is="dom-if" if="[[!filter]]" restamp><span class="cell">[[cell]]</span></template>
                 </td>
               </template>
             </template>
@@ -211,10 +214,10 @@ A LRN element
           <tr>
             <template is="dom-repeat" items$="[[__tfoot.0]]" as="cell" index-as="index">
               <template is="dom-if" if="[[_isRowHeader(rowHeader,index)]]">
-                <th scope="row">[[cell]]</th>
+                <th scope="row" numeric$="[[_isNumericColumn(index)]]">[[cell]]</th>
               </template>
               <template is="dom-if" if="[[!_isRowHeader(rowHeader,index)]]">
-                <td>[[cell]]</td>
+                <td numeric$="[[_isNumericColumn(index)]]" negative$="[[_isNegative(cell)]]">[[cell]]</td>
               </template>
             </template>
           </tr> 
@@ -346,6 +349,31 @@ A LRN element
         */
       _isFiltered: function(column,filterColumn){
         return filterColumn !== null && filterColumn === column;
+      },
+
+      /**
+        * sets a cell's numeric style
+        */
+      _isNumericColumn: function(col){
+        let numeric = true;
+        for(let i=0; i<this.tbody.length; i++){
+          if (!this._isNumeric(this.tbody[i][col])) numeric = false;
+        }
+        return numeric;
+      },
+
+      /**
+        * sets a cell's numeric style
+        */
+      _isNumeric: function(cell){
+        return !isNaN(cell.trim().replace(/\$/g, ''));
+      },
+
+      /**
+        * sets a cell's numeric style
+        */
+      _isNegative: function(cell){
+        return this._isNumeric(cell) && cell.trim().indexOf('-') === 0;
       },
 
       /**

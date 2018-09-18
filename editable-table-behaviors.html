@@ -25,13 +25,6 @@ A set of behaviors for a11y-media components.
         value: null
       },
       /**
-        * number of table columns
-        */
-      colCount: {
-        type: Number,
-        computed: '_getColCount(data)'
-      },
-      /**
        * Display the first row as a column header.
        */
        columnHeader: {
@@ -68,13 +61,6 @@ A set of behaviors for a11y-media components.
         type: Boolean,
         value: false,
         reflectToAttribute: true
-      },
-      /**
-        * number of table columns
-        */
-      rowCount: {
-        type: Number,
-        computed: '_getRowCount(data)'
       },
       /**
        * Display the first column as a row header.
@@ -114,32 +100,6 @@ A set of behaviors for a11y-media components.
         value: null
       },
     },
-    /**
-      * Get the number of columns in the data, and if there are none, add three empty rows and columns
-      */
-      _getColCount: function(data){
-        let cols = 0;
-        if (data !== undefined && data !== null && data.length > 0) {
-          cols =  data[0].length;
-        } else {
-          this.set('data', [['','',''],['','',''],['','',''],['','','']]);
-          cols = 3;
-        }
-        return cols;
-      },
-      /**
-        * Get the number of rows in the data, and if there are none, add three empty rows and columns
-        */
-      _getRowCount: function(data){
-        let rows = 0;
-        if (data !== undefined && data !== null && data.length > 0) {
-          rows = data.length;
-        } else {
-          this.set('data', [['','',''],['','',''],['','',''],['','','']]);
-          rows = 3;
-        }
-        return rows;
-      },
     /**
       * Return table data
       */

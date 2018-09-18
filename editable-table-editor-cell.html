@@ -63,7 +63,6 @@ A LRN element
     <iron-autogrow-textarea 
       autofocus 
       id="cell" 
-      placeholder=""
       value$="{{value}}">
     </iron-autogrow-textarea>
     <div id="icons"><slot></slot></div>
@@ -97,8 +96,23 @@ A LRN element
     Polymer({
 
       is: 'editable-table-editor-cell',
+      listeners: { 'bind-value-changed': '_onValueChanged' },
 
       properties: {
+        /**
+         * cell row
+         */
+        row: {
+          type: Number,
+          value: null
+        },
+        /**
+         * cell column
+         */
+        column: {
+          type: Number,
+          value: null
+        },
         /**
          * cell contents
          */
@@ -124,6 +138,14 @@ A LRN element
         this.parentNode.onclick = function(){ 
           root.focus(); 
         };
+      },
+
+      /**
+       * if clicking in td but outside textarea, focus the text area
+       */ 
+       _onValueChanged: function(e){
+        let root = this;
+        root.fire('cell-value-changed',{"row": root.row, "column": root.column, "value": e.detail.value });
       },
       /*
       ** FROM: https://stackoverflow.com/questions/2897155/get-cursor-position-in-characters-within-a-text-input-field

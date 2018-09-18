@@ -1,5 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../paper-button/paper-button.html">
 
 <!--
 `editable-table-editor-insdel`
@@ -16,7 +16,17 @@ A LRN element
 
 <dom-module id="editable-table-editor-insdel">
   <template>
-    <paper-item><slot></slot></paper-item>
+    <style>
+      :host {
+        display: block;
+      }
+      :host paper-button {
+        display: block;
+        text-transform: none;
+        text-align: left;
+      }
+    </style>
+    <paper-button><slot></slot></paper-button>
   </template>
 
   <script>
@@ -70,6 +80,7 @@ A LRN element
         } else if (action === 'insert' && !before && type !== "Row") {
           index++;
         }
+        console.log(event,index);
         root.fire(event,index);
       },
     });

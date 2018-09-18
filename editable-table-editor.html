@@ -3,7 +3,6 @@
 <link rel="import" href="../paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../dropdown-select/dropdown-select.html">
 <link rel="import" href="../iron-autogrow-textarea/iron-autogrow-textarea.html">
-<link rel="import" href="../dom-repeat-n/dom-repeat-n.html">
 <link rel="import" href="../simple-colors/simple-colors.html">
 <link rel="import" href="../responsive-utility/responsive-utility-behaviors.html">
 <link rel="import" href="../iron-icons/iron-icons.html">
@@ -356,18 +355,22 @@ A LRN element
         <thead> 
           <tr>
             <th scope="col"></th>
-            <template id="headers" is="dom-repeat-n" count="[[colCount]]" index-as="col" restamp>
-              <th scope="col"><editable-table-editor-rowcol condensed$="{{condensed}}" index$="[[col]]" type="Column"></editable-table-editor-rowcol></th>
+            <template id="headers" is="dom-repeat" items="[[data]]" as="row" index-as="tr" restamp="true">
+              <template is="dom-if" if="[[_isFirstRow(tr)]]" restamp="true">
+                <template id="headercols" is="dom-repeat" items="[[row]]" as="cell" index-as="th" restamp="true">
+                  <th scope="col"><editable-table-editor-rowcol condensed$="{{condensed}}" index$="[[th]]" type="Column"></editable-table-editor-rowcol></th> 
+                </template>   
+              </template>
             </template>
           </tr> 
         </thead>
         <tbody id="tbody"> 
-          <template id="rows" is="dom-repeat-n" count="[[rowCount]]" index-as="row" restamp>
+          <template id="rows" is="dom-repeat" items="[[data]]" as="row" index-as="tr" restamp="true">
             <tr>
-              <th scope="row"><editable-table-editor-rowcol condensed$="{{condensed}}" index$="[[row]]" type="Row"></editable-table-editor-rowcol></th>
-              <template id="columns" is="dom-repeat" items="{{_getCurrentRow(row,data)}}" as="cell" restamp>
+              <th scope="row"><editable-table-editor-rowcol condensed$="{{condensed}}" index$="[[tr]]" type="Row"></editable-table-editor-rowcol></th>
+              <template id="columns" is="dom-repeat" items="[[row]]" as="cell" restamp="true">
                 <td>
-                  <editable-table-editor-cell index="[[index]]" value$="{{cell}}">
+                  <editable-table-editor-cell row="[[tr]]" column="[[index]]" value$="{{cell}}">
                     <iron-icon class="sortable-icon"icon="editable-table:sortable" aria-hidden="true"></iron-icon>
                     <iron-icon class="filter-icon"icon="editable-table:filter-off"></iron-icon>
                   </editable-table-editor-cell>
@@ -386,10 +389,12 @@ A LRN element
 
       listeners: {
         'cell-move': '_onCellMove',
+        'cell-value-changed': '_onCellValueChange',
         'insert-row': '_handleInsertRow',
         'insert-column': '_handleInsertColumn',
         'delete-row': '_handleDeleteRow',
-        'delete-column': '_handleDeleteColumn'
+        'delete-column': '_handleDeleteColumn',
+        'editable-table-setting-changed': '_onTableSettingChange'
       },
       
       behaviors: [ 
@@ -430,20 +435,28 @@ A LRN element
         },
       },
       /**
-        * Add event listeners
+        * Adds event listeners
         */
       ready: function(){
         let root = this;
-        root.addEventListener('editable-table-setting-changed', (e) => {
-          root[e.detail.prop] = e.detail.value;
-          console.log(root,e.detail)
-        });
         root.$.accent.addEventListener('change', (e) => {
           root.accentColor = e.detail.value !== 'none' ? e.detail.value : null;
         });
       },
       /**
-        * Get the row data for a given row index
+        * Tests for first row of data. Workaround to restamp column headers.
+        */
+      _isFirstRow: function(index){
+        return index === 0;
+      },
+      /**
+        * Get the current accent color
+        */
+      _getAccentSelected: function(accentColor){
+        return accentColor !== null ? accentColor : 'none';
+      },
+      /**
+        * Gets the row data for a given row index
         */
       _getCurrentRow: function(index,data){
         let row = null;
@@ -456,79 +469,25 @@ A LRN element
         * Handles delete column event
         */
       _handleDeleteColumn: function(e){
-        console.log('this.deleteColumn',e.detail);
         this.deleteColumn(e.detail);
       },
       /**
         * Handles delete row event
         */
       _handleDeleteRow: function(e){
-        console.log('this.deleteRow',e.detail);
         this.deleteRow(e.detail);
       },
       /**
         * Handles insert column event
         */
       _handleInsertColumn: function(e){
-        console.log('this.insertColumn',e.detail);
         this.insertColumn(e.detail);
       },
       /**
         * Handles insert row event
         */
       _handleInsertRow: function(e){
-        console.log('this.insertRow',e.detail);
         this.insertRow(e.detail);
-      },
-      /**
-        * Delete a column at the given index
-        */
-      deleteColumn: function(index){
-        let temp = [];
-        if (confirm('Delete entire column?')) {
-          for(let i=0; i<this.data.length; i++){
-            let temp2 = this.data[i], temp3 = temp2.splice(index,1);
-            temp.push(temp2);
-          }
-          this.set('data',[]);
-          this.set('data',temp);
-        }
-      },
-      /**
-        * Delete a row at the given index
-        */
-      deleteRow: function(index){
-        if (confirm('Delete entire row?')) {
-          this.splice('data',index,1);
-          temp = this.data;
-          this.set('data',[]);
-          this.set('data',temp);
-        }
-      },
-      /**
-        * Insert a column at the given index
-        */
-      insertColumn: function(index){
-        let temp = new Array();
-        for(let i = 0; i < this.data.length; i++){
-          temp.push(this.data[i]);
-          temp[i].splice(index,0,'');
-        }
-        this.set('data',[]);
-        this.set('data',temp);
-      },
-      /**
-        * Insert a row at the given index
-        */
-      insertRow: function(index){
-        let temp = new Array();
-        for(let i = 0; i < this.data[0].length; i++){
-          temp.push('');
-        }
-        this.splice('data',index+1,0,temp);
-        temp2 = this.data;
-        this.set('data',[]);
-        this.set('data',temp2);
       },
       /**
         * Move the focus/cursor to the correct cell when navigation keys are pressed
@@ -564,10 +523,16 @@ A LRN element
         }  
       },
       /**
-        * Get the current accent color
+        * Updates data when cell value changes
         */
-      _getAccentSelected: function(accentColor){
-        return accentColor !== null ? accentColor : 'none';
+      _onCellValueChange: function(e){
+        this.set('data.'+e.detail.row+'.'+e.detail.column,e.detail.value);
+      },
+      /**
+        * Updates table properties when setting changes
+        */
+      _onTableSettingChange: function(e){
+        this[e.detail.prop] = e.detail.value;
       },
       /**
         * Are all of the table style choices hidden?
@@ -586,6 +551,43 @@ A LRN element
         */
       _tableSortHidden: function(hideSort,hideFilter){
         return hideSort && hideFilter;
+      },
+      /**
+        * Delete a column at the given index
+        */
+      deleteColumn: function(index){
+        if (confirm('Delete entire column?')) {
+          for(let i=0; i<this.data.length; i++){
+            this.splice('data.'+i,index,1);
+          }
+        }
+      },
+      /**
+        * Delete a row at the given index
+        */
+      deleteRow: function(index){
+        if (confirm('Delete entire row?')) {
+          this.splice('data',index,1);
+        }
+      },
+      /**
+        * Insert a column at the given index
+        */
+      insertColumn: function(index){
+        let temp = new Array(), first = null;
+        for(let i = 0; i < this.data.length; i++){
+          this.splice('data.'+i,index,0,"");
+        }
+      },
+      /**
+        * Insert a row at the given index
+        */
+      insertRow: function(index){
+        let temp = new Array();
+        for(let i = 0; i < this.data[0].length; i++){
+          temp.push('');
+        }
+        this.splice('data',index+1,0,temp);
       },
     });
   </script>
