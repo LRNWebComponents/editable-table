@@ -153,11 +153,14 @@ A LRN element
       }
       :host:not([responsive-size="xs"]) #column, 
       :host[responsive-size="xs"] table th[xs-hidden],
-      :host[responsive-size="xs"] table td[xs-hidden] {
+      :host[responsive-size="xs"] table td[xs-hidden],
+      :host[responsive-size="xs"] table[default-xs-display] th:nth-of-type(n+3), 
+      :host[responsive-size="xs"] table[default-xs-display][row-header] td:nth-of-type(n+3), 
+      :host[responsive-size="xs"] table[default-xs-display]:not([row-header]) td:nth-of-type(n+2) {
         display: none;
       }
     </style>
-    <table id="table">
+    <table id="table" default-xs-display>
       <caption>
         <div>
           <div>[[caption]]</div>
@@ -233,7 +236,8 @@ A LRN element
 
       listeners: {
         "change-sort-mode": "changeSortMode",
-        "toggle-filter": "toggleFilter"
+        "toggle-filter": "toggleFilter",
+        'dropdown-select-changed': '_onColumnChange'
       },
       
       behaviors: [ 
@@ -320,17 +324,6 @@ A LRN element
         }
       },
       /**
-        * initialize the responsive columns menu
-        */
-      ready: function(){
-        let root = this;
-        root._updateCols(parseInt(1)); 
-        root.$.column.addEventListener('change', (e) => { 
-          root.selected = e.detail.value;
-          root._updateCols(parseInt(e.detail.value)); 
-        });
-      },
-      /**
         * Handle sort button click
         */
       changeSortMode: function(e){
@@ -398,9 +391,17 @@ A LRN element
         this.filterColumn = !e.detail.filtered ? e.detail.columnNumber : null;
       },
       /**
+        * Handle column dropdown-select change
+        */
+      _onColumnChange: function(e){
+        this.selected = e.detail.value;
+        this._updateCols(parseInt(e.detail.value)); 
+      },
+      /**
         * update the responsive columns menu
         */
       _updateCols: function(selected){
+        this.$.table.removeAttribute('default-xs-display');
         let cols = this.$.table.querySelectorAll('th,td');
         this.$.table.setAttribute('transition',true);
         setTimeout(function(){

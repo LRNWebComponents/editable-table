@@ -20,7 +20,7 @@
     "simple-colors": "LRNWebComponents/simple-colors#^1.0.5",
     "responsive-utility": "LRNWebComponents/responsive-utility#^1.0.1",
     "paper-slider": "PolymerElements/paper-slider#^2.0.4",
-    "dropdown-select": "LRNWebComponents/dropdown-select#^1.0.3",
+    "dropdown-select": "LRNWebComponents/dropdown-select#^1.0.5",
     "iron-collapse": "PolymerElements/iron-collapse#^2.2.1",
     "paper-icon-button": "PolymerElements/paper-icon-button#^2.2.0"
   },

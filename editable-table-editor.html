@@ -257,7 +257,7 @@ A LRN element
         </editable-table-editor-toggle>
       </div>
       <div class="field-group-border field-group-grow" hidden$="[[hideTableTheme]]">
-        <label>Theme: </label>
+        <label>Theme {{accentColor}}: </label>
         <paper-item class="field-group-grow">
           <dropdown-select id="accent" label="Accent Color" value$="{{accentColor}}">
             <paper-item value="none">None</paper-item>
@@ -394,7 +394,8 @@ A LRN element
         'insert-column': '_handleInsertColumn',
         'delete-row': '_handleDeleteRow',
         'delete-column': '_handleDeleteColumn',
-        'editable-table-setting-changed': '_onTableSettingChange'
+        'editable-table-setting-changed': '_onTableSettingChange',
+        'dropdown-select-changed': '_onAccentChange'
       },
       
       behaviors: [ 
@@ -435,21 +436,6 @@ A LRN element
         },
       },
       /**
-        * Adds event listeners
-        */
-      ready: function(){
-        let root = this;
-        root.$.accent.addEventListener('change', (e) => {
-          root.accentColor = e.detail.value !== 'none' ? e.detail.value : null;
-        });
-      },
-      /**
-        * Tests for first row of data. Workaround to restamp column headers.
-        */
-      _isFirstRow: function(index){
-        return index === 0;
-      },
-      /**
         * Get the current accent color
         */
       _getAccentSelected: function(accentColor){
@@ -488,6 +474,18 @@ A LRN element
         */
       _handleInsertRow: function(e){
         this.insertRow(e.detail);
+      },
+      /**
+        * Tests for first row of data. Workaround to restamp column headers.
+        */
+      _isFirstRow: function(index){
+        return index === 0;
+      },
+      /**
+        * Handle accent dropdown-select change
+        */
+      _onAccentChange: function(e){
+        this.accentColor = e.detail.value !== 'none' ? e.detail.value : null;
       },
       /**
         * Move the focus/cursor to the correct cell when navigation keys are pressed

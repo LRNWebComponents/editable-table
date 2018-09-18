@@ -65,6 +65,8 @@ A LRN element
 
       is: 'editable-table-editor-toggle',
 
+      listeners: {'change': '_onChange'},
+
       properties: {
         /**
          * is the toggle disabled
@@ -106,11 +108,9 @@ A LRN element
       /**
         * Set up event listener to fire when toggled
         */
-      ready: function(){
+      _onChange: function(e){
         let root = this;
-        root.$.button.addEventListener('change', (e) => {
-          root.fire('editable-table-setting-changed',{"prop": this.prop,"value":e.srcElement.checked});
-        });
+        if(e.srcElement === this.$.button) root.fire('editable-table-setting-changed',{"prop": this.prop,"value":e.srcElement.checked});
       },
     });
   </script>
