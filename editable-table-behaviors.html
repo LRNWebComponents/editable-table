@@ -1,6 +1,8 @@
 <!--
 `editable-table-behaviors`
-A set of behaviors for a11y-media components.
+
+A set of common behaviors for editable-table web components.
+
 @microcopy - the mental model for this element
  - 
  - 
@@ -105,19 +107,20 @@ A set of behaviors for a11y-media components.
       */
     getData: function(){
       let data = {
-        "caption": this.caption,
-        "summary": this.summary,
-        "columnHeader": this.columnHeader,
-        "rowHeader": this.rowHeader,
-        "footer": this.footer,
+        "accentColor": this.accentColor,
         "bordered": !this.hideBordered ? this.bordered : null,
+        "caption": this.caption,
+        "columnHeader": this.columnHeader,
         "condensed": !this.hideCondensed ? this.condensed: null,
         "dark": !this.hideDark ? this.dark : null,
-        "striped": !this.hideStriped ? this.striped : null,
-        "sort": !this.hideSort ? this.sort : null,
-        "filter": !this.hideFilter ? this.filter : null,
-        "scroll": !this.hideScroll ? this.scroll : null,
         "data": this.data,
+        "filter": !this.hideFilter ? this.filter : null,
+        "footer": this.footer,
+        "rowHeader": this.rowHeader,
+        "scroll": !this.hideScroll ? this.scroll : null,
+        "sort": !this.hideSort ? this.sort : null,
+        "striped": !this.hideStriped ? this.striped : null,
+        "summary": this.summary
       };
       return data;
     }
@@ -177,13 +180,6 @@ A set of behaviors for a11y-media components.
         * Hide the striped table styles menu option
         */
         hideStriped: {
-        type: Boolean,
-        value: false
-      },
-      /**
-        * Hide the responsive menu option
-        */
-        hideResponsive: {
         type: Boolean,
         value: false
       }

@@ -7,14 +7,21 @@
 
 <!--
 `editable-table-editor-toggle`
-A LRN element
+
+A toggle button for an property in the editable-table 
+interface (editable-table.html).
 
 @demo demo/index.html
 
 @microcopy - the mental model for this element
- -
- -
- -
+
+<editable-table-editor-toggle
+  hidden                          //Hide and disable this toggle? Default is false.
+  label="Condensed"               //The label for the toggle button
+  prop="condensed"                //The property controlled by this toggle
+  tooltip="Condense cell height." //A tooltip for this toggle.
+  value="true">                   //The value of this toggle.
+</editable-table-editor-toggle>
 
 -->
 
@@ -69,37 +76,37 @@ A LRN element
 
       properties: {
         /**
-         * is the toggle disabled
-         */
+          * is the toggle disabled
+          */
         disabled: {
           type: Boolean,
           value: false, 
           reflectToAttribute: true
         },
         /**
-         * label for menu setting
-         */
+          * label for menu setting
+          */
         label: {
           type: String,
           value: null
         },
         /**
-         * the property to update
-         */
+          * the property to update
+          */
         prop: {
           type: String,
           value: null
         },
         /**
-         * tool tip for menu setting
-         */
+          * tool tip for menu setting
+          */
         tooltip: {
           type: String,
           value: null
         },
         /**
-         * boolean value of menu setting
-         */
+          * boolean value of menu setting
+          */
         value: {
           type: Boolean,
           value: false

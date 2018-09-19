@@ -13,14 +13,42 @@
 <link rel="import" href="editable-table-iconset.html">
 <!--
 `editable-table-editor`
-A LRN element
+
+An editor interface for editable-table (editable-table.html). 
+(See editable-table-behaviors.html for more information.)
+
 @demo demo/index.html
 
 @microcopy - the mental model for this element
- -
- -
- -
 
+<editable-table-editor 
+  accent-color="indigo"     //Optional accent color for column headers and border. Default is none. (See https://lrnwebcomponents.github.io/simple-colors/components/simple-colors/)
+  bordered                  //Adds borders to table. Default is no border.
+  caption="..."             //The caption or title for the table.
+  column-header             //Does the table use the first row as a column-header? Default is false.
+  condensed                 //Condense the padding above and below the table? Default is false.
+  dark                      //Optional dark theme. Default is light theme. (See https://lrnwebcomponents.github.io/simple-colors/components/simple-colors/)
+  data='[                   //Table data as an array. For example:
+    [ ["..."], ["..."] ],     //This line represents a row with two columns
+    [ ["..."], ["..."] ],     //This line represents another row with two columns
+    [ ["..."], ["..."] ]      //This line represents a third row with two columns
+  ]'
+  filter                    //Allow table to toggle filtering? When a cell is toggled, only rows that have the same value as that cell will be shown. Default is no filter.
+  footer                    //Does the table use the last row as a footer? Default is false.
+  hide-accent-color           //Hide the accent color dropdown menu? Default is false which enables the menu which changes the accent-color property.
+  hide-bordered              //Hide the bordered toggle? Default is false so that a toggle button to control the bordered property.
+  hide-condensed             //Hide the condensed toggle? Default is false so that a toggle button to control the condensed property.
+  hide-dark-theme             //Hide the dark theme toggle? Default is false so that a toggle button to control the dark property.
+  hide-filter                //Hide the filter toggle? Default is false so that a toggle button to control the filter property.
+  hide-sort                  //Hide the sort toggle? Default is false so that a toggle button to control the sort property.
+  hide-scroll                //Hide the scroll toggle? Default is false so that a toggle button to control the scroll property.
+  hide-striped               //Hide the striped toggle? Default is false so that a toggle button to control the striped property.
+  row-header                //Does the table use the first column as a row header? Default is false.
+  scroll                    //Does the table use scrolling to fit when it is too wide?  Default is false: a responsive layout where only two columns are shown and a dropdown menu controls which column to display.
+  sort                      //Does the table allow sorting by column where column headers become sort buttons? Default is false.
+  striped                   //Does the table have alternating stipes of shading for its body rows? Default is false.
+  summary="...">            //An accessible description of the table, what each row reporesents, and what each column represents.
+</editable-table-editor>
 -->
 
 <dom-module id="editable-table-editor">
@@ -416,30 +444,30 @@ A LRN element
 
       properties: {
         /**
-         * Get accent color and change unspecified to none.
-         */
+          * Get accent color and change unspecified to none.
+          */
         accentSelected: {
           type: String,
           computed: '_getAccentSelected(accentColor)'
         },
         /**
-         * Hide the table styles menu
-         */
-         hideTableStyles: {
+          * Hide the table styles menu
+          */
+        hideTableStyles: {
           type: Boolean,
-          computed: '_tableStylesHidden(hideBordered,hideCondensed,hideStriped,hideScroll,hideResponsive)'
+          computed: '_tableStylesHidden(hideBordered,hideCondensed,hideStriped,hideScroll)'
         },
         /**
-         * Hide the table theme menu
-         */
-         hideTableTheme: {
+          * Hide the table theme menu
+          */
+        hideTableTheme: {
           type: Boolean,
           computed: '_tableThemeHidden(hideAccentColor,hideDarkTheme)'
         },
         /**
-         * Hide the table sorting & filtering menu
-         */
-         hideTableSort: {
+          * Hide the table sorting & filtering menu
+          */
+        hideTableSort: {
           type: Boolean,
           computed: '_tableSortHidden(hideSort,hideFilter)'
         },
@@ -544,8 +572,8 @@ A LRN element
       /**
         * Are all of the table style choices hidden?
         */
-      _tableStylesHidden: function(hideBordered,hideCondensed,hideStriped,hideScroll,hideResponsive){
-        return hideBordered && hideCondensed && hideStriped && hideScroll && hideResponsive;
+      _tableStylesHidden: function(hideBordered,hideCondensed,hideStriped,hideScroll){
+        return hideBordered && hideCondensed && hideStriped && hideScroll;
       },
       /**
         * Are all of the theme choices hidden?
