@@ -223,6 +223,15 @@ A LRN element
       :host .field-group label {
         line-height: 30px;
       }
+      @media print {
+        table {
+          width: 100%;
+          max-width: 100%;
+        }
+        @page {
+          size: landscape;
+        }
+      }
     </style>
     <h1 class="sr-only">Table Editor</h1>
     <p class="field-group">

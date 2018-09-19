@@ -147,17 +147,34 @@ A LRN element
       :host editable-table-sort {
         width: 100%;
       }
+      :host:not([responsive-size="xs"]) #column {
+        display: none;
+      }
+      @media screen {
       :host[responsive-size="xs"] table[transition] {
         opacity: 0;
         transition: opacity 5s;
       }
-      :host:not([responsive-size="xs"]) #column, 
-      :host[responsive-size="xs"] table th[xs-hidden],
-      :host[responsive-size="xs"] table td[xs-hidden],
-      :host[responsive-size="xs"] table[default-xs-display] th:nth-of-type(n+3), 
-      :host[responsive-size="xs"] table[default-xs-display][row-header] td:nth-of-type(n+3), 
-      :host[responsive-size="xs"] table[default-xs-display]:not([row-header]) td:nth-of-type(n+2) {
-        display: none;
+        :host:not([responsive-size="xs"]) #column, 
+        :host[responsive-size="xs"] table th[xs-hidden],
+        :host[responsive-size="xs"] table td[xs-hidden],
+        :host[responsive-size="xs"] table[default-xs-display] th:nth-of-type(n+3), 
+        :host[responsive-size="xs"] table[default-xs-display][row-header] td:nth-of-type(n+3), 
+        :host[responsive-size="xs"] table[default-xs-display]:not([row-header]) td:nth-of-type(n+2) {
+          display: none;
+        }  
+      }
+      @media print {
+        :host table {
+          width: 100%;
+          max-width: 100%;
+        }
+        :host #column {
+          display: none;
+        }
+        @page {
+          size: landscape;
+        }
       }
     </style>
     <table id="table" default-xs-display>
