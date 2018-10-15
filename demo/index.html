@@ -19,15 +19,10 @@
       }
       #table1toggle {
         text-align: right;
+        width: 100%;
       }
       #table1toggle > div {
-        width: auto;
-        display: inline-flex;
-        justify-content: space-between;
-        align-items: flex-end;
-      }
-      #table1toggle div > label {
-        margin-right: 1em;
+        display: inline-block;
       }
     </style>
   </head>
@@ -37,10 +32,7 @@
       <demo-snippet>
         <template>
           <div id="table1toggle">
-            <div>
-              <label for="button">Edit Mode</label> 
-              <paper-toggle-button id="table1togglebutton"></paper-toggle-button>
-            </div>
+            <div><paper-toggle-button id="table1togglebutton">Edit Mode</paper-toggle-button></div>
           </div>
           <editable-table id="table1" 
             accent-color="indigo"

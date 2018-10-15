@@ -2,6 +2,7 @@
 <link rel="import" href="../web-animations-js/web-animations-next-lite.min.html">
 <link rel="import" href="../iron-autogrow-textarea/iron-autogrow-textarea.html">
 <link rel="import" href="../iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="editable-table-behaviors.html">
 
 <!--
 `editable-table-editor-cell`
@@ -70,6 +71,7 @@ An editable cell in the editable-table-editor
     <iron-autogrow-textarea 
       autofocus 
       id="cell" 
+      label$="[[label]]"
       value$="{{value}}">
     </iron-autogrow-textarea>
     <div id="icons"><slot></slot></div>
@@ -104,6 +106,7 @@ An editable cell in the editable-table-editor
 
       is: 'editable-table-editor-cell',
       listeners: { 'bind-value-changed': '_onValueChanged' },
+      behaviors: [  editableTableBehaviors.cellBehaviors ],
 
       properties: {
         /**
@@ -119,6 +122,13 @@ An editable cell in the editable-table-editor
         column: {
           type: Number,
           value: null
+        },
+        /**
+          * cell label
+          */
+        label: {
+          type: String,
+          computed: '_getCellLabel(column,row)'
         },
         /**
           * cell contents
@@ -145,6 +155,13 @@ An editable cell in the editable-table-editor
         this.parentNode.onclick = function(){ 
           root.focus(); 
         };
+      },
+
+      /**
+        * if clicking in td but outside textarea, focus the text area
+        */ 
+        _getCellLabel: function(column,row){
+          return 'Cell '+this._getLabel(column,"Column")+this._getLabel(row,"Row");
       },
 
       /**

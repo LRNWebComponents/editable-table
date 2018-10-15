@@ -31,41 +31,23 @@ interface (editable-table.html).
       :host {
         display: block;
       }
-      :host paper-item {
+      :host .setting {
         min-height: 40px;
         font-size: 95%;
         padding: var(--editable-table-toggle-padding, 0px 16px);
-      }
-      :host .setting {
-        display: flex;
         justify-content: space-between;
         width: 100%;
-      }
-      :host .setting-text {
-        min-width: var(--editable-table-toggle-min-width,100px);
-        padding-right: 0.5em;
       }
       :host[disabled] .setting-text {
         opacity: 0.5;
       }
-      :host .setting-control {
-        max-width: 100px;
-      }
-      :host .setting-slider {
-        width: 130px;
-        margin-left: -15px;
-        margin-right: -15px;
-      }
     </style>
-    <paper-item>
-      <div class="setting">
-        <div class="setting-text">[[label]]</div>
-        <div class="setting-control">
-          <paper-toggle-button id="button" checked$="[[value]]" disabled$="[[disabled]]"></paper-toggle-button>
-          <paper-tooltip for="button">[[tooltip]]</paper-tooltip>
-        </div>
+    <div class="setting">
+      <div class="setting-control">
+        <paper-toggle-button id="button" checked$="[[value]]" disabled$="[[disabled]]">[[label]]</paper-toggle-button>
+        <paper-tooltip id="tooltip" for="button">[[tooltip]]</paper-tooltip>
       </div>
-    </paper-item>  
+    </div>
   </template>
   <script>
     Polymer({

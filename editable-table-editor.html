@@ -263,11 +263,12 @@ An editor interface for editable-table (editable-table.html).
     </style>
     <h1 class="sr-only">Table Editor</h1>
     <p class="field-group">
-      <label for="summary" class="field-group-padding">Table Summary (for accessibility): </label>
+      <label aria-hidden="true" class="field-group-padding">Table Summary (for accessibility): </label>
       <iron-autogrow-textarea id="summary" 
         class="field-group-grow" 
-        value$="{{summary}}" 
-        placeholder="Describe what the table contains. What does each row represent? What does each column represent?">
+        label="Table Summary (for accessibility)" 
+        placeholder="Describe what the table contains. What does each row represent? What does each column represent?"
+        value$="{{summary}}">
       </iron-autogrow-textarea>
     </p>
     <div class="field-group field-group-stretch">
@@ -381,11 +382,11 @@ An editor interface for editable-table (editable-table.html).
       <table id="table" summary="Editable table in edit mode" bordered$="{{bordered}}" condensed$="{{condensed}}" striped$="{{striped}}">
         <caption>
           <p class="field-group">
-            <label for="caption" class="field-group-padding sr-only" sr-only>Table Caption: </label>
             <iron-autogrow-textarea id="caption" 
               class="field-group-grow" 
-              value$="{{caption}}" 
-              placeholder="A title for the table.">
+              label="Table Caption" 
+              placeholder="A title for the table." 
+              value$="{{caption}}">
             </iron-autogrow-textarea>
           </p>
         </caption>

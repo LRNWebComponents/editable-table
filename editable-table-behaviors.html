@@ -125,6 +125,35 @@ A set of common behaviors for editable-table web components.
       return data;
     }
   };
+  window.editableTableBehaviors.cellBehaviors = {
+    /**
+      * Get the row or column label
+      */
+    _getLabel: function(index,type){
+      if (type === 'Column'){
+        let numerals = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''), results = this._getLetter(index).split('-').reverse(), label = '';
+        for(let i=0; i < results.length;i++){
+          if (results[i] !== '') label += numerals[results[i]];
+        }
+        return label;
+      } else {
+        return index+1;
+      }
+    },
+    /**
+      * Get the row or column label
+      */
+    _getLetter: function(index){
+      let place = Math.floor(index/26), multiplier = 26*place, remainder = index-multiplier, letters = '';
+      letters += remainder+'-';
+      if(place > 0 && place < 26){
+        letters += (place-1)+'-';
+      } else if (place >= 26) {
+        letters += this._getLetter(place-1);   
+      }
+      return letters;
+    },
+  };
   window.editableTableBehaviors.editBehaviors = {
     properties: {
       /**
