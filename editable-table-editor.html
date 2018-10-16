@@ -311,7 +311,7 @@ An editor interface for editable-table (editable-table.html).
         <thead class="thead"> 
           <tr class="tr">
             <th class="th" scope="col"><span class="sr-only">Row Functions</span></th>
-            <template id="headers" is="dom-repeat" items="[[starterData]]" as="row" index-as="tr" restamp="true">
+            <template id="headers" is="dom-repeat" items="[[data]]" as="row" index-as="tr" restamp="true">
               <template is="dom-if" if="[[_isFirstRow(tr)]]" restamp="true">
                 <template id="headercols" is="dom-repeat" items="[[row]]" as="cell" index-as="th" restamp="true">
                   <th class="th" scope="col"><editable-table-editor-rowcol condensed$="{{condensed}}" index$="[[th]]" type="Column"></editable-table-editor-rowcol></th> 
@@ -321,7 +321,7 @@ An editor interface for editable-table (editable-table.html).
           </tr> 
         </thead>
         <tbody id="tbody" class="tbody"> 
-          <template id="rows" is="dom-repeat" items="[[starterData]]" as="row" index-as="tr" restamp="true">
+          <template id="rows" is="dom-repeat" items="[[data]]" as="row" index-as="tr" restamp="true">
             <tr class="tr">
               <th class="th" scope="row"><editable-table-editor-rowcol condensed$="{{condensed}}" index$="[[tr]]" type="Row"></editable-table-editor-rowcol></th>
               <template id="columns" is="dom-repeat" items="[[row]]" as="cell" restamp="true">
@@ -361,6 +361,8 @@ An editor interface for editable-table (editable-table.html).
         editableTableBehaviors.editBehaviors
       ],
 
+      observers: [ '_setMinimumData(data)' ],
+
       properties: {
         /**
           * Get accent color and change unspecified to none.
@@ -390,13 +392,6 @@ An editor interface for editable-table (editable-table.html).
           type: Boolean,
           computed: '_tableSortHidden(hideSort,hideFilter)'
         },
-        /**
-          * if there is no data, provides empty starter cells
-          */
-        starterData: {
-          type: Array,
-          computed: '_getStarterData(data)'
-        },
       },
       /**
         * click detection
@@ -409,12 +404,6 @@ An editor interface for editable-table (editable-table.html).
             el.children[0].focus();
           }
         };
-      },
-      /**
-        * Get the current accent color
-        */
-      _getStarterData: function(data){
-        return (data.length < 1 || data[0].length < 1 ) ? [ ['','',''], ['','',''], ['','',''] ] : data;
       },
       /**
         * Get the current accent color
@@ -513,6 +502,15 @@ An editor interface for editable-table (editable-table.html).
       _onTableSettingChange: function(e){
         this[e.detail.prop] = e.detail.value;
       },
+      /**
+        * Makes sure there is always on cell to work from
+        */
+      _setMinimumData: function(data){
+        if(data.length < 1 || data[0].length < 1) {
+          this.set('data',[['','',''],['','',''],['','','']]);
+        }
+      },
+
       /**
         * Are all of the table style choices hidden?
         */
