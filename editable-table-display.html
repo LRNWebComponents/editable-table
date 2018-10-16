@@ -6,6 +6,7 @@
 <link rel="import" href="editable-table-behaviors.html">
 <link rel="import" href="editable-table-sort.html">
 <link rel="import" href="editable-table-filter.html">
+<link rel="import" href="editable-table-styles.html">
 <!--
 `editable-table-display`
 
@@ -42,165 +43,31 @@ for more information.)
 
 <dom-module id="editable-table-display">
   <template>
-    <style is="custom-style">
-      :host, :host[accent-color="none"] {
-        display: block;
-        width: 100%;
-        max-width: 100%;
-        overflow-x: scroll;
-        --editable-table-light-weight: 200;
-        --editable-table-medium-weight: 400;
-        --editable-table-heavy-weight: 500;
-        --editable-table-color: var(--simple-colors-foreground3, #222);
-        --editable-table-bg-color: var(--simple-colors-background1, #fff);
-        --editable-table-border-color: var(--simple-colors-background5, #999);
-        --editable-table-caption-color:  var(--simple-colors-foreground3, #222);
-        --editable-table-caption-bg-color: var(--simple-colors-background1, #fff);
-        --editable-table-heading-color: var(--simple-colors-foreground1, #000);
-        --editable-table-heading-bg-color: var(--simple-colors-background3, #ddd);
-        --editable-table-stripe-bg-color: var(--simple-colors-background2, #eee);
+    <style is="custom-style" include="editable-table-styles">
+      :host[dark] .table .caption {
+        padding: 0.25em 0.25em 0;
       }
-      :host[accent-color]{
-        --editable-table-caption-color:  var(--simple-colors-accent-foreground3, #222);
-        --editable-table-heading-bg-color: var(--simple-colors-accent-background2, #ddd);
-        --editable-table-border-color: var(--simple-colors-accent-foreground5, #999);
-      }
-      :host[dark], :host[dark][accent-color="none"]{
-        --editable-table-light-weight: 100;
-        --editable-table-medium-weight: 300;
-        --editable-table-heavy-weight: 400;
-        --editable-table-color: var(--simple-colors-foreground1, #fff);
-        --editable-table-bg-color:  var(--simple-colors-background3, #222);
-        --editable-table-border-color: var(--simple-colors-background1, #000);
-        --editable-table-caption-color:  var(--simple-colors-background3, #222);
-        --editable-table-caption-bg-color: var(--simple-colors-foreground1, #fff);
-        --editable-table-heading-bg-color: var(--simple-colors-background1, #000);
-        --editable-table-heading-color: var(--simple-colors-foreground1, #fff);
-        --editable-table-stripe-bg-color: var(--simple-colors-background2, #111);
-      }
-      :host[dark][accent-color]{
-        --editable-table-caption-color:  var(--simple-colors-accent-background3, #000);
-        --editable-table-heading-bg-color: var(--simple-colors-accent-background3, #000);
-        --editable-table-border-color: var(--simple-colors-accent-foreground5, #000);
-      }
-      :host table {
-        width: 100%;
-        margin: 15px 0;
-      }
-      :host table,
-      :host table caption,
-      :host table th,
-      :host table td {
-        border-collapse: collapse;
-        background-color: var(--editable-table-bg-color);
-      } 
-      :host table caption {
-        font-size: 120%;
-        font-weight: var(--editable-table-heavy-weight);
-        color: var(--editable-table-caption-color);
-        background-color: var(--editable-table-caption-bg-color);
-        padding: 0.5em 0 0;
-        width: 100%;
-      } 
-      :host[dark][bordered] table caption {
-        padding: 0.5em 0 0 0.25em;
-        border: 1px solid var(--editable-table-border-color);
-        border-bottom: none;
-      }
-      :host table,
-      :host table th,
-      :host table td {
-        font-weight: var(--editable-table-light-weight);
-        color: var(--editable-table-color);
-      } 
-      :host table th, 
-      :host table td {
-        padding: 0.75em 0.25em;
-      }
-      :host[condensed] table th,
-      :host[condensed] table td {
-        padding: 0 0.25em;
-      }
-      :host table caption, 
-      :host table th, 
-      :host table td {
-        text-align: left;
-      }
-      :host table th[numeric],
-      :host table td[numeric] {
-        text-align: var(--editable-table-numeric-text-align, unset);
-      }
-      :host table td[negative] .cell {
-        color: var(--editable-table-negative-color, --editable-table-color);
-      }
-      :host[bordered] table th,
-      :host[bordered] table td {
+      :host[bordered] .table .th,
+      :host[bordered] .table .td {
         border: 1px solid var(--editable-table-border-color);
       }
-      :host[striped] table tbody tr:nth-child(2n) th,
-      :host[striped] table tbody tr:nth-child(2n) td {
-        background-color: var(--editable-table-stripe-bg-color);
+      :host[striped] .table .tbody .tr:nth-child(2n) .th,
+      :host[striped] .table .tbody .tr:nth-child(2n) .td {
+        @apply --editable-table-style-stripe;
       }
-      :host[column-header] table thead th {
-        font-weight: var(--editable-table-heavy-weight);
-        color: var(--editable-table-heading-color);
-        background-color: var(--editable-table-heading-bg-color);
+      :host[column-header] .table .thead .tr .th {
+        @apply --editable-table-style-column-header;
       }
-      :host[row-header] table tbody th {
-        font-weight:  var(--editable-table-heavy-weight);
-        color: var(--editable-table-heading-color);
+      :host[row-header] .table .tbody .tr .th {
+        @apply --editable-table-style-row-header;
       }
-      :host[footer] table tfoot tr th, 
-      :host[footer] table tfoot tr td {
-        font-weight: var(--editable-table-heavy-weight);
-        color: var(--editable-table-heading-color);
-        border-top: 3px solid var(--editable-table-color);
-      }
-      :host table caption > div {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-      }
-      :host table caption > div > div {
-        padding-bottom: 8px;
-        flex-grow: 1;
-        width: auto;
-      }
-      :host editable-table-sort {
-        width: 100%;
-      }
-      :host:not([responsive-size="xs"]) #column {
-        display: none;
-      }
-      @media screen {
-      :host[responsive-size="xs"] table[transition] {
-        opacity: 0;
-        transition: opacity 5s;
-      }
-        :host:not([responsive-size="xs"]) #column, 
-        :host[responsive-size="xs"] table th[xs-hidden],
-        :host[responsive-size="xs"] table td[xs-hidden],
-        :host[responsive-size="xs"] table[default-xs-display] th:nth-of-type(n+3), 
-        :host[responsive-size="xs"] table[default-xs-display][row-header] td:nth-of-type(n+3), 
-        :host[responsive-size="xs"] table[default-xs-display]:not([row-header]) td:nth-of-type(n+2) {
-          display: none;
-        }  
-      }
-      @media print {
-        :host table {
-          width: 100%;
-          max-width: 100%;
-        }
-        :host #column {
-          display: none;
-        }
-        @page {
-          size: landscape;
-        }
+      :host[footer] .table .tfoot .tr .th, 
+      :host[footer] .table .tfoot .tr .td {
+        @apply --editable-table-style-footer;
       }
     </style>
-    <table id="table" default-xs-display>
-      <caption>
+    <table id="table" class="table" default-xs-display>
+      <caption class="caption">
         <div>
           <div>[[caption]]</div>
           <dropdown-select id="column" label$="[[tables.0.label]]" value="1">
@@ -215,10 +82,10 @@ for more information.)
           </dropdown-select>
         </div>
       </caption>
-      <thead hidden="[[!columnHeader]]"> 
-        <tr>
+      <thead class="thead" hidden="[[!columnHeader]]"> 
+        <tr class="tr">
           <template is="dom-repeat" items$="[[thead.0]]" as="th" index-as="index">
-            <th scope="col" numeric$="[[_isNumericColumn(index)]]">
+            <th class="th" scope="col" numeric$="[[_isNumericColumn(index)]]">
               <template is="dom-if" if="[[sort]]" restamp> 
                 <editable-table-sort sort-column$="[[sortColumn]]" column-number="[[index]]" text$="[[th]]"></editable-table-sort>
               </template>
@@ -227,12 +94,12 @@ for more information.)
           </template>
         </tr> 
       </thead>
-      <tbody id="tbody"> 
+      <tbody id="tbody" class="tbody"> 
         <template is="dom-repeat" items$="[[tbody]]" as="tr" filter="{{filterRows(filterColumn,filterText)}}" restamp>
-          <tr>
+          <tr class="tr">
             <template is="dom-repeat" items$="[[tr]]" as="cell" index-as="index" restamp>
               <template is="dom-if" if="[[_isRowHeader(rowHeader,index)]]" restamp>
-                <th scope="row" numeric$="[[_isNumericColumn(index)]]">
+                <th class="th" scope="row" numeric$="[[_isNumericColumn(index)]]">
                   <template is="dom-if" if="[[filter]]" restamp>
                     <editable-table-filter column-number="[[index]]" text$="[[cell]]"></editable-table-filter>                      
                   </template>
@@ -240,7 +107,7 @@ for more information.)
                 </th>
               </template>
               <template is="dom-if" if="[[!_isRowHeader(rowHeader,index)]]" restamp>
-                <td numeric$="[[_isNumericColumn(index)]]" negative$="[[_isNegative(cell)]]">
+                <td class="td" numeric$="[[_isNumericColumn(index)]]" negative$="[[_isNegative(cell)]]">
                   <template is="dom-if" if="[[filter]]" restamp>
                     <editable-table-filter column-number="[[index]]" text$="[[cell]]" filtered$="[[_isFiltered(index,filterColumn,filtered)]]"></editable-table-filter>                      
                   </template>
@@ -252,14 +119,14 @@ for more information.)
         </template>
       </tbody>
       <template is="dom-if" if="[[footer]]">
-        <tfoot>
-          <tr>
+        <tfoot class="tfoot">
+          <tr class="tr">
             <template is="dom-repeat" items$="[[__tfoot.0]]" as="cell" index-as="index">
               <template is="dom-if" if="[[_isRowHeader(rowHeader,index)]]">
-                <th scope="row" numeric$="[[_isNumericColumn(index)]]">[[cell]]</th>
+                <th class="th" scope="row" numeric$="[[_isNumericColumn(index)]]">[[cell]]</th>
               </template>
               <template is="dom-if" if="[[!_isRowHeader(rowHeader,index)]]">
-                <td numeric$="[[_isNumericColumn(index)]]" negative$="[[_isNegative(cell)]]">[[cell]]</td>
+                <td class="td" numeric$="[[_isNumericColumn(index)]]" negative$="[[_isNegative(cell)]]">[[cell]]</td>
               </template>
             </template>
           </tr> 

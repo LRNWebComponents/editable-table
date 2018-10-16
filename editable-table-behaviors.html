@@ -39,7 +39,8 @@ A set of common behaviors for editable-table web components.
        */
       condensed: {
         type: Boolean,
-        value: false
+        value: false,
+        reflectToAttribute: true
       },
       /**
        * raw data
@@ -85,14 +86,16 @@ A set of common behaviors for editable-table web components.
        */
       scroll: {
         type: Boolean,
-        value: false
+        value: false,
+        reflectToAttribute: true
       },
       /**
        * Add alternating row striping.
        */
       striped: {
         type: Boolean,
-        value: false
+        value: false,
+        reflectToAttribute: true
       },
       /**
        * a table summary

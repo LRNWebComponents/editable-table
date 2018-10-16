@@ -11,6 +11,7 @@
 <link rel="import" href="editable-table-editor-toggle.html">
 <link rel="import" href="editable-table-editor-cell.html">
 <link rel="import" href="editable-table-iconset.html">
+<link rel="import" href="editable-table-styles.html">
 <!--
 `editable-table-editor`
 
@@ -53,44 +54,16 @@ An editor interface for editable-table (editable-table.html).
 
 <dom-module id="editable-table-editor">
   <template>
-    <style is="custom-style">
-      :host, :host[accent-color="none"] {
-        display: block;
-        width: 100%;
-        --editable-table-light-weight: 200;
-        --editable-table-medium-weight: 400;
-        --editable-table-heavy-weight: 500;
-        --editable-table-color: var(--simple-colors-foreground3, #222);
-        --editable-table-bg-color: var(--simple-colors-background1, #fff);
-        --editable-table-border-color: var(--simple-colors-background5, #999);
-        --editable-table-caption-color:  var(--simple-colors-foreground3, #222);
-        --editable-table-caption-bg-color: var(--simple-colors-background1, #fff);
-        --editable-table-heading-color: var(--simple-colors-foreground1, #000);
-        --editable-table-heading-bg-color: var(--simple-colors-background3, #ddd);
-        --editable-table-stripe-bg-color: var(--simple-colors-background2, #eee);
+    <style is="custom-style" include="editable-table-styles">
+      :host, 
+      :host paper-item {
+        font-size: 12pt;
       }
-      :host[accent-color]{
-        --editable-table-caption-color:  var(--simple-colors-accent-foreground3, #222);
-        --editable-table-heading-bg-color: var(--simple-colors-accent-background2, #ddd);
-        --editable-table-border-color: var(--simple-colors-accent-foreground5, #999);
+      :host dropdown-select {
+        padding: 0 16px;
       }
-      :host[dark], :host[dark][accent-color="none"]{
-        --editable-table-light-weight: 100;
-        --editable-table-medium-weight: 300;
-        --editable-table-heavy-weight: 400;
-        --editable-table-color: var(--simple-colors-foreground1, #fff);
-        --editable-table-bg-color:  var(--simple-colors-background3, #222);
-        --editable-table-border-color: var(--simple-colors-background1, #000);
-        --editable-table-caption-color:  var(--simple-colors-background3, #222);
-        --editable-table-caption-bg-color: var(--simple-colors-foreground1, #fff);
-        --editable-table-heading-bg-color: var(--simple-colors-background1, #000);
-        --editable-table-heading-color: var(--simple-colors-foreground1, #fff);
-        --editable-table-stripe-bg-color: var(--simple-colors-background2, #111);
-      }
-      :host[dark][accent-color]{
-        --editable-table-caption-color:  var(--simple-colors-accent-background3, #000);
-        --editable-table-heading-bg-color: var(--simple-colors-accent-background3, #000);
-        --editable-table-border-color: var(--simple-colors-accent-foreground5, #000);
+      :host[responsive-size="xs"] editable-table-editor-settings {
+        padding: 3px 0;
       }
       :host .sr-only {
         position: absolute;
@@ -100,115 +73,6 @@ An editor interface for editable-table (editable-table.html).
         width: 0;
         overflow: hidden;
       }
-      :host, 
-      :host paper-item {
-        font-size: 12pt;
-      }
-      :host table caption {
-        text-align: left;
-        line-height: 30px;
-      }
-      :host iron-autogrow-textarea#caption {
-        font-size: 120%;
-        padding: 0em 0em 0em 0.25em;
-        font-weight: var(--editable-table-heavy-weight);
-        color: var(--editable-table-caption-color);
-        background-color: var(--editable-table-caption-bg-color);
-      }
-      :host[dark][bordered] iron-autogrow-textarea#caption {
-        border: 1px solid var(--editable-table-border-color);
-        border-bottom: none;
-      }
-      :host[responsive-size="xs"] editable-table-editor-settings {
-        padding: 3px 0;
-      }
-      :host table {
-        width: 100%;
-      }
-      :host #table-outer {
-        max-width: 100%;
-        overflow-x: scroll;
-      }
-      :host table,
-      :host table th,
-      :host table td {
-        padding: 0;
-        border-collapse: collapse;
-        border: 1px solid #ddd;
-        font-weight: var(--editable-table-medium-weight);
-      }
-      :host table th,
-      :host table td {
-        height: 100%;
-        padding: 0;
-      }
-      :host[condensed] table td {
-        padding: 0.5em 0;
-      }
-      :host table th {
-        background-color: #f0f0f0;
-      }
-      :host table td {
-        font-weight: var(--editable-table-light-weight);
-        color: var(--editable-table-color);
-        background-color: var(--editable-table-bg-color);
-      }
-      :host table tbody td {
-        text-align: left;
-      }
-      :host table tbody td[numeric] {
-        text-align: right;
-      }
-      :host table tbody th:first-child {
-        width: 6em;
-      }
-      :host[dark] table td {
-        border: 1px solid var(--editable-table-bg-color);
-      }
-      :host[dark] table thead th:not(:first-child) {
-        border-bottom: 1px solid var(--editable-table-bg-color);
-      }
-      :host[dark] table tbody th {
-        border-right: 1px solid var(--editable-table-bg-color);
-      }
-      :host table[bordered] td {
-        border: 1px solid var(--editable-table-border-color);
-      }
-      :host table[bordered] thead th:not(:first-child) {
-        border-bottom: 1px solid var(--editable-table-border-color);
-      }
-      :host table[bordered] tbody th {
-        border-right: 1px solid var(--editable-table-border-color);
-      }
-      :host[column-header] table[striped] tbody tr:nth-child(2n+1):not(:first-of-type) td,
-      :host:not([column-header]) table[striped] tbody tr:nth-child(2n+1) td {
-        background-color: var(--editable-table-stripe-bg-color);
-      }
-      :host[row-header] tbody td:first-of-type {
-        font-weight:  var(--editable-table-heavy-weight);
-        color: var(--editable-table-heading-color);
-        background-color: var(--editable-table-stripe-bg-color);
-      }
-      :host[column-header] table tbody tr:first-of-type td {
-        font-weight: var(--editable-table-heavy-weight);
-        color: var(--editable-table-heading-color);
-        background-color: var(--editable-table-heading-bg-color);
-      }
-      :host[column-header][sort] table tbody tr:first-of-type .sortable-icon {
-        display: inline-block;
-      }
-      :host[column-header][filter] table tbody tr:first-of-type .filter-icon {
-        display: none;
-      }
-      :host[footer] table tbody tr:last-of-type td {
-        font-weight: var(--editable-table-heavy-weight);
-        color: var(--editable-table-heading-color);
-        border-top: 3px solid var(--editable-table-color);
-      }
-      :host[filter] .filter-icon {
-        display: inline-block;
-        opacity: 0.25;
-      }
       :host .filter-icon,
       :host .sortable-icon {
         display: none;
@@ -216,13 +80,19 @@ An editor interface for editable-table (editable-table.html).
         width: 24px;
         height: 24px;
       }
+      :host[sort] .tbody .tr:first-child .sortable-icon {
+        display: inline-block;
+        opacity: 0.25;
+      }
+      :host[filter]:not([sort]) .filter-icon,
+      :host[filter][sort] .tbody .tr:not(:first-child) .filter-icon {
+        display: inline-block;
+        opacity: 0.25;
+      }
       :host .field-group {
         width: 100%;
         margin: 0 0 10px;
         padding: 0;
-      }
-      :host table caption .field-group {
-        margin-bottom: 0;
       }
       :host .field-group {
         display: flex;
@@ -251,17 +121,61 @@ An editor interface for editable-table (editable-table.html).
       :host .field-group label {
         line-height: 30px;
       }
-      @media print {
-        table {
-          width: 100%;
-          max-width: 100%;
-        }
-        @page {
-          size: landscape;
-        }
+      :host .caption {
+        padding: 0em;
+      }
+      :host .caption.field-group {
+        margin-bottom: 0;
+      }
+      :host .table .th,
+      :host .table .td {
+        border: 1px solid #ddd;
+      }
+      :host .table .th {
+        padding: 0;
+        vertical-align: center;
+        color: black;
+        background-color: #f0f0f0;
+      }
+      :host .table .td {
+        vertical-align: top;
+        padding: 0.5em 0.25em;
+      }
+      :host .table .th:first-child {
+        width: 6em;
+      }
+      :host[condensed] .table .th {
+        padding: 0;
+      }
+      :host[condensed] .table .td {
+        padding: 0em 0.25em;
+      }
+      :host .table[bordered] .td {
+        border: 1px solid var(--editable-table-border-color);
+      }
+      :host[dark] table .tbody .th {
+        border-right: 1px solid var(--editable-table-bg-color);
+      }
+      :host[dark] .table .thead .th:not(:first-child) {
+        border-bottom: 1px solid var(--editable-table-bg-color);
+      }
+      :host .table[bordered] .thead .th:not(:first-child) {
+        border-bottom: 1px solid var(--editable-table-border-color);
+      }
+      :host[striped] .table .tr:nth-child(2n+1) .td {
+        @apply --editable-table-style-stripe;
+      }
+      :host[column-header] .table .tbody .tr:first-child .td {
+        @apply --editable-table-style-column-header;
+      }
+      :host[row-header] .table .tbody .tr .td:first-of-type {
+        @apply --editable-table-style-row-header;
+      }
+      :host[footer] .table .tbody .tr:last-of-type .td {
+        @apply --editable-table-style-footer;
       }
     </style>
-    <h1 class="sr-only">Table Editor</h1>
+    <p class="sr-only">Table Editor</p>
     <p class="field-group">
       <label aria-hidden="true" class="field-group-padding">Table Summary (for accessibility): </label>
       <iron-autogrow-textarea id="summary" 
@@ -295,8 +209,8 @@ An editor interface for editable-table (editable-table.html).
         </editable-table-editor-toggle>
       </div>
       <div class="field-group-border field-group-grow" hidden$="[[hideTableTheme]]">
-        <label>Theme {{accentColor}}: </label>
-        <paper-item class="field-group-grow">
+        <label>Theme: </label>
+        <div class="field-group-grow">
           <dropdown-select id="accent" label="Accent Color" value$="{{accentColor}}">
             <paper-item value="none">None</paper-item>
             <paper-item value="red">Red</paper-item>
@@ -318,7 +232,7 @@ An editor interface for editable-table (editable-table.html).
             <paper-item value="brown">Deep Orange</paper-item>
             <paper-item value="blue-grey">Blue-Grey</paper-item>
           </dropdown-select>
-        </paper-item>
+        </div>
         <paper-tooltip for="accent">Set an accent color for the table.</paper-tooltip>
         <editable-table-editor-toggle
           hidden$="[[hideDarkTheme]]"
@@ -379,35 +293,39 @@ An editor interface for editable-table (editable-table.html).
       </div>
     </div>
     <div id="table-outer">
-      <table id="table" summary="Editable table in edit mode" bordered$="{{bordered}}" condensed$="{{condensed}}" striped$="{{striped}}">
-        <caption>
-          <p class="field-group">
-            <iron-autogrow-textarea id="caption" 
-              class="field-group-grow" 
-              label="Table Caption" 
-              placeholder="A title for the table." 
-              value$="{{caption}}">
-            </iron-autogrow-textarea>
-          </p>
-        </caption>
-        <thead> 
-          <tr>
-            <th scope="col"></th>
-            <template id="headers" is="dom-repeat" items="[[data]]" as="row" index-as="tr" restamp="true">
+      <p class="field-group caption">
+        <iron-autogrow-textarea id="caption" 
+          class="field-group-grow" 
+          label="Table Caption" 
+          placeholder="A title for the table." 
+          value$="{{caption}}">
+        </iron-autogrow-textarea>
+      </p>
+      <table id="table" 
+        class="table" 
+        bordered$="{{bordered}}" 
+        condensed$="{{condensed}}" 
+        striped$="{{striped}}"
+        summary="Editable table in edit mode. The table body contains fields to edit table data. Each column header contains buttons for editing the column. Each row header contains buttons for editing the row." >
+        <caption class="sr-only">Editable Table Data</caption>
+        <thead class="thead"> 
+          <tr class="tr">
+            <th class="th" scope="col"><span class="sr-only">Row Functions</span></th>
+            <template id="headers" is="dom-repeat" items="[[starterData]]" as="row" index-as="tr" restamp="true">
               <template is="dom-if" if="[[_isFirstRow(tr)]]" restamp="true">
                 <template id="headercols" is="dom-repeat" items="[[row]]" as="cell" index-as="th" restamp="true">
-                  <th scope="col"><editable-table-editor-rowcol condensed$="{{condensed}}" index$="[[th]]" type="Column"></editable-table-editor-rowcol></th> 
+                  <th class="th" scope="col"><editable-table-editor-rowcol condensed$="{{condensed}}" index$="[[th]]" type="Column"></editable-table-editor-rowcol></th> 
                 </template>   
               </template>
             </template>
           </tr> 
         </thead>
-        <tbody id="tbody"> 
-          <template id="rows" is="dom-repeat" items="[[data]]" as="row" index-as="tr" restamp="true">
-            <tr>
-              <th scope="row"><editable-table-editor-rowcol condensed$="{{condensed}}" index$="[[tr]]" type="Row"></editable-table-editor-rowcol></th>
+        <tbody id="tbody" class="tbody"> 
+          <template id="rows" is="dom-repeat" items="[[starterData]]" as="row" index-as="tr" restamp="true">
+            <tr class="tr">
+              <th class="th" scope="row"><editable-table-editor-rowcol condensed$="{{condensed}}" index$="[[tr]]" type="Row"></editable-table-editor-rowcol></th>
               <template id="columns" is="dom-repeat" items="[[row]]" as="cell" restamp="true">
-                <td>
+                <td class="td">
                   <editable-table-editor-cell row="[[tr]]" column="[[index]]" value$="{{cell}}">
                     <iron-icon class="sortable-icon"icon="editable-table:sortable" aria-hidden="true"></iron-icon>
                     <iron-icon class="filter-icon"icon="editable-table:filter-off"></iron-icon>
@@ -472,6 +390,31 @@ An editor interface for editable-table (editable-table.html).
           type: Boolean,
           computed: '_tableSortHidden(hideSort,hideFilter)'
         },
+        /**
+          * if there is no data, provides empty starter cells
+          */
+        starterData: {
+          type: Array,
+          computed: '_getStarterData(data)'
+        },
+      },
+      /**
+        * click detection
+        */
+      ready: function(){
+        this.onclick = function(e){
+          let el = e.srcElement !== null && e.srcElement.tagName !== null && e.srcElement.tagName.toLowerCase() === 'td' ? e.srcElement : false;
+          if(el && el.getElementsByTagName('editable-table-cell') !== null){
+            console.log(el.children[0]);
+            el.children[0].focus();
+          }
+        };
+      },
+      /**
+        * Get the current accent color
+        */
+      _getStarterData: function(data){
+        return (data.length < 1 || data[0].length < 1 ) ? [ ['','',''], ['','',''], ['','',''] ] : data;
       },
       /**
         * Get the current accent color
