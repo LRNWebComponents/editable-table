@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>editable-table demo</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="../editable-table-editor.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+      .vertical-section-container { width: 95%; max-width: unset; }
+      editable-table, paper-button[raised] {
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="vertical-section-container centered">
+      <h1>editable-table-editor demo</h1>
+      <p>This is a standalone component that just displays the editor. (See <a href="index.html">editable-table demo</a> for more information.)</p>
+      <demo-snippet>
+        <template>
+          <editable-table-editor id="table2"></editable-table-editor>
+          <p><paper-button onclick="alert(JSON.stringify(document.getElementById('table2').getData()))" raised>Get Data</paper-button></p>          
+        </template>
+      </demo-snippet>
+    </div>
+  </body>
+</html>
