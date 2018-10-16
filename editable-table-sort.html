@@ -40,6 +40,17 @@ table-editor-display mode (table-editor-display.html).
       :host paper-button > div {
         flex-grow: 1;
       }
+      :host .sr-only {
+        position: absolute;
+        left: -9999px;
+        font-size: 0;
+        height: 0;
+        width: 0;
+        overflow: hidden;
+      }
+      :host:not([sort-mode="asc"]) .asc,
+      :host:not([sort-mode="desc"]) .desc,
+      :host:not([sort-mode="none"]) .none,
       :host #asc,
       :host #desc,
       :host[sorting]:not([sort-mode="none"]) #none {
@@ -51,10 +62,13 @@ table-editor-display mode (table-editor-display.html).
       }
     </style>
     <paper-button id="button" class="container">
-      <div>[[text]]</div>
+      [[text]]
+      <span class="sr-only asc">(ascending)</span>
+      <span class="sr-only desc">(descending)</span>
+      <span class="sr-only"> Toggle sort mode.</span>
       <iron-icon id="asc" icon="arrow-drop-up"></iron-icon>
-      <iron-icon id="desc"icon="arrow-drop-down"></iron-icon>
-      <iron-icon id="none"icon="editable-table:sortable"></iron-icon>
+      <iron-icon id="desc" icon="arrow-drop-down"></iron-icon>
+      <iron-icon id="none" icon="editable-table:sortable"></iron-icon>
     </paper-button>
   </template>
 
@@ -120,6 +134,7 @@ table-editor-display mode (table-editor-display.html).
         */ 
       setSortMode: function(mode){
         this.sortMode = mode;
+        this.__checked = mode === 'asc' ? true : mode === 'desc' ? mixed : false;
       },
       /**
         * Is the column number is the same as the current sort column?

@@ -99,12 +99,7 @@ for more information.)
           <tr class="tr">
             <template is="dom-repeat" items$="[[tr]]" as="cell" index-as="index" restamp>
               <template is="dom-if" if="[[_isRowHeader(rowHeader,index)]]" restamp>
-                <th class="th" scope="row" numeric$="[[_isNumericColumn(index)]]">
-                  <template is="dom-if" if="[[filter]]" restamp>
-                    <editable-table-filter column-number="[[index]]" text$="[[cell]]"></editable-table-filter>                      
-                  </template>
-                  <template is="dom-if" if="[[!filter]]" restamp><span class="cell">[[cell]]</span></template>
-                </th>
+                <th class="th" scope="row" numeric$="[[_isNumericColumn(index)]]">[[cell]]</th>
               </template>
               <template is="dom-if" if="[[!_isRowHeader(rowHeader,index)]]" restamp>
                 <td class="td" numeric$="[[_isNumericColumn(index)]]" negative$="[[_isNegative(cell)]]">
@@ -258,6 +253,7 @@ for more information.)
         * sets a column's cells to filtered when in filtered mode so that filter can toggle
         */
       _isFiltered: function(column,filterColumn,filtered){
+        console.log('_isFiltered',column,filterColumn,filtered,filterColumn !== null && filterColumn === column && filtered)
         return filterColumn !== null && filterColumn === column && filtered;
       },
 
@@ -366,6 +362,7 @@ for more information.)
         * Handle filter based on collumn and text of cell that is clicked
         */
       filterRows: function(filterColumn,filterText){
+        console.log('filterRows',this.filterColumn,filterText);
         if(filterColumn !== null && filterText !== null) {
           return function(tr) {
             return tr[filterColumn].toLowerCase().trim() === filterText.toLowerCase().trim();
@@ -380,6 +377,7 @@ for more information.)
         * Handle filter button click
         */
       toggleFilter: function(e){
+        console.log('toggleFilter',this.filterColumn,e.detail.columnNumber);
         if(this.filterColumn == e.detail.columnNumber && this.filtered){
           this.filtered = false;
           this.filterText = null;

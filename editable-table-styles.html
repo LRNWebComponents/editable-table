@@ -38,6 +38,14 @@
             border-top: 3px solid var(--editable-table-color);
           };
         }
+        :host .sr-only {
+          position: absolute;
+          left: -9999px;
+          font-size: 0;
+          height: 0;
+          width: 0;
+          overflow: hidden;
+        }
         :host[accent-color]{
           --editable-table-caption-color:  var(--simple-colors-accent-foreground3, #222);
           --editable-table-heading-bg-color: var(--simple-colors-accent-background2, #ddd);

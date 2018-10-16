@@ -37,9 +37,18 @@ Displays a cell in the editable-table-display mode
       :host paper-button > div {
         flex-grow: 1;
       }
+      :host .sr-only {
+        position: absolute;
+        left: -9999px;
+        font-size: 0;
+        height: 0;
+        width: 0;
+        overflow: hidden;
+      }
       :host #filter-off {
         opacity: 0.25;
       }
+      :host:not([filtered]) .filtered,
       :host:not([filtered]):not(:focus):not(:hover) #filter,
       :host:not([filtered]):focus #filter-off, 
       :host:not([filtered]):hover #filter-off,
@@ -50,7 +59,9 @@ Displays a cell in the editable-table-display mode
       }
     </style>
     <paper-button id="button" class="container">
-      <div>[[text]]</div>
+      <span>[[text]]</span>
+      <span class="sr-only" hidden$="[[!filtered]]"> (filtered)</span>
+      <span class="sr-only"> Toggle filter.</span>
       <iron-icon id="filter" icon="editable-table:filter"></iron-icon>
       <iron-icon id="filter-off" icon="editable-table:filter-off"></iron-icon>
     </paper-button>
@@ -89,6 +100,12 @@ Displays a cell in the editable-table-display mode
           type: String,
           value: ""
         },
+      },
+      /**
+        * listen for button tap
+        */ 
+      _getPressed: function(filtered){
+        return filtered ? 'true' : 'false';
       },
       /**
         * listen for button tap
