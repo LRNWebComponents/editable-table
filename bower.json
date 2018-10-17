@@ -22,7 +22,8 @@
     "paper-slider": "PolymerElements/paper-slider#^2.0.4",
     "dropdown-select": "LRNWebComponents/dropdown-select#^1.0.5",
     "iron-collapse": "PolymerElements/iron-collapse#^2.2.1",
-    "paper-icon-button": "PolymerElements/paper-icon-button#^2.2.0"
+    "paper-icon-button": "PolymerElements/paper-icon-button#^2.2.0",
+    "a11y-collapse": "LRNWebComponents/a11y-collapse#^1.0.1"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

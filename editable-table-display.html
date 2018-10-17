@@ -253,7 +253,6 @@ for more information.)
         * sets a column's cells to filtered when in filtered mode so that filter can toggle
         */
       _isFiltered: function(column,filterColumn,filtered){
-        console.log('_isFiltered',column,filterColumn,filtered,filterColumn !== null && filterColumn === column && filtered)
         return filterColumn !== null && filterColumn === column && filtered;
       },
 
@@ -362,7 +361,6 @@ for more information.)
         * Handle filter based on collumn and text of cell that is clicked
         */
       filterRows: function(filterColumn,filterText){
-        console.log('filterRows',this.filterColumn,filterText);
         if(filterColumn !== null && filterText !== null) {
           return function(tr) {
             return tr[filterColumn].toLowerCase().trim() === filterText.toLowerCase().trim();
@@ -377,7 +375,6 @@ for more information.)
         * Handle filter button click
         */
       toggleFilter: function(e){
-        console.log('toggleFilter',this.filterColumn,e.detail.columnNumber);
         if(this.filterColumn == e.detail.columnNumber && this.filtered){
           this.filtered = false;
           this.filterText = null;
