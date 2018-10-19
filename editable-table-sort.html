@@ -134,7 +134,7 @@ table-editor-display mode (table-editor-display.html).
         */ 
       setSortMode: function(mode){
         this.sortMode = mode;
-        this.__checked = mode === 'asc' ? true : mode === 'desc' ? mixed : false;
+        this.__checked = mode === 'asc' ? true : mode === 'desc' ? mode : false;
       },
       /**
         * Is the column number is the same as the current sort column?

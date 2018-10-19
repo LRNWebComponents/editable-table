@@ -136,7 +136,7 @@ for more information.)
       is: 'editable-table-display',
 
       listeners: {
-        "change-sort-mode": "changeSortMode",
+        "change-sort-mode": "_changeSortMode",
         "toggle-filter": "toggleFilter",
         'dropdown-select-changed': '_onColumnChange'
       },
@@ -267,7 +267,7 @@ for more information.)
         * sets a cell's numeric style
         */
       _isNumeric: function(cell){
-        return !isNaN(cell.trim().replace(/\$/g, ''));
+        return cell!== null && !isNaN(cell.trim().replace(/\$/g, ''));
       },
 
       /**
@@ -295,31 +295,21 @@ for more information.)
         this.selected = e.detail.value;
         this._updateCols(parseInt(e.detail.value)); 
       },
+
       /**
-        * initialize the responsive columns menu
+        * Handle sort button click
         */
-      _sortData: function(column,type){
-        if (this.__backupData === undefined) this.__backupData = this.tbody.slice();
-        if(type !== "none"){
-          let temp = this.tbody.slice();
-          for(let i = 0; i<temp.length; i++){
-            temp[i].unshift(temp[i][column]);
-          }
-          if(type === "asc") {
-            temp.sort();
-          } else {
-            temp.reverse();
-          }
-          for(let i = 0; i<temp.length; i++){
-            this.set('tbody.'+i,[]);
-            this.set('tbody.'+i,temp[i].slice(1));
-          }
+      _changeSortMode: function(e){
+        if(this.sortColumn === e.detail.columnNumber && this.sortMode === "asc"){
+          this.sortMode = "desc";
+        } else if(this.sortColumn === e.detail.columnNumber && this.sortMode === "desc"){
+          this.sortMode = "none";
         } else {
-          for(let i = 0; i<this.__backupData.length; i++){
-            this.set('tbody.'+i,[]);
-            this.set('tbody.'+i,this.__backupData[i].slice(1));
-          }
+          this.sortMode = "asc";
+          this.sortColumn = e.detail.columnNumber;
         }
+        e.detail.setSortMode(this.sortMode);
+        this.sortData(this.sortMode,e.detail.columnNumber);
       },
       /**
         * update the responsive columns menu
@@ -342,26 +332,10 @@ for more information.)
       },
 
       /**
-        * Handle sort button click
-        */
-      changeSortMode: function(e){
-        if(this.sortColumn === e.detail.columnNumber && this.sortMode === "asc"){
-          this.sortMode = "desc";
-        } else if(this.sortColumn === e.detail.columnNumber && this.sortMode === "desc"){
-          this.sortMode = "none";
-        } else {
-          this.sortMode = "asc";
-          this.sortColumn = e.detail.columnNumber;
-        }
-        e.detail.setSortMode(this.sortMode);
-        this._sortData(e.detail.columnNumber,this.sortMode);
-      },
-
-      /**
         * Handle filter based on collumn and text of cell that is clicked
         */
       filterRows: function(filterColumn,filterText){
-        if(filterColumn !== null && filterText !== null) {
+        if(filterText !== undefined && filterText !== null) {
           return function(tr) {
             return tr[filterColumn].toLowerCase().trim() === filterText.toLowerCase().trim();
           };
@@ -370,12 +344,38 @@ for more information.)
           return null;
         }
       },
+      /**
+        * initialize the responsive columns menu
+        */
+      sortData: function(type,column){
+        if(type !== "none" && type !== false){
+          let temp = this.tbody.slice();
+          for(let i = 0; i<temp.length; i++){
+            temp[i].unshift(temp[i][column]);
+          }
+          if(type === "asc") {
+            temp.sort();
+          } else {
+            temp.reverse();
+          }
+          for(let i = 0; i<temp.length; i++){
+            this.set('tbody.'+i,[]);
+            this.set('tbody.'+i,temp[i].slice(1));
+          }
+        } else {
+          let temp = this.tbody.slice();
+          for(let i = 0; i<temp.length; i++){
+            this.set('data.'+(i+1),[]);
+            this.set('data.'+(i+1),temp[i].slice());
+          }
+        }
+      },
 
       /**
         * Handle filter button click
         */
       toggleFilter: function(e){
-        if(this.filterColumn == e.detail.columnNumber && this.filtered){
+        if(e === undefined || this.filterColumn == e.detail.columnNumber && this.filtered){
           this.filtered = false;
           this.filterText = null;
           this.filterColumn = null;

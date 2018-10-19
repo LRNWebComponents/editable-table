@@ -127,11 +127,13 @@ edit mode (editable-table-editor.html).
         let temp;
         edit = edit !== undefined ? edit : !this.editMode;
         if(edit){
+          this.querySelector('editable-table-display').toggleFilter();
+          this.querySelector('editable-table-display').sortData(false);
           temp = this.querySelector('editable-table-display').getData();
+          console.log(temp);
         } else {
           temp = this.querySelector('editable-table-editor').getData();
         }
-        console.log(temp);
         for(prop in temp){
           if(prop !== 'data') {
             this[prop] = temp[prop];
