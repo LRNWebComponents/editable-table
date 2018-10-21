@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>editable-table demo</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="../editable-table.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+      .vertical-section-container { width: 95%; max-width: unset; }
+      editable-table, paper-button[raised] {
+        width: 100%;
+      }
+      #table1toggle {
+        text-align: right;
+        width: 100%;
+      }
+      #table1toggle > div {
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="vertical-section-container centered">
+      <h1>editable-table demo</h1>
+      <p>This is a component that allows you to switch between <a href="display.html">editable-table-display</a> and <a href="editor.html">editable-table-editor</a> modes. (See <a href="index.html">documentation</a> for more information.)</p>
+      <demo-snippet>
+        <template>
+          <div id="table1toggle">
+            <div><paper-toggle-button id="table1togglebutton">Edit Mode</paper-toggle-button></div>
+          </div>
+          <editable-table id="table1" 
+            accent-color="indigo"
+            bordered 
+            caption="Is it a sandwich? Food classification chart."
+            column-header 
+            filter
+            row-header 
+            condensed 
+            sort 
+            striped 
+            summary="A table of foods classification by attributes. Each row represents a food with columns for enclosure, contents, and orientation."
+            data='[ [ "Food", "Enclosure", "Contents", "Orientation" ], [ "Hamburger", "one bun, split into two", "meat, vegetables, cheese, and/or condiments", "horizontal" ], [ "Hoagie", "one bun", "meat, vegetables, cheese, and/or condiments", "vertical" ], [ "Hot Dog", "one bun", "meat, vegetables, cheese, and/or condiments", "vertical" ], [ "Hot Pocket", "two crusts sealed together", "meat, vegetables, cheese, and/or condiments", "horizontal" ], [ "Pie", "two crusts sealed together", "fruit or meat, vegetables, and/or cheese", "horizontal" ], [ "Taco", "one shell", "meat, vegetables, cheese, and/or condiments", "vertical" ] ]'>
+          </editable-table>
+          <script>
+            document.getElementById('table1togglebutton').addEventListener('change', (e) => {
+              document.getElementById('table1').toggleEditMode();
+            });
+          </script>
+        </template>
+      </demo-snippet>
+    </div>
+  </body>
+</html>
